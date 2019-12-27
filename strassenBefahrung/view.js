@@ -4,12 +4,18 @@ import "./style.less";
 
 const StrassenBefahrungView = Backbone.View.extend({
     events: {
-        "click .close": "hide"
+        "click .close": "hide",
+        "click .btn-nav": "toggleNavigation",
+        "click .btn-listen": "startPositionChangedListener"
     },
     initialize: function () {
         this.listenTo(this.model, {
             "change:isActive": this.render
         });
+
+        if (this.model.get("isActive") === true) {
+            this.render(this.model, this.model.get("isActive"));
+        }
     },
     model: new StrassenBefahrungModel(),
     className: "strassen-befahrung",
@@ -32,28 +38,56 @@ const StrassenBefahrungView = Backbone.View.extend({
     hide: function () {
         this.model.setIsActive(false);
     },
+
     initInfra3d: function () {
         const infra3d = window.infra3d,
             divId = "infra3d-div",
             url = "https://client-v3.infra3d.ch",
             options = {
-                // "loginurl": "",
-                // "credentials": ["username", "password"],
-                "easting": 8.3078,
-                "northing": 47.0471,
-                "epsg": 4326,
-                "lang": "de",
-                "map": false,
-                "layer": false,
-                "navigation": false
+                loginurl: "https://auth.infra3d.ch/api/v1/login",
+                credentials: ["WOmuenchen", "6tHqJ2"],
+                easting: 11.571,
+                northing: 48.132,
+                epsg: 4326,
+                lang: "de",
+                map: false,
+                layer: false,
+                navigation: false,
+                // origin: "https://geoportal.muenchen.de"
+                origin: "https://localhost:9001"
             };
 
-        console.log(infra3d);
-        console.log(url);
-        
-        
         if (infra3d) {
-            infra3d.init(divId, url, options);
+            infra3d.init(divId, url, options, function () {
+                console.error("Infra3D initialized");
+            }, null);
+        }
+        else {
+            console.error("Infra3D is not loaded!");
+        }
+    },
+    startPositionChangedListener: function () {
+        const infra3d = window.infra3d;
+
+        infra3d.setOnPositionChanged(function (easting) {
+            console.error(easting);
+        }, null);
+    },
+    toggleNavigation: function () {
+        const btnNav = this.$el.find(".btn-nav"),
+            hasClass = btnNav.hasClass("btn-primary");
+
+        if (hasClass) {
+            window.infra3d.setNavigationVisibility(false);
+            // window.infra3d.iframe.contentWindow.postMessage("setNavigationVisibility(false)", window.infra3d.origin);
+            btnNav.removeClass("btn-primary");
+            btnNav.addClass("btn-default");
+        }
+        else {
+            window.infra3d.setNavigationVisibility(true);
+            // window.infra3d.iframe.contentWindow.postMessage("setNavigationVisibility(true)", window.infra3d.origin);
+            btnNav.removeClass("btn-default");
+            btnNav.addClass("btn-primary");
         }
     }
 });
