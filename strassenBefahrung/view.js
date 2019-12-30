@@ -97,8 +97,8 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
                 map: false,
                 layer: false,
                 navigation: false,
-                // origin: "https://geoportal.muenchen.de"
-                origin: "https://localhost:9001"
+                // origin: "https://localhost:9001"
+                origin: window.origin
             };
 
         if (infra3d) {
