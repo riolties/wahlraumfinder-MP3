@@ -2,7 +2,7 @@ import Tool from "../../modules/core/modelList/tool/model";
 import {Pointer} from "ol/interaction.js";
 
 const StrassenBefahrungModel = Tool.extend(/** @lends StrassenBefahrungModel.prototype */{
-    defaults: Object.assign({}, Tool.prototype.defaults, {
+    defaults: Object.assign(Tool.prototype.defaults, {
         id: "strassenBefahrung",
         name: "Straßen-Befahrung",
         glyphicon: "glyphicon-pencil",
@@ -22,9 +22,18 @@ const StrassenBefahrungModel = Tool.extend(/** @lends StrassenBefahrungModel.pro
      * @contructs
      */
     initialize: function () {
+        this.setDefaults();
         this.superInitialize();
     },
 
+    setDefaults: function () {
+        const model = Radio.request("ModelList", "getModelByAttributes", {id: "strassenBefahrung"}),
+            attributes = model.attributes;
+
+        Object.keys(attributes).forEach(key => {
+            this.set(key, attributes[key]);
+        });
+    },
     /**
      * Creates an interaction to place a marker on the map.
      * @fires Core#RadioTriggerMapAddInteraction
