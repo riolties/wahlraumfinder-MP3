@@ -2,12 +2,23 @@ import StrassenBefahrungTemplate from "text-loader!./template.html";
 import StrassenBefahrungModel from "./model";
 import "./style.less";
 
-const StrassenBefahrungView = Backbone.View.extend({
+const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungView.prototype */{
     events: {
         "click .close": "hide",
-        "click .btn-nav": "toggleNavigation",
+        // "click .btn-nav": "toggleNavigation",
         "click .btn-marker": "toggleMarker"
     },
+
+    /**
+     * @class StrassenBefahrungView
+     * @extends Backbone.View
+     * @memberof AddOns.StrassenBefahrung
+     * @listens AddOns.StrassenBefahrung#changeIsActive
+     * @listens AddOns.StrassenBefahrung#InitInfra3d
+     * @fires Sidebar#RadioTriggerSidebarAppend
+     * @fires Sidebar#RadioTriggerSidebarToggle
+     * @contructs
+     */
     initialize: function () {
         this.listenTo(this.model, {
             "change:isActive": this.render,
@@ -20,7 +31,21 @@ const StrassenBefahrungView = Backbone.View.extend({
     },
     model: new StrassenBefahrungModel(),
     className: "strassen-befahrung",
+    /**
+     * @member StrassenBefahrungTemplate
+     * @description Template used to create the View for StrassenBefahrung
+     * @memberof AddOns.StrassenBefahrung
+     */
     template: _.template(StrassenBefahrungTemplate),
+
+    /**
+     * Render function. Opens the sidebar and renders itself in it.
+     * @param {StrassenBefahrungModel} model The views model.
+     * @param {Boolean} isActive Flag if model is active.
+     * @fires Sidebar#RadioTriggerSidebarAppend
+     * @fires Sidebar#RadioTriggerSidebarToggle
+     * @returns {StrassenBefahrungView} - itself
+     */
     render: function (model, isActive) {
         if (isActive) {
             const attr = model.toJSON();
@@ -29,7 +54,6 @@ const StrassenBefahrungView = Backbone.View.extend({
             Radio.trigger("Sidebar", "append", this.el);
             Radio.trigger("Sidebar", "toggle", true, "50%");
             this.addPostMessageListenser();
-            // this.initInfra3d();
         }
         else {
             Radio.trigger("Sidebar", "toggle", false);
@@ -37,10 +61,20 @@ const StrassenBefahrungView = Backbone.View.extend({
         this.delegateEvents();
         return this;
     },
+
+    /**
+     * Deactivates the Tool
+     * @returns {void}
+     */
     hide: function () {
         this.model.setIsActive(false);
     },
 
+    /**
+     * Initializes the infra3d via the api.
+     * @param {Number[]} coord Coordinate Array.
+     * @returns {void}
+     */
     initInfra3d: function (coord) {
         const infra3d = window.infra3d,
             divId = "infra3d-div",
@@ -82,26 +116,35 @@ const StrassenBefahrungView = Backbone.View.extend({
             console.error("position changed!!!");
         }, null);
     },
+    /**
+     * Window listener for post message events
+     * @returns {void}
+     */
     addPostMessageListenser: function () {
         window.addEventListener("message", function (evt) {
             console.error(evt);
         });
     },
-    toggleNavigation: function () {
-        const btnNav = this.$el.find(".btn-nav"),
-            hasClass = btnNav.hasClass("btn-primary");
+    // toggleNavigation: function () {
+    //     const btnNav = this.$el.find(".btn-nav"),
+    //         hasClass = btnNav.hasClass("btn-primary");
 
-        if (hasClass) {
-            this.deactivateButton(".btn-nav");
-            window.infra3d.setNavigationVisibility(false);
-            // window.infra3d.iframe.contentWindow.postMessage("setNavigationVisibility(false)", window.infra3d.origin);
-        }
-        else {
-            this.activateButton(".btn-nav");
-            window.infra3d.setNavigationVisibility(true);
-            // window.infra3d.iframe.contentWindow.postMessage("setNavigationVisibility(true)", window.infra3d.origin);
-        }
-    },
+    //     if (hasClass) {
+    //         this.deactivateButton(".btn-nav");
+    //         window.infra3d.setNavigationVisibility(false);
+    //         // window.infra3d.iframe.contentWindow.postMessage("setNavigationVisibility(false)", window.infra3d.origin);
+    //     }
+    //     else {
+    //         this.activateButton(".btn-nav");
+    //         window.infra3d.setNavigationVisibility(true);
+    //         // window.infra3d.iframe.contentWindow.postMessage("setNavigationVisibility(true)", window.infra3d.origin);
+    //     }
+    // },
+
+    /**
+     * Toggles the ability to set a marker on the map.
+     * @returns {void}
+     */
     toggleMarker: function () {
         const btnNav = this.$el.find(".btn-marker"),
             hasClass = btnNav.hasClass("btn-primary");
@@ -115,13 +158,24 @@ const StrassenBefahrungView = Backbone.View.extend({
             this.model.placeMarkerInMap();
         }
     },
+
+    /**
+     * Activates a button in its content based on the class name.
+     * @param {String} className Classname of button.
+     * @returns {void}
+     */
     activateButton: function (className) {
         const btn = this.$el.find(className);
 
         btn.removeClass("btn-default");
         btn.addClass("btn-primary");
-
     },
+
+    /**
+     * Deactivates a button in its content based on the class name.
+     * @param {String} className Classname of button.
+     * @returns {void}
+     */
     deactivateButton: function (className) {
         const btn = this.$el.find(className);
 
