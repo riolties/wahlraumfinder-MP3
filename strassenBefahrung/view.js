@@ -44,6 +44,7 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
      * @param {Boolean} isActive Flag if model is active.
      * @fires Sidebar#RadioTriggerSidebarAppend
      * @fires Sidebar#RadioTriggerSidebarToggle
+     * @fires MapMarker#RadioTriggerMapMarkerHideMarker
      * @returns {StrassenBefahrungView} - itself
      */
     render: function (model, isActive) {
@@ -64,10 +65,12 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
 
     /**
      * Deactivates the Tool
+     * @fires MapMarker#RadioTriggerMapMarkerHideMarker
      * @returns {void}
      */
     hide: function () {
         this.model.setIsActive(false);
+        Radio.trigger("MapMarker", "hideMarker");
     },
 
     /**
