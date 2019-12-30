@@ -26,11 +26,16 @@ const StrassenBefahrungModel = Tool.extend({
 
         Radio.trigger("Map", "addInteraction", this.get("interaction"));
     },
+    stopMarkerInMap: function () {
+        Radio.trigger("MapMarker", "hideMarker");
+        this.removeInteraction();
+    },
     showMarker: function (coord) {
         Radio.trigger("MapMarker", "showMarker", coord);
     },
     setMarker: function (coord) {
         this.showMarker(coord);
+        Radio.trigger("MapView", "setCenter", coord);
         this.removeInteraction();
         this.trigger("initInfra3d", coord);
     },

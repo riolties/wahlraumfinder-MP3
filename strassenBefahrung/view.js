@@ -108,6 +108,7 @@ const StrassenBefahrungView = Backbone.View.extend({
 
         if (hasClass) {
             this.deactivateButton(".btn-marker");
+            this.model.stopMarkerInMap();
         }
         else {
             this.activateButton(".btn-marker");
