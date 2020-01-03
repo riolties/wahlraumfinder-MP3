@@ -5,7 +5,7 @@
 */
 
 /**
- * @event StrassenBefahrung#InitInfra3d
+ * @event StrassenBefahrung#deactivateButton
  * @memberof AddOns
- * @description Is fired when infra3d should be initialized. Can only be initialized id a click-Coordinate is selected.
+ * @description Is fired when button so set marker should be deactivated
 */
