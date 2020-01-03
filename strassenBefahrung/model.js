@@ -10,11 +10,9 @@ import {GeoJSON} from "ol/format.js";
 function initializeStrassenBefahrungModel () {
     const StrassenBefahrungModel = Radio.request("ModelList", "getModelByAttributes", {id: "strassenBefahrung"}),
         defaults = {
-            id: "strassenBefahrung",
             name: "Straßen-Befahrung",
-            glyphicon: "glyphicon-pencil",
-            interaction: null,
-            layer: undefined,
+            glyphicon: "glyphicon-road",
+            renderToWindow: false,
             styleId: "strassenBefahrung",
             coords: [691604, 5334760] // Mariensäule
         };
