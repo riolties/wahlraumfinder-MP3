@@ -12,7 +12,6 @@ function initializeStrassenBefahrungModel () {
         defaults = {
             name: "Straßen-Befahrung",
             glyphicon: "glyphicon-road",
-            renderToWindow: false,
             styleId: "strassenBefahrung",
             coords: [691604, 5334760] // Mariensäule
         };
@@ -35,6 +34,7 @@ function initializeStrassenBefahrungModel () {
          * @contructs
          */
         initialize: function () {
+            this.set("renderToWindow", false);
             this.superInitialize();
             this.setEpsg(this.getEpsgFromMap());
             this.createEnnLayer();
@@ -182,7 +182,6 @@ function initializeStrassenBefahrungModel () {
                 coord = this.get("coords"),
                 options = {
                     loginurl: "https://auth.infra3d.ch/api/v1/login",
-                    credentials: ["WOmuenchen", "6tHqJ2"],
                     easting: coord[0],
                     northing: coord[1],
                     epsg: this.get("epsg"),
@@ -190,7 +189,13 @@ function initializeStrassenBefahrungModel () {
                     map: false,
                     layer: false,
                     navigation: false
-                };
+                },
+                user = this.get("user"),
+                password = this.get("password");
+
+            if (user && password) {
+                options.credentials = [user, password];
+            }
 
             if (infra3d) {
                 infra3d.init(divId, url, options, this.infra3dInitialized, this);
