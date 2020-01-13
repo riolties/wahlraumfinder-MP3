@@ -13,7 +13,9 @@ function initializeStrassenBefahrungModel () {
             name: "Straßen-Befahrung",
             glyphicon: "glyphicon-road",
             styleId: "strassenBefahrung",
-            coords: [691604, 5334760] // Mariensäule
+            coords: [691604, 5334760], // Mariensäule
+            user: undefined,
+            password: undefined
         };
 
     Object.assign(StrassenBefahrungModel, {
@@ -187,6 +189,7 @@ function initializeStrassenBefahrungModel () {
                     epsg: this.get("epsg"),
                     lang: "de",
                     map: false,
+                    buttons: [],
                     layer: false,
                     navigation: false
                 },
