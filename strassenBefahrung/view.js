@@ -1,6 +1,7 @@
 import StrassenBefahrungTemplate from "text-loader!./template.html";
 import StrassenBefahrungModel from "./model";
 import "./style.less";
+import "./infra3dapi";
 
 const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungView.prototype */{
     events: {
