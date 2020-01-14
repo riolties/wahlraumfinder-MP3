@@ -1,7 +1,6 @@
 import StrassenBefahrungTemplate from "text-loader!./template.html";
 import StrassenBefahrungModel from "./model";
 import "./style.less";
-import "./infra3dapi";
 
 const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungView.prototype */{
     events: {
@@ -29,6 +28,7 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
         if (this.model.get("isActive") === true) {
             this.render(this.model, this.model.get("isActive"));
         }
+        this.loadInfra3dApi();
     },
     model: new StrassenBefahrungModel(),
     className: "strassen-befahrung",
@@ -63,6 +63,12 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
         return this;
     },
 
+    loadInfra3dApi: function () {
+        var script = document.createElement("script");
+
+        script.setAttribute("src", "https://client.infra3d.ch/api/js/infra3dapi.js");
+        document.head.appendChild(script);
+    },
     /**
      * Resets the model
      * @returns {void}
