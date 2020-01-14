@@ -6,6 +6,7 @@ const PerformanceTesterView = Backbone.View.extend(/** @lends PerformanceTesterV
     events: {
         "change #input-num-features": "setNumFeatures",
         "change #input-height": "setHeight",
+        "change #input-interval": "setInterval",
         "click .create-features": "createFeatures",
         "click .delete-features": "deleteFeatures",
         "click .btn-movement-yes": "activateMovement",
@@ -44,6 +45,12 @@ const PerformanceTesterView = Backbone.View.extend(/** @lends PerformanceTesterV
 
         this.model.setHeight(height);
     },
+
+    setInterval: function (evt) {
+        const interval = parseInt(evt.target.value, 10);
+
+        this.model.setInterval(interval);
+    },
     createFeatures: function () {
         this.model.createFeatures();
     },
@@ -54,13 +61,13 @@ const PerformanceTesterView = Backbone.View.extend(/** @lends PerformanceTesterV
         this.activateButton(".btn-movement-yes");
         this.deactivateButton(".btn-movement-no");
         this.model.setMovement(true);
-        this.$el.find("#input-interval-time").removeClass("hide");
+        this.$el.find(".interval").removeClass("hide");
     },
     deactivateMovement: function () {
         this.deactivateButton(".btn-movement-yes");
         this.activateButton(".btn-movement-no");
         this.model.setMovement(false);
-        this.$el.find("#input-interval-time").addClass("hide");
+        this.$el.find(".interval").addClass("hide");
     },
     activateButton: function (selector) {
         this.$el.find(selector).removeClass("btn-default");

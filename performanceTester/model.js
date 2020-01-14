@@ -12,7 +12,7 @@ function initializePerformanceTesterModel () {
             numFeatures: 1000,
             extent: [670000, 5320000, 710000, 5350000],
             height: 600,
-            intervalTime: 2000,
+            interval: 2000,
             movement: false
         };
 
@@ -41,7 +41,7 @@ function initializePerformanceTesterModel () {
         },
 
         startMovement: function (features) {
-            const intervalId = setInterval(this.moveFeatures, this.get("intervalTime"), features, this);
+            const intervalId = setInterval(this.moveFeatures, this.get("interval"), features, this);
 
             this.setIntervalId(intervalId);
         },
@@ -104,6 +104,10 @@ function initializePerformanceTesterModel () {
 
         setIntervalId: function (value) {
             this.set("intervalId", value);
+        },
+
+        setInterval: function (value) {
+            this.set("interval", value);
         }
     });
 
