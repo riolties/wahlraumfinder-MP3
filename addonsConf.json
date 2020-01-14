@@ -1,3 +1,4 @@
 {
-    "strassenBefahrung": "view.js"
+    "strassenBefahrung": "view.js",
+    "performanceTester": "view.js"
 }

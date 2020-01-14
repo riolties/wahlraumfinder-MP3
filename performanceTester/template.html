@@ -1,0 +1,37 @@
+<div id="performance-tester">
+
+    <div class="form-group form-group-xs num-features">
+        <label for="input-num-features" class="col-xs-5 col-form-label">Anzahl Features:</label>
+        <div class="col-xs-7">
+            <input id="input-num-features" class="form-control" type="number" value="<%=numFeatures%>">
+        </div>
+    </div>
+
+    <div class="form-group form-group-xs height">
+        <label for="input-height" class="col-xs-5 col-form-label">Z-Koordinate:</label>
+        <div class="col-xs-7">
+            <input id="input-height" class="form-control" type="number" value="<%=height%>">
+        </div>
+    </div>
+
+    <div class="form-group form-group-xs movement">
+        <label for="btn-group-movement" class="col-xs-5 col-form-label">Bewegung:</label>
+        <div id="btn-group-movement" class="col-xs-4 btn-group" role="group">
+            <%if (movement === true) {%>
+                <button type="button" class="btn btn-primary btn-movement-yes">Ja</button>
+                <button type="button" class="btn btn-default btn-movement-no">Nein</button>
+            <%}else {%>
+                <button type="button" class="btn btn-default btn-movement-yes">Ja</button>
+                <button type="button" class="btn btn-primary btn-movement-no">Nein</button>
+            <%}%>
+        </div>
+        <div class="col-xs-3">
+            <input id="input-interval-time" class="form-control <% if(movement === false) {print('hide');}%>" type="number" step="500" value="<%=intervalTime%>">
+        </div>
+    </div>
+
+    <div class="form-group form-group-xs movement">
+        <button class="btn btn-primary create-features col-xs-5" type="button"><span>Features erzeugen</span></button>
+        <button class="btn btn-primary delete-features col-xs-5 float-right" type="button"><span>Features entfernen</span></button>
+    </div>
+</div>
