@@ -49,7 +49,8 @@ function initializeStrassenBefahrungModel () {
          * @returns {Number} - EPSG code
          */
         getEpsgFromMap: function () {
-            const epsgCodeString = Radio.request("MapView", "getProjection").getCode(),
+            const projection = Radio.request("MapView", "getProjection"),
+                epsgCodeString = projection ? projection.getCode() : "EPSG:25832",
                 epsgCodeNumber = parseInt(epsgCodeString.split(":")[1], 10);
 
             return epsgCodeNumber;
@@ -80,8 +81,12 @@ function initializeStrassenBefahrungModel () {
                 }),
                 styleModel = Radio.request("StyleList", "returnModelById", this.get("styleId"));
 
-            feature.setStyle(styleModel.createStyle(feature, false));
-            layer.getSource().addFeature(feature);
+            if (styleModel) {
+                feature.setStyle(styleModel.createStyle(feature, false));
+            }
+            if (layer) {
+                layer.getSource().addFeature(feature);
+            }
             this.setLayer(layer);
         },
 
