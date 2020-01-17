@@ -16,7 +16,7 @@ function initializePerformanceTesterModel () {
             movement: false
         };
 
-    Object.assign(PerformanceTesterModel, {
+    Object.assign(PerformanceTesterModel, /** @lends PerformanceTesterModel.prototype */ {
         attributes: Object.assign(defaults, PerformanceTesterModel.attributes),
         initialize: function () {
             const layer = Radio.request("Map", "createLayerIfNotExists", "performanceTest");

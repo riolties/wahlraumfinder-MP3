@@ -18,7 +18,7 @@ function initializeStrassenBefahrungModel () {
             password: undefined
         };
 
-    Object.assign(StrassenBefahrungModel, {
+    Object.assign(StrassenBefahrungModel, /** @lends StrassenBefahrungModel.prototype */{
         attributes: Object.assign(defaults, StrassenBefahrungModel.attributes),
 
         /**
