@@ -23,6 +23,7 @@ function initializePerformanceTesterModel () {
 
             this.superInitialize();
             this.setLayer(layer);
+            this.setSupportedIn3d(["performanceTester"]);
         },
 
         createFeatures: function () {
@@ -108,6 +109,9 @@ function initializePerformanceTesterModel () {
 
         setInterval: function (value) {
             this.set("interval", value);
+        },
+        setSupportedIn3d: function (value) {
+            this.set("supportedIn3d", value);
         }
     });
 
