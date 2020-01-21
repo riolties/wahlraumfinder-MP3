@@ -41,6 +41,7 @@ function initializeStrassenBefahrungModel () {
             this.setEpsg(this.getEpsgFromMap());
             this.createEnnLayer();
             this.createLayer();
+            this.setSupportedIn3d(["strassenBefahrung"]);
         },
 
         /**
@@ -323,6 +324,15 @@ function initializeStrassenBefahrungModel () {
          */
         setCoords: function (value) {
             this.set("coords", value);
+        },
+
+        /**
+         * Setter for attribute "supportedIn3d". Needed for 3d mode
+         * @param {String[]} value The id of th toolname.
+         * @returns {void}
+         */
+        setSupportedIn3d: function (value) {
+            this.set("supportedIn3d", value);
         }
     });
 
