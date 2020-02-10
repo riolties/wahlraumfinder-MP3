@@ -12,7 +12,9 @@ function initializeStrassenBefahrungModel () {
         defaults = {
             name: "Straßen-Befahrung",
             glyphicon: "glyphicon-road",
-            styleId: "strassenBefahrung",
+            styleId: [
+                {id: "strassenBefahrung_woman", name: "Style: Woman"}
+            ],
             coords: [691604, 5334760], // Mariensäule
             user: undefined,
             password: undefined
@@ -41,6 +43,7 @@ function initializeStrassenBefahrungModel () {
             this.setEpsg(this.getEpsgFromMap());
             this.createEnnLayer();
             this.createLayer();
+            this.styleFeature(this.get("styleId")[0].id);
             this.setSupportedIn3d(["strassenBefahrung"]);
         },
 
@@ -79,16 +82,33 @@ function initializeStrassenBefahrungModel () {
             const layer = Radio.request("Map", "createLayerIfNotExists", "strassenBefahrung"),
                 feature = new Feature({
                     geometry: new Point([])
-                }),
-                styleModel = Radio.request("StyleList", "returnModelById", this.get("styleId"));
+                });
 
-            if (styleModel) {
-                feature.setStyle(styleModel.createStyle(feature, false));
-            }
             if (layer) {
                 layer.getSource().addFeature(feature);
             }
             this.setLayer(layer);
+        },
+
+        styleFeature: function (styleId) {
+            const layer = this.get("layer"),
+                feature = layer.getSource().getFeatures()[0],
+                oldStyle = feature.getStyle(),
+                oldImage = oldStyle ? oldStyle.getImage() : null,
+                rotation = oldImage ? oldImage.getRotation() : null,
+                styleModel = Radio.request("StyleList", "returnModelById", styleId);
+            let newStyle,
+                newImage;
+
+            if (styleModel) {
+                feature.setStyle(styleModel.createStyle(feature, false));
+
+                if (rotation) {
+                    newStyle = feature.getStyle() || null;
+                    newImage = newStyle ? newStyle.getImage() : null;
+                    newImage.setRotation(rotation);
+                }
+            }
         },
 
         /**

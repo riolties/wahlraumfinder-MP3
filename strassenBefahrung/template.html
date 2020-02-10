@@ -7,6 +7,11 @@
     <div id="infra3d-btn-list">
         <button class="btn btn-default btn-marker" title="Platzieren Sie den Marker in der Karte um dort mit der Strassenbefahrung zu starten."><span class="glyphicon glyphicon-map-marker"></span>Platziere Marker in Karte</button>
         <button class="btn btn-default btn-nav" title="Wechseln Sie zwischen den verfügbaren Kameras"><span class="glyphicon glyphicon-list"></span>Kamera wechseln</button>
+        <select class="btn btn-default style">
+            <%styleId.forEach(function (style) {%>
+                <option value="<%=style.id%>"><%=style.name%></option>
+            <%})%>
+        </select>
     </div>
     <div id="infra3d-div"></div>
 </div>

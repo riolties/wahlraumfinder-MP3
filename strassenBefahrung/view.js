@@ -6,7 +6,8 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
     events: {
         "click .close": "hide",
         "click .btn-nav": "toggleNavigation",
-        "click .btn-marker": "toggleMarker"
+        "click .btn-marker": "toggleMarker",
+        "change .style": "changeStyle"
     },
 
     /**
@@ -135,6 +136,12 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
 
         btn.removeClass("btn-primary");
         btn.addClass("btn-default");
+    },
+
+    changeStyle: function (evt) {
+        const styleId = evt.target.value;
+
+        this.model.styleFeature(styleId);
     }
 });
 
