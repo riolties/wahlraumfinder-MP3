@@ -100,8 +100,8 @@ function initializeStrassenBefahrungModel () {
          */
         styleFeature: function (styleId) {
             const layer = this.get("markerLayer"),
-                feature = layer.getSource().getFeatures()[0],
-                oldStyle = feature.getStyle(),
+                feature = layer ? layer.getSource().getFeatures()[0] : undefined,
+                oldStyle = feature ? feature.getStyle() : undefined,
                 oldImage = oldStyle ? oldStyle.getImage() : null,
                 rotation = oldImage ? oldImage.getRotation() : null,
                 styleModel = Radio.request("StyleList", "returnModelById", styleId);
@@ -184,7 +184,9 @@ function initializeStrassenBefahrungModel () {
          * @returns {void}
          */
         hideMarker: function () {
-            this.get("markerLayer").setVisible(false);
+            if (this.get("markerLayer")) {
+                this.get("markerLayer").setVisible(false);
+            }
         },
 
         /**
