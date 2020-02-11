@@ -42,7 +42,8 @@ function initializeStrassenBefahrungModel () {
             this.superInitialize();
             this.setEpsg(this.getEpsgFromMap());
             this.createEnnLayer();
-            this.createLayer();
+            this.createMarkerLayer(this.get("coords"));
+            this.hideMarker();
             this.styleFeature(this.get("styleId")[0].id);
             this.setSupportedIn3d(["strassenBefahrung"]);
         },
@@ -74,24 +75,31 @@ function initializeStrassenBefahrungModel () {
         /**
          * Creates an Layer for the marker.
          * Sets the style on the feature.
+         * @param {Number[]} coords Coordinates of feature
          * @fires Core#RadioRequestMapCreateLayerIfNotExists
-         * @fires VectorStyle#RadioRequestStyleListReturnModelById
          * @returns {void}
          */
-        createLayer: function () {
+        createMarkerLayer: function (coords) {
             const layer = Radio.request("Map", "createLayerIfNotExists", "strassenBefahrung"),
                 feature = new Feature({
-                    geometry: new Point([])
+                    geometry: new Point(coords)
                 });
 
             if (layer) {
                 layer.getSource().addFeature(feature);
             }
-            this.setLayer(layer);
+
+            this.setMarkerLayer(layer);
         },
 
+        /**
+         * Styles the Feature
+         * @param {String} styleId Id of style
+         * @fires VectorStyle#RadioRequestStyleListReturnModelById
+         * @returns {void}
+         */
         styleFeature: function (styleId) {
-            const layer = this.get("layer"),
+            const layer = this.get("markerLayer"),
                 feature = layer.getSource().getFeatures()[0],
                 oldStyle = feature.getStyle(),
                 oldImage = oldStyle ? oldStyle.getImage() : null,
@@ -156,7 +164,7 @@ function initializeStrassenBefahrungModel () {
          * @returns {void}
          */
         showMarker: function (coord, orientation) {
-            const layer = this.get("layer"),
+            const layer = this.get("markerLayer"),
                 feature = layer.getSource().getFeatures()[0],
                 style = feature.getStyle(),
                 image = style.getImage();
@@ -176,7 +184,7 @@ function initializeStrassenBefahrungModel () {
          * @returns {void}
          */
         hideMarker: function () {
-            this.get("layer").setVisible(false);
+            this.get("markerLayer").setVisible(false);
         },
 
         /**
@@ -275,7 +283,7 @@ function initializeStrassenBefahrungModel () {
          */
         setOnPositionChanged: function () {
             window.infra3d.setOnPositionChanged(function (easting, northing, height, epsg, orientation) {
-                this.showMarker([easting, northing], orientation);
+                this.showMarker([easting, northing, height], orientation);
             }, this);
         },
 
@@ -315,8 +323,8 @@ function initializeStrassenBefahrungModel () {
          * @param {ol/Layer} value The layer.
          * @returns {void}
          */
-        setLayer: function (value) {
-            this.set("layer", value);
+        setMarkerLayer: function (value) {
+            this.set("markerLayer", value);
         },
 
         /**
