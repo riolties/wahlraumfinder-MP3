@@ -5,7 +5,8 @@ import "./style.less";
 const PendlerAnimationView = Backbone.View.extend({
     events: {
         "change #select-class": "selectClass",
-        "change .select-level": "selectLevel"
+        "change .select-level": "selectLevel",
+        "change .select-top-most": "selectTopMost"
     },
 
     initialize: function () {
@@ -40,6 +41,11 @@ const PendlerAnimationView = Backbone.View.extend({
             level = parseInt(evt.target.attributes.level.value, 10);
 
         this.model.selectLevel(level, value);
+    },
+    selectTopMost: function (evt) {
+        const value = parseInt(evt.target.value, 10);
+
+        this.model.selectTopMost(value);
     }
 });
 

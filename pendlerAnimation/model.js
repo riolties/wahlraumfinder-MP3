@@ -11,7 +11,13 @@ function initializePendlerAnimationModel () {
             url: "",
             classes: [],
             selectedClass: {},
-            currentLevel: 0
+            currentLevel: 0,
+            colors: [],
+            attrCount: "anzahl",
+            legend: [],
+            topMost: [],
+            selectedTopMost: undefined,
+            sort: "desc"
         };
 
     Object.assign(PendlerAnimationModel, {
@@ -31,7 +37,18 @@ function initializePendlerAnimationModel () {
                 }
             });
             this.superInitialize();
+            this.prepareSelectedTopMost();
             this.loadData(dataType, url);
+        },
+        prepareSelectedTopMost: function () {
+            const topMost = this.get("topMost");
+            let selectedTopMost = this.get("selectedTopMost");
+
+            if (Array.isArray(topMost) && topMost.length > 0 && !selectedTopMost) {
+                selectedTopMost = topMost[0];
+            }
+
+            this.setSelectedTopMost(selectedTopMost);
         },
 
         loadData: function (dataType, url) {
@@ -64,6 +81,7 @@ function initializePendlerAnimationModel () {
 
             selectedClass = this.prepareNextLevel(selectedClass, 0);
             selectedClass.levels = this.unsetSelectedValues(selectedClass.levels);
+            this.resetLegend();
             this.setSelectedClass(selectedClass);
             this.setCurrentLevel(0);
             this.render();
@@ -75,18 +93,135 @@ function initializePendlerAnimationModel () {
                 nextLevel = level + 1,
                 hasNextLevel = nextLevel < maxLevel;
 
-            selectedClass.levels[level].selectedValue = selection;
             if (hasNextLevel) {
                 selectedClass = this.prepareNextLevel(selectedClass, nextLevel);
                 this.setCurrentLevel(level);
+                this.resetLegend();
             }
             else {
-                console.log(this.get("filteredFeatures"));
+                this.prepareAnimation(selectedClass.levels[level].attr);
             }
+            selectedClass.levels[level].selectedValue = selection;
             this.setSelectedClass(selectedClass);
             this.render();
         },
 
+        prepareAnimation: function (attr) {
+            let filteredFeatures = this.get("filteredFeatures");
+            const selectedTopMost = this.get("selectedTopMost");
+
+            filteredFeatures = this.colorFeatures(filteredFeatures);
+            filteredFeatures = this.sortFeaturesByAttr(filteredFeatures, this.get("attrCount"), this.get("sort"));
+            filteredFeatures = this.filterFeaturesByTopMost(filteredFeatures, selectedTopMost);
+            this.prepareLegend(filteredFeatures, attr);
+            // this.centerToFocus();
+            // console.log(filteredFeatures);
+            this.render();
+        },
+
+        sortFeaturesByAttr: function (features, attr, mode) {
+            if (mode === "desc") {
+                features.sort(function (a, b) {
+                    return b.get(attr) - a.get(attr);
+                });
+            }
+            else {
+                features.sort(function (a, b) {
+                    return a.get(attr) - b.get(attr);
+                });
+            }
+
+            return features;
+        },
+        filterFeaturesByTopMost: function (features, selectedTopMost) {
+            return features.slice(0, selectedTopMost);
+        },
+
+        // centerToFocus: function () {
+        //     let coords = [];
+        //     const selectedClass = this.get("selectedClass"),
+        //         filteredFeatures = this.get("filteredFeatures");
+
+        //     if (selectedClass.name === "Wohnort") {
+        //         coords = filteredFeatures[0].getGeometry().getFirstCoordinate();
+        //     }
+        //     else {
+        //         coords = filteredFeatures[0].getGeometry().getLastCoordinate();
+        //     }
+
+        //     Radio.trigger("MapView", "setCenter", coords);
+        //     Radio.trigger("MapMarker", "showMarker", coords);
+        // },
+        prepareLegend: function (filteredFeatures, attr) {
+            const legend = this.createLegend(filteredFeatures, attr);
+
+            this.setLegend(legend);
+        },
+        createLegend: function (features, attr) {
+            const legend = [];
+
+            features.forEach(feature => {
+                legend.push({
+                    count: feature.get(this.get("attrCount")),
+                    color: this.rgbaArrayToString(feature.color),
+                    name: feature.get(attr)
+                });
+            }, this);
+
+            return legend;
+        },
+        rgbaArrayToString: function (rgbArray) {
+            let rgbString = "";
+
+            if (rgbArray.length === 3) {
+                rgbString = "rgb(";
+            }
+            else if (rgbArray.length === 4) {
+                rgbString = "rgba(";
+            }
+            rgbString += rgbArray.toString();
+            rgbString += ")";
+
+            return rgbString;
+        },
+        colorFeatures: function (features) {
+            let colors = this.get("colors");
+
+            // Wenn zu wenig Farben konfiguriert wurden wird ein alternatives Farbschema berechnet und angewendet (als Fallback)
+            if (colors.length < features.length) {
+                console.warn("Die Anzahl an konfigurierten Farben reicht zur Darstellung der Ergebnisse nicht aus. Generiere ein alternatives Farbschema.");
+                colors = this.generateColors(features.length);
+            }
+
+            // Füge eine Farbe zur Darstellung hinzu
+            for (let i = 0; i < features.length; i++) {
+                features[i].color = colors[i];
+            }
+
+            return features;
+        },
+
+        generateColors: function (amount) {
+            const colors = [],
+                max = 255,
+                min = 0,
+                range = max - min;
+            let i = 0,
+                red,
+                green,
+                blue,
+                alpha;
+
+            // generate random rgba-color-arrays
+            for (i = 0; i < amount; i++) {
+                red = Math.floor(Math.random() * range) + min;
+                green = Math.floor(Math.random() * range) + min;
+                blue = Math.floor(Math.random() * range) + min;
+                alpha = 0.75;
+                colors.push([red, green, blue, alpha]);
+            }
+            return colors;
+        },
         unsetSelectedValues: function (levels, index) {
             const levelsWithoutSelectedValues = levels;
 
@@ -101,26 +236,30 @@ function initializePendlerAnimationModel () {
             return levelsWithoutSelectedValues;
         },
         prepareNextLevel: function (selectedClass, level) {
-            const features = this.get("features"),
-                filteredFeatures = this.filterFeaturesByLevel(features, selectedClass, level);
+            const features = this.get("features");
+            let filteredFeatures = [];
 
             selectedClass.levels = this.unsetSelectedValues(selectedClass.levels, level);
+            filteredFeatures = this.filterFeaturesByLevel(features, selectedClass);
             selectedClass.levels[level].values = this.getFeatureValuesByLevel(filteredFeatures, selectedClass.levels[level]);
+
+            this.setFilteredFeatures(filteredFeatures);
             return selectedClass;
         },
 
-        filterFeaturesByLevel: function (features, selectedClass, index) {
+        filterFeaturesByLevel: function (features, selectedClass) {
             let filteredFeatures = features;
             const levels = selectedClass.levels;
 
-            levels.forEach((level, index2) => {
-                if (index2 < index) {
+            levels.forEach(level => {
+                if (level.selectedValue) {
                     filteredFeatures = filteredFeatures.filter(feature => {
                         return feature.get(level.attr) === level.selectedValue;
                     });
                 }
+                console.log(filteredFeatures);
+
             });
-            this.setFilteredFeatures(filteredFeatures);
             return filteredFeatures;
         },
 
@@ -136,9 +275,22 @@ function initializePendlerAnimationModel () {
             return values;
         },
 
+        selectTopMost: function (value) {
+            const selectedClass = this.get("selectedClass"),
+                level = selectedClass.levels.length - 1;
+
+            this.setSelectedTopMost(value);
+            this.prepareAnimation(selectedClass.levels[level].attr);
+        },
+
+        resetLegend: function () {
+            this.setLegend([]);
+        },
+
         render: function () {
             this.trigger("render", this, true);
         },
+
         setFeatures: function (value) {
             this.set("features", value);
         },
@@ -150,6 +302,12 @@ function initializePendlerAnimationModel () {
         },
         setFilteredFeatures: function (value) {
             this.set("filteredFeatures", value);
+        },
+        setLegend: function (value) {
+            this.set("legend", value);
+        },
+        setSelectedTopMost: function (value) {
+            this.set("selectedTopMost", value);
         }
     });
 

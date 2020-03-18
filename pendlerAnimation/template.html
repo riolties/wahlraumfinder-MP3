@@ -30,4 +30,30 @@
             </div>
         <%}%>
     <%});%>
-<%};%>
+    <%if (topMost.length > 0){%>
+        <div class="form-group">
+            <select class="form-control select-top-most">
+                <option disabled selected hidden>TopMost</option>
+                <% topMost.forEach(function (top) { %>
+                    <% if (top === selectedTopMost) { %>
+                        <option selected value="<%=top%>">Top <%= top %></option>
+                    <% }
+                    else { %>
+                        <option value="<%=top%>">Top <%= top %></option>
+                    <% } %>
+                <% }); %>
+            </select>
+        </div>
+    <%}%>
+<%}%>
+<% if (legend.length > 0) { %>
+    <table class="table">
+        <% legend.forEach(function(legendPart){ %>
+            <tr>
+                <td>
+                    <div class="form-group pull-left animation_legend" style="background-color:<%= legendPart.color %>"></div></td>
+                <td><%= legendPart.name %>: <%= legendPart.count %> Personen</td>
+            </tr>
+        <% }); %>
+    </table>
+<%}%>
