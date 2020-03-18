@@ -14,12 +14,12 @@
 </div>
 <% if (selectedClass.hasOwnProperty("levels")) {%>
     <% selectedClass.levels.forEach(function(level, index){%>
-        <%if (level.values && level.values.length > 0){%>
+        <%if (level.hasOwnProperty("values") && level.values.length > 0){%>
             <div class="form-group">
-                <select class="form-control select-level" level="<%=index + 1%>">
+                <select class="form-control select-level" level="<%=index%>">
                     <option disabled selected hidden><%=level.title%></option>
                     <% level.values.forEach(function (element) { %>
-                        <% if (level.selectedValue && element === level.selectedValue) { %>
+                        <% if (level.hasOwnProperty("selectedValue") && element === level.selectedValue) { %>
                             <option selected><%= element %></option>
                         <% }
                         else { %>

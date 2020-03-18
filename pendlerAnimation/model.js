@@ -58,15 +58,70 @@ function initializePendlerAnimationModel () {
             return features;
         },
         selectClass: function (className) {
-            const features = this.get("features"),
-                selectedClass = this.get("classes").filter(classPart => {
-                    return classPart.name === className;
-                })[0];
+            let selectedClass = this.get("classes").filter(classPart => {
+                return classPart.name === className;
+            })[0];
 
-            selectedClass.levels[0].values = this.getFeatureValuesByLevel(features, selectedClass.levels[0]);
+            selectedClass = this.prepareNextLevel(selectedClass, 0);
+            selectedClass.levels = this.unsetSelectedValues(selectedClass.levels);
             this.setSelectedClass(selectedClass);
             this.setCurrentLevel(0);
             this.render();
+        },
+
+        selectLevel: function (level, selection) {
+            let selectedClass = this.get("selectedClass");
+            const maxLevel = selectedClass.levels.length,
+                nextLevel = level + 1,
+                hasNextLevel = nextLevel < maxLevel;
+
+            selectedClass.levels[level].selectedValue = selection;
+            if (hasNextLevel) {
+                selectedClass = this.prepareNextLevel(selectedClass, nextLevel);
+                this.setCurrentLevel(level);
+            }
+            else {
+                console.log(this.get("filteredFeatures"));
+            }
+            this.setSelectedClass(selectedClass);
+            this.render();
+        },
+
+        unsetSelectedValues: function (levels, index) {
+            const levelsWithoutSelectedValues = levels;
+
+            levelsWithoutSelectedValues.forEach((level, index2) => {
+                if (index && index === index2) {
+                    level.selectedValue = undefined;
+                }
+                else {
+                    level.selectedValue = undefined;
+                }
+            });
+            return levelsWithoutSelectedValues;
+        },
+        prepareNextLevel: function (selectedClass, level) {
+            const features = this.get("features"),
+                filteredFeatures = this.filterFeaturesByLevel(features, selectedClass, level);
+
+            selectedClass.levels = this.unsetSelectedValues(selectedClass.levels, level);
+            selectedClass.levels[level].values = this.getFeatureValuesByLevel(filteredFeatures, selectedClass.levels[level]);
+            return selectedClass;
+        },
+
+        filterFeaturesByLevel: function (features, selectedClass, index) {
+            let filteredFeatures = features;
+            const levels = selectedClass.levels;
+
+            levels.forEach((level, index2) => {
+                if (index2 < index) {
+                    filteredFeatures = filteredFeatures.filter(feature => {
+                        return feature.get(level.attr) === level.selectedValue;
+                    });
+                }
+            });
+            this.setFilteredFeatures(filteredFeatures);
+            return filteredFeatures;
         },
 
         getFeatureValuesByLevel: function (features, level) {
@@ -80,17 +135,7 @@ function initializePendlerAnimationModel () {
             values = values.sort();
             return values;
         },
-        selectLevel: function (level, selection) {
-            console.log(level);
-            console.log(selection);
-            const features = this.get("features"),
-                selectedClass = this.get("selectedClass");
 
-            selectedClass.levels[level].values = this.getFeatureValuesByLevel(features, selectedClass.levels[level]);
-            this.setSelectedClass(selectedClass);
-            this.setCurrentLevel(level);
-            this.render();
-        },
         render: function () {
             this.trigger("render", this, true);
         },
@@ -102,6 +147,9 @@ function initializePendlerAnimationModel () {
         },
         setCurrentLevel: function (value) {
             this.set("currentLevel", value);
+        },
+        setFilteredFeatures: function (value) {
+            this.set("filteredFeatures", value);
         }
     });
 
