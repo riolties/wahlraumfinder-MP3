@@ -6,7 +6,8 @@ const PendlerAnimationView = Backbone.View.extend({
     events: {
         "change #select-class": "selectClass",
         "change .select-level": "selectLevel",
-        "change .select-top-most": "selectTopMost"
+        "change .select-top-most": "selectTopMost",
+        "click .start": "start"
     },
 
     initialize: function () {
@@ -46,6 +47,9 @@ const PendlerAnimationView = Backbone.View.extend({
         const value = parseInt(evt.target.value, 10);
 
         this.model.selectTopMost(value);
+    },
+    start: function () {
+        this.model.startAnimation();
     }
 });
 

@@ -1,4 +1,7 @@
 import {GeoJSON} from "ol/format.js";
+import {Point, LineString} from "ol/geom.js";
+import Feature from "ol/Feature.js";
+import {Circle, Fill, Style} from "ol/style.js";
 /**
  * TODO
  * @returns {Object} The model.
@@ -17,7 +20,11 @@ function initializePendlerAnimationModel () {
             legend: [],
             topMost: [],
             selectedTopMost: undefined,
-            sort: "desc"
+            sort: "desc",
+            showPlayButton: false,
+            steps: 50,
+            minPx: 5,
+            maxPx: 20
         };
 
     Object.assign(PendlerAnimationModel, {
@@ -33,7 +40,6 @@ function initializePendlerAnimationModel () {
                     }
                     else {
                         Radio.trigger("Attributions", "removeAttribution", model.get("name"), this.get("attributionText"), "Pendler");
-                        this.hideLines();
                         Radio.trigger("MapMarker", "hideMarker");
                     }
                 }
@@ -86,7 +92,6 @@ function initializePendlerAnimationModel () {
                 classObj.levels = this.unsetSelectedValues(classObj.levels);
             });
             this.setClasses(classes);
-            this.hideLines();
             Radio.trigger("MapMarker", "hideMarker");
 
             selectedClass = classes.filter(classPart => {
@@ -141,27 +146,126 @@ function initializePendlerAnimationModel () {
         prepareAnimation: function (attr, level) {
             const selectedTopMost = this.get("selectedTopMost"),
                 selection = this.get("filteredFeatures")[0],
-                oppositeClassAttr = this.getOppositeClassAttr(attr, level);
+                oppositeClassAttr = this.getOppositeClassAttr(attr, level),
+                attrCount = this.get("attrCount");
             let filteredFeatures = this.filterFeaturesFromSelection(selection, attr);
 
             filteredFeatures = this.colorFeatures(filteredFeatures);
-            filteredFeatures = this.sortFeaturesByAttr(filteredFeatures, this.get("attrCount"), this.get("sort"));
+            filteredFeatures = this.sortFeaturesByAttr(filteredFeatures, attrCount, this.get("sort"));
             filteredFeatures = this.filterFeaturesByTopMost(filteredFeatures, selectedTopMost);
             this.prepareLegend(filteredFeatures, oppositeClassAttr);
-            this.centerToFocus(selection);
-            this.showLines(filteredFeatures);
+            this.showMarkerOnFocus(selection);
+            this.zoomToExtent(filteredFeatures);
+            this.setFilteredFeatures(filteredFeatures);
+            this.setMinVal(_.last(filteredFeatures).get(attrCount));
+            this.setMaxVal(_.first(filteredFeatures).get(attrCount));
+            this.prepareLineStringLayer(filteredFeatures, attrCount, oppositeClassAttr);
+            this.setShowPlayButton(true);
             this.render();
         },
-        showLines: function (filteredFeatures) {
+
+        prepareLineStringLayer: function (relevantFeatures, attrCount, oppositeClassAttr) {
             const layer = this.get("layer");
+            let startPoint,
+                endPoint,
+                steps,
+                directionX,
+                directionY,
+                lineCoords,
+                line,
+                newEndPt,
+                i,
+                anzahlPendler,
+                gemeinde;
 
-            this.hideLines(layer);
-            layer.getSource().addFeatures(filteredFeatures);
+            layer.getSource().clear();
+            relevantFeatures.forEach(feature => {
+                startPoint = feature.getGeometry().getFirstCoordinate();
+                endPoint = feature.getGeometry().getLastCoordinate();
+                steps = this.get("steps");
+                directionX = (endPoint[0] - startPoint[0]) / steps;
+                directionY = (endPoint[1] - startPoint[1]) / steps;
+                lineCoords = [];
+                anzahlPendler = feature.get(attrCount);
+                gemeinde = feature.get(oppositeClassAttr);
+
+                for (i = 0; i <= steps; i++) {
+                    newEndPt = new Point([startPoint[0] + (i * directionX), startPoint[1] + (i * directionY), 0]);
+
+                    lineCoords.push(newEndPt.getCoordinates());
+                }
+
+                line = new Feature({
+                    geometry: new LineString(lineCoords),
+                    anzahlPendler: anzahlPendler,
+                    gemeindeName: gemeinde,
+                    color: feature.color
+                });
+
+                layer.getSource().addFeature(line);
+            });
+
         },
-        hideLines: function (layer) {
-            const layerToHide = layer ? layer : this.get("layer");
 
-            layerToHide.getSource().clear();
+        startAnimation: function () {
+            console.log("starting animation");
+            const animationLayer = Radio.request("Map", "createLayerIfNotExists", "animationLayer");
+
+            animationLayer.getSource().clear();
+            this.setAnimationLayer(animationLayer);
+            this.setPostcomposeListener(Radio.request("Map", "registerListener", "postcompose", this.moveFeature.bind(this)));
+            this.setAnimating(true);
+            this.setNow(new Date().getTime());
+            Radio.trigger("Map", "render");
+        },
+
+        moveFeature: function (event) {
+            const vectorContext = event.vectorContext,
+                frameState = event.frameState,
+                features = this.get("layer").getSource().getFeatures(),
+                elapsedTime = frameState.time - this.get("now"),
+                index = Math.round(elapsedTime / 100);
+
+
+            if (this.get("animating")) {
+                this.draw(vectorContext, features, index);
+                Radio.trigger("Map", "render");
+            }
+        },
+        draw: function (vectorContext, features, index) {
+            let currentPoint,
+                newFeature,
+                coordinates,
+                style;
+            const attrCount = this.get("attrCount");
+
+            features.forEach(feature => {
+                coordinates = feature.getGeometry().getCoordinates();
+                style = this.preparePointStyle(feature.get(attrCount), feature.get("color"));
+                console.log(coordinates);
+                console.log(index);
+
+                currentPoint = new Point(coordinates[index]);
+                newFeature = new Feature(currentPoint);
+                vectorContext.drawFeature(newFeature, style);
+            }, this);
+        },
+        preparePointStyle: function (value, color) {
+            const minVal = this.get("minVal"),
+                maxVal = this.get("maxVal"),
+                minPx = this.get("minPx"),
+                maxPx = this.get("maxPx"),
+                percent = (value * 100) / (maxVal - minVal),
+                pixel = ((maxPx - minPx) / 100) * percent,
+                radius = Math.round(minPx + pixel),
+                style = new Style({
+                    image: new Circle({
+                        radius: radius,
+                        fill: new Fill({color: color})
+                    })
+                });
+
+            return style;
         },
         getOppositeClassAttr: function (attr, level) {
             const classes = this.get("classes"),
@@ -174,7 +278,25 @@ function initializePendlerAnimationModel () {
 
             return oppositeClassAttr;
         },
-        centerToFocus: function (selection) {
+        zoomToExtent: function (features) {
+            const extent = this.calculateExtent(features);
+
+            Radio.trigger("Map", "zoomToExtent", extent);
+        },
+        calculateExtent: function (features) {
+            var extent = [9999999, 9999999, 0, 0];
+
+            features.forEach(feature => {
+                var featureExtent = feature.getGeometry().getExtent();
+
+                extent[0] = featureExtent[0] < extent[0] ? featureExtent[0] : extent[0];
+                extent[1] = featureExtent[1] < extent[1] ? featureExtent[1] : extent[1];
+                extent[2] = featureExtent[2] > extent[2] ? featureExtent[2] : extent[2];
+                extent[3] = featureExtent[3] > extent[3] ? featureExtent[3] : extent[3];
+            });
+            return extent;
+        },
+        showMarkerOnFocus: function (selection) {
             let coords = [];
             const classes = this.get("classes"),
                 selectedClass = this.get("selectedClass"),
@@ -187,7 +309,6 @@ function initializePendlerAnimationModel () {
                 coords = selection.getGeometry().getLastCoordinate();
             }
 
-            Radio.trigger("MapView", "setCenter", coords);
             Radio.trigger("MapMarker", "showMarker", coords);
         },
         prepareLegend: function (filteredFeatures, attr) {
@@ -366,6 +487,27 @@ function initializePendlerAnimationModel () {
         },
         setLayer: function (value) {
             this.set("layer", value);
+        },
+        setShowPlayButton: function (value) {
+            this.set("showPlayButton", value);
+        },
+        setPostcomposeListener: function (value) {
+            this.set("postcomposeListener", value);
+        },
+        setAnimationLayer: function (value) {
+            this.set("animationLayer", value);
+        },
+        setAnimating: function (value) {
+            this.set("animating", value);
+        },
+        setNow: function (value) {
+            this.set("now", value);
+        },
+        setMinVal: function (value) {
+            this.set("minVal", value);
+        },
+        setMaxVal: function (value) {
+            this.set("maxVal", value);
         }
     });
 
