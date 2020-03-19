@@ -33,12 +33,15 @@ function initializePendlerAnimationModel () {
                     }
                     else {
                         Radio.trigger("Attributions", "removeAttribution", model.get("name"), this.get("attributionText"), "Pendler");
+                        this.hideLines();
+                        Radio.trigger("MapMarker", "hideMarker");
                     }
                 }
             });
             this.superInitialize();
             this.prepareSelectedTopMost();
             this.loadData(dataType, url);
+            this.setLayer(Radio.request("Map", "createLayerIfNotExists", "pendler_layer"));
         },
         prepareSelectedTopMost: function () {
             const topMost = this.get("topMost");
@@ -82,8 +85,10 @@ function initializePendlerAnimationModel () {
             classes.forEach(classObj => {
                 classObj.levels = this.unsetSelectedValues(classObj.levels);
             });
-            this.setFilteredFeatures([]);
             this.setClasses(classes);
+            this.hideLines();
+            Radio.trigger("MapMarker", "hideMarker");
+
             selectedClass = classes.filter(classPart => {
                 return classPart.name === className;
             })[0];
@@ -125,10 +130,8 @@ function initializePendlerAnimationModel () {
                 delete levelsWithoutSelectedValues[index].selectedValue;
             }
             else {
-                levelsWithoutSelectedValues.forEach((level, idx) => {
-                    if (idx > index) {
-                        delete level.selectedValue;
-                    }
+                levelsWithoutSelectedValues.forEach(level => {
+                    delete level.selectedValue;
                 });
             }
 
@@ -141,14 +144,24 @@ function initializePendlerAnimationModel () {
                 oppositeClassAttr = this.getOppositeClassAttr(attr, level);
             let filteredFeatures = this.filterFeaturesFromSelection(selection, attr);
 
-
             filteredFeatures = this.colorFeatures(filteredFeatures);
             filteredFeatures = this.sortFeaturesByAttr(filteredFeatures, this.get("attrCount"), this.get("sort"));
             filteredFeatures = this.filterFeaturesByTopMost(filteredFeatures, selectedTopMost);
             this.prepareLegend(filteredFeatures, oppositeClassAttr);
             this.centerToFocus(selection);
-            console.log(filteredFeatures);
+            this.showLines(filteredFeatures);
             this.render();
+        },
+        showLines: function (filteredFeatures) {
+            const layer = this.get("layer");
+
+            this.hideLines(layer);
+            layer.getSource().addFeatures(filteredFeatures);
+        },
+        hideLines: function (layer) {
+            const layerToHide = layer ? layer : this.get("layer");
+
+            layerToHide.getSource().clear();
         },
         getOppositeClassAttr: function (attr, level) {
             const classes = this.get("classes"),
@@ -350,6 +363,9 @@ function initializePendlerAnimationModel () {
         },
         setClasses: function (value) {
             this.set("classes", value);
+        },
+        setLayer: function (value) {
+            this.set("layer", value);
         }
     });
 
