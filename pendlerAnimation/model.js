@@ -75,83 +75,108 @@ function initializePendlerAnimationModel () {
             return features;
         },
         selectClass: function (className) {
-            let selectedClass = this.get("classes").filter(classPart => {
+            const currentLevel = 0,
+                classes = this.get("classes");
+            let selectedClass;
+
+            classes.forEach(classObj => {
+                classObj.levels = this.unsetSelectedValues(classObj.levels);
+            });
+            this.setFilteredFeatures([]);
+            this.setClasses(classes);
+            selectedClass = classes.filter(classPart => {
                 return classPart.name === className;
             })[0];
-
-            selectedClass = this.prepareNextLevel(selectedClass, 0);
-            selectedClass.levels = this.unsetSelectedValues(selectedClass.levels);
+            selectedClass = this.prepareLevel(selectedClass, currentLevel);
             this.resetLegend();
             this.setSelectedClass(selectedClass);
-            this.setCurrentLevel(0);
+            this.setCurrentLevel(currentLevel);
             this.render();
         },
 
         selectLevel: function (level, selection) {
-            let selectedClass = this.get("selectedClass");
+            let selectedClass = this.get("selectedClass"),
+                filteredFeatures = [];
             const maxLevel = selectedClass.levels.length,
                 nextLevel = level + 1,
                 hasNextLevel = nextLevel < maxLevel;
 
+            selectedClass.levels = this.unsetSelectedValues(selectedClass.levels, level);
+            selectedClass.levels[level].selectedValue = selection;
+            filteredFeatures = this.filterFeatures(selectedClass);
+            this.setFilteredFeatures(filteredFeatures);
+
             if (hasNextLevel) {
-                selectedClass = this.prepareNextLevel(selectedClass, nextLevel);
+                selectedClass = this.prepareLevel(selectedClass, nextLevel);
                 this.setCurrentLevel(level);
                 this.resetLegend();
             }
             else {
-                this.prepareAnimation(selectedClass.levels[level].attr);
+                this.prepareAnimation(selectedClass.levels[level].attr, level);
             }
-            selectedClass.levels[level].selectedValue = selection;
             this.setSelectedClass(selectedClass);
             this.render();
         },
 
-        prepareAnimation: function (attr) {
-            let filteredFeatures = this.get("filteredFeatures");
-            const selectedTopMost = this.get("selectedTopMost");
+        unsetSelectedValues: function (levels, index) {
+            const levelsWithoutSelectedValues = levels;
+
+            if (index) {
+                delete levelsWithoutSelectedValues[index].selectedValue;
+            }
+            else {
+                levelsWithoutSelectedValues.forEach((level, idx) => {
+                    if (idx > index) {
+                        delete level.selectedValue;
+                    }
+                });
+            }
+
+            return levelsWithoutSelectedValues;
+        },
+
+        prepareAnimation: function (attr, level) {
+            const selectedTopMost = this.get("selectedTopMost"),
+                selection = this.get("filteredFeatures")[0],
+                oppositeClassAttr = this.getOppositeClassAttr(attr, level);
+            let filteredFeatures = this.filterFeaturesFromSelection(selection, attr);
+
 
             filteredFeatures = this.colorFeatures(filteredFeatures);
             filteredFeatures = this.sortFeaturesByAttr(filteredFeatures, this.get("attrCount"), this.get("sort"));
             filteredFeatures = this.filterFeaturesByTopMost(filteredFeatures, selectedTopMost);
-            this.prepareLegend(filteredFeatures, attr);
-            // this.centerToFocus();
-            // console.log(filteredFeatures);
+            this.prepareLegend(filteredFeatures, oppositeClassAttr);
+            this.centerToFocus(selection);
+            console.log(filteredFeatures);
             this.render();
         },
+        getOppositeClassAttr: function (attr, level) {
+            const classes = this.get("classes"),
+                selectedClass = this.get("selectedClass"),
+                selectedClassName = selectedClass.name,
+                oppositeClass = classes.filter(classObj => {
+                    return classObj.name !== selectedClassName;
+                })[0],
+                oppositeClassAttr = oppositeClass.levels[level].attr;
 
-        sortFeaturesByAttr: function (features, attr, mode) {
-            if (mode === "desc") {
-                features.sort(function (a, b) {
-                    return b.get(attr) - a.get(attr);
-                });
+            return oppositeClassAttr;
+        },
+        centerToFocus: function (selection) {
+            let coords = [];
+            const classes = this.get("classes"),
+                selectedClass = this.get("selectedClass"),
+                indexOfSelectedClass = classes.indexOf(selectedClass);
+
+            if (indexOfSelectedClass === 0) {
+                coords = selection.getGeometry().getFirstCoordinate();
             }
             else {
-                features.sort(function (a, b) {
-                    return a.get(attr) - b.get(attr);
-                });
+                coords = selection.getGeometry().getLastCoordinate();
             }
 
-            return features;
+            Radio.trigger("MapView", "setCenter", coords);
+            Radio.trigger("MapMarker", "showMarker", coords);
         },
-        filterFeaturesByTopMost: function (features, selectedTopMost) {
-            return features.slice(0, selectedTopMost);
-        },
-
-        // centerToFocus: function () {
-        //     let coords = [];
-        //     const selectedClass = this.get("selectedClass"),
-        //         filteredFeatures = this.get("filteredFeatures");
-
-        //     if (selectedClass.name === "Wohnort") {
-        //         coords = filteredFeatures[0].getGeometry().getFirstCoordinate();
-        //     }
-        //     else {
-        //         coords = filteredFeatures[0].getGeometry().getLastCoordinate();
-        //     }
-
-        //     Radio.trigger("MapView", "setCenter", coords);
-        //     Radio.trigger("MapMarker", "showMarker", coords);
-        // },
         prepareLegend: function (filteredFeatures, attr) {
             const legend = this.createLegend(filteredFeatures, attr);
 
@@ -222,52 +247,52 @@ function initializePendlerAnimationModel () {
             }
             return colors;
         },
-        unsetSelectedValues: function (levels, index) {
-            const levelsWithoutSelectedValues = levels;
 
-            levelsWithoutSelectedValues.forEach((level, index2) => {
-                if (index && index === index2) {
-                    level.selectedValue = undefined;
-                }
-                else {
-                    level.selectedValue = undefined;
-                }
-            });
-            return levelsWithoutSelectedValues;
-        },
-        prepareNextLevel: function (selectedClass, level) {
-            const features = this.get("features");
+        filterFeaturesFromSelection: function (selection, attr) {
+            const features = this.get("features"),
+                value = selection.get(attr);
             let filteredFeatures = [];
 
-            selectedClass.levels = this.unsetSelectedValues(selectedClass.levels, level);
-            filteredFeatures = this.filterFeaturesByLevel(features, selectedClass);
-            selectedClass.levels[level].values = this.getFeatureValuesByLevel(filteredFeatures, selectedClass.levels[level]);
-
-            this.setFilteredFeatures(filteredFeatures);
-            return selectedClass;
-        },
-
-        filterFeaturesByLevel: function (features, selectedClass) {
-            let filteredFeatures = features;
-            const levels = selectedClass.levels;
-
-            levels.forEach(level => {
-                if (level.selectedValue) {
-                    filteredFeatures = filteredFeatures.filter(feature => {
-                        return feature.get(level.attr) === level.selectedValue;
-                    });
-                }
-                console.log(filteredFeatures);
-
+            filteredFeatures = features.filter(feature => {
+                return feature.get(attr) === value;
             });
             return filteredFeatures;
         },
+        sortFeaturesByAttr: function (features, attr, mode) {
+            if (mode === "desc") {
+                features.sort(function (a, b) {
+                    return b.get(attr) - a.get(attr);
+                });
+            }
+            else {
+                features.sort(function (a, b) {
+                    return a.get(attr) - b.get(attr);
+                });
+            }
 
-        getFeatureValuesByLevel: function (features, level) {
+            return features;
+        },
+        filterFeaturesByTopMost: function (features, selectedTopMost) {
+            return features.slice(0, selectedTopMost);
+        },
+
+        prepareLevel: function (selectedClass, level) {
+            selectedClass.levels[level].values = this.getFeatureValuesByLevel(selectedClass, level);
+
+            return selectedClass;
+        },
+
+        getFeatureValuesByLevel: function (selectedClass, level) {
+            const levels = selectedClass.levels,
+                filteredFeatures = this.filterFeatures(selectedClass);
             let values = [];
 
-            features.forEach(feature => {
-                values.push(feature.get(level.attr));
+            levels.forEach((lvl, idx) => {
+                if (idx <= level) {
+                    filteredFeatures.forEach(feature => {
+                        values.push(feature.get(lvl.attr));
+                    });
+                }
             });
 
             values = [...new Set(values)];
@@ -275,12 +300,26 @@ function initializePendlerAnimationModel () {
             return values;
         },
 
+        filterFeatures: function (selectedClass) {
+            const levels = selectedClass.levels;
+            let filteredFeatures = this.get("features");
+
+            levels.forEach(level => {
+                if (level.hasOwnProperty("selectedValue")) {
+                    filteredFeatures = filteredFeatures.filter(feature => {
+                        return feature.get(level.attr) === level.selectedValue;
+                    });
+                }
+            });
+            return filteredFeatures;
+        },
+
         selectTopMost: function (value) {
             const selectedClass = this.get("selectedClass"),
                 level = selectedClass.levels.length - 1;
 
             this.setSelectedTopMost(value);
-            this.prepareAnimation(selectedClass.levels[level].attr);
+            this.prepareAnimation(selectedClass.levels[level].attr, level);
         },
 
         resetLegend: function () {
@@ -308,6 +347,9 @@ function initializePendlerAnimationModel () {
         },
         setSelectedTopMost: function (value) {
             this.set("selectedTopMost", value);
+        },
+        setClasses: function (value) {
+            this.set("classes", value);
         }
     });
 
