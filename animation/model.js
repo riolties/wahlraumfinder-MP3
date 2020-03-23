@@ -49,6 +49,7 @@ function initializeAnimationModel () {
                     else {
                         Radio.trigger("Attributions", "removeAttribution", model.get("name"), this.get("attributionText"), "Pendler");
                         Radio.trigger("MapMarker", "hideMarker");
+                        this.stopAnimation();
                     }
                 }
             });
