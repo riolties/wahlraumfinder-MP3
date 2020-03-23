@@ -1,7 +1,7 @@
 import {GeoJSON} from "ol/format.js";
 import {Point, LineString} from "ol/geom.js";
 import Feature from "ol/Feature.js";
-import {Text, Circle, Fill, Style} from "ol/style.js";
+import {Text, Circle, Fill, Stroke, Style} from "ol/style.js";
 import VectorSource from "ol/source/Vector.js";
 import VectorLayer from "ol/layer/Vector.js";
 /**
@@ -188,6 +188,7 @@ function initializeAnimationModel () {
                 name;
 
             layer.getSource().clear();
+
             relevantFeatures.forEach(feature => {
                 startPoint = feature.getGeometry().getFirstCoordinate();
                 endPoint = feature.getGeometry().getLastCoordinate();
@@ -268,6 +269,7 @@ function initializeAnimationModel () {
             features.forEach(feature => {
                 coordinates = feature.getGeometry().getCoordinates();
                 style = this.preparePointStyle(feature.get(attrCount), feature.get("color"), feature.get("name"));
+
                 currentPoint = new Point(coordinates[index]);
                 newFeature = new Feature(currentPoint);
                 newFeature.setStyle(style);
@@ -288,6 +290,13 @@ function initializeAnimationModel () {
                     text: new Text({
                         text: name + ": " + value,
                         offsetX: radius,
+                        fill: new Fill({
+                            color: "#000"
+                        }),
+                        stroke: new Stroke({
+                            color: "#fff",
+                            width: 2
+                        }),
                         textAlign: "left"
                     })
                 });
@@ -297,11 +306,11 @@ function initializeAnimationModel () {
         calculateRadius: function (value) {
             const minVal = this.get("minVal"),
                 maxVal = this.get("maxVal"),
-                deltaMinMaxVal = maxVal - minVal,
+                deltaMinMaxVal = maxVal - minVal === 0 ? 1 : maxVal - minVal,
                 minPx = this.get("minPx"),
                 maxPx = this.get("maxPx"),
                 deltaMinMaxPx = maxPx - minPx,
-                deltaVal = value - minVal,
+                deltaVal = value - minVal === 0 ? 1 : value - minVal,
                 percentage = (deltaVal / deltaMinMaxVal) * 100,
                 radius = Math.round(minPx + (percentage * (deltaMinMaxPx / 100)));
 
