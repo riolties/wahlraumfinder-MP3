@@ -1,5 +1,5 @@
 {
     "strassenBefahrung": "view.js",
     "performanceTester": "view.js",
-    "pendlerAnimation": "view.js"
+    "animation": "view.js"
 }

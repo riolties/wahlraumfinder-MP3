@@ -58,7 +58,14 @@
     </table>
 <%}%>
 <% if (showPlayButton) { %>
-    <button class="btn btn-default pull-right start">
-        <span class="glyphicon glyphicon-play"></span>&nbsp;Start
-    </button>
+    <% if (animating === true) { %>
+        <button class="btn btn-default pull-right reset">
+            <span class="glyphicon glyphicon-stop"></span>&nbsp;Reset
+        </button>
+    <% }
+    else { %>
+        <button class="btn btn-default pull-right start">
+            <span class="glyphicon glyphicon-play"></span>&nbsp;Start
+        </button>
+    <% } %>
 <%}%>

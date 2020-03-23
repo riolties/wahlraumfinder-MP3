@@ -1,13 +1,15 @@
 import {GeoJSON} from "ol/format.js";
 import {Point, LineString} from "ol/geom.js";
 import Feature from "ol/Feature.js";
-import {Circle, Fill, Style} from "ol/style.js";
+import {Text, Circle, Fill, Style} from "ol/style.js";
+import VectorSource from "ol/source/Vector.js";
+import VectorLayer from "ol/layer/Vector.js";
 /**
  * TODO
  * @returns {Object} The model.
  */
-function initializePendlerAnimationModel () {
-    const PendlerAnimationModel = Radio.request("ModelList", "getModelByAttributes", {id: "pendlerAnimation"}),
+function initializeAnimationModel () {
+    const AnimationModel = Radio.request("ModelList", "getModelByAttributes", {id: "animationAddOn"}),
         defaults = {
             attributionText: "&copy; <a href='https://statistik.arbeitsagentur.de/' target='_blank'>Statistik der Bundesagentur für Arbeit</a>",
             dataType: "GeoJSON",
@@ -22,16 +24,22 @@ function initializePendlerAnimationModel () {
             selectedTopMost: undefined,
             sort: "desc",
             showPlayButton: false,
+            animating: false,
             steps: 10,
             minPx: 5,
             maxPx: 20
         };
 
-    Object.assign(PendlerAnimationModel, {
-        attributes: Object.assign(defaults, PendlerAnimationModel.attributes),
+    Object.assign(AnimationModel, {
+        attributes: Object.assign(defaults, AnimationModel.attributes),
         initialize: function () {
             const dataType = this.get("dataType"),
-                url = Radio.request("Util", "getProxyURL", this.get("url"));
+                url = Radio.request("Util", "getProxyURL", this.get("url")),
+                layer = new VectorLayer({
+                    source: new VectorSource(),
+                    alwaysOnTop: true,
+                    style: null
+                });
 
             this.listenTo(this, {
                 "change:isActive": function (model, value) {
@@ -47,7 +55,7 @@ function initializePendlerAnimationModel () {
             this.superInitialize();
             this.prepareSelectedTopMost();
             this.loadData(dataType, url);
-            this.setLayer(Radio.request("Map", "createLayerIfNotExists", "pendler_layer"));
+            this.setLayer(layer);
         },
         prepareSelectedTopMost: function () {
             const topMost = this.get("topMost");
@@ -146,7 +154,7 @@ function initializePendlerAnimationModel () {
         prepareAnimation: function (attr, level) {
             const selectedTopMost = this.get("selectedTopMost"),
                 selection = this.get("filteredFeatures")[0],
-                oppositeClassAttr = this.getOppositeClassAttr(attr, level),
+                oppositeClassAttr = this.getOppositeClassAttr(level),
                 attrCount = this.get("attrCount");
             let filteredFeatures = this.filterFeaturesFromSelection(selection, attr);
 
@@ -157,13 +165,14 @@ function initializePendlerAnimationModel () {
             this.showMarkerOnFocus(selection);
             this.zoomToExtent(filteredFeatures);
             this.setFilteredFeatures(filteredFeatures);
+            this.setMinVal(_.last(filteredFeatures).get(attrCount));
             this.setMaxVal(_.first(filteredFeatures).get(attrCount));
-            this.prepareLineStringLayer(filteredFeatures, attrCount);
+            this.prepareLineStringLayer(filteredFeatures, attrCount, oppositeClassAttr);
             this.setShowPlayButton(true);
             this.render();
         },
 
-        prepareLineStringLayer: function (relevantFeatures, attrCount) {
+        prepareLineStringLayer: function (relevantFeatures, attrCount, oppositeClassAttr) {
             const layer = this.get("layer");
             let startPoint,
                 endPoint,
@@ -174,7 +183,8 @@ function initializePendlerAnimationModel () {
                 line,
                 newEndPt,
                 i,
-                count;
+                count,
+                name;
 
             layer.getSource().clear();
             relevantFeatures.forEach(feature => {
@@ -185,6 +195,7 @@ function initializePendlerAnimationModel () {
                 directionY = (endPoint[1] - startPoint[1]) / steps;
                 lineCoords = [];
                 count = feature.get(attrCount);
+                name = feature.get(oppositeClassAttr);
 
                 for (i = 0; i <= steps; i++) {
                     newEndPt = new Point([startPoint[0] + (i * directionX), startPoint[1] + (i * directionY), 0]);
@@ -197,22 +208,31 @@ function initializePendlerAnimationModel () {
                     color: feature.get("color")
                 });
                 line.set(this.get("attrCount"), count);
-
+                line.set("name", name);
                 layer.getSource().addFeature(line);
             });
 
         },
 
         startAnimation: function () {
-            console.log("starting animation");
-            const animationLayer = Radio.request("Map", "createLayerIfNotExists", "animationLayer");
-
-            animationLayer.getSource().clear();
-            this.setAnimationLayer(animationLayer);
+            this.stopAnimation();
             this.setPostcomposeListener(Radio.request("Map", "registerListener", "postcompose", this.moveFeature.bind(this)));
             this.setAnimating(true);
             this.setNow(new Date().getTime());
             Radio.trigger("Map", "render");
+            this.render();
+        },
+
+        stopAnimation: function (features) {
+            const layer = Radio.request("Map", "createLayerIfNotExists", "animation_layer");
+
+            layer.getSource().clear();
+            Radio.trigger("Map", "unregisterListener", this.get("postcomposeListener"));
+            this.setAnimating(false);
+            this.render();
+            if (features) {
+                layer.getSource().addFeatures(features);
+            }
         },
 
         moveFeature: function (event) {
@@ -221,11 +241,19 @@ function initializePendlerAnimationModel () {
                 features = this.get("layer").getSource().getFeatures(),
                 elapsedTime = frameState.time - this.get("now"),
                 index = Math.round(elapsedTime / 100);
+            let pointFeatures = [];
 
 
-            if (this.get("animating") && index < this.get("steps")) {
+            if (this.get("animating") && index <= this.get("steps")) {
                 this.draw(vectorContext, features, index);
                 Radio.trigger("Map", "render");
+            }
+            else if (index > this.get("steps")) {
+                pointFeatures = this.draw(undefined, features, index - 1);
+                this.stopAnimation(pointFeatures);
+            }
+            else {
+                this.stopAnimation();
             }
         },
         draw: function (vectorContext, features, index) {
@@ -233,39 +261,53 @@ function initializePendlerAnimationModel () {
                 newFeature,
                 coordinates,
                 style;
-            const attrCount = this.get("attrCount");
+            const attrCount = this.get("attrCount"),
+                pointFeatures = [];
 
             features.forEach(feature => {
                 coordinates = feature.getGeometry().getCoordinates();
-                style = this.preparePointStyle(feature.get(attrCount), feature.get("color"));
+                style = this.preparePointStyle(feature.get(attrCount), feature.get("color"), feature.get("name"));
                 currentPoint = new Point(coordinates[index]);
                 newFeature = new Feature(currentPoint);
-                vectorContext.drawFeature(newFeature, style);
+                newFeature.setStyle(style);
+                pointFeatures.push(newFeature);
+                if (vectorContext) {
+                    vectorContext.drawFeature(newFeature, style);
+                }
             }, this);
+            return pointFeatures;
         },
-        preparePointStyle: function (value, color) {
+        preparePointStyle: function (value, color, name) {
             const radius = this.calculateRadius(value),
                 style = new Style({
                     image: new Circle({
                         radius: radius,
                         fill: new Fill({color: color})
+                    }),
+                    text: new Text({
+                        text: name + ": " + value,
+                        offsetX: radius,
+                        textAlign: "left"
                     })
                 });
 
             return style;
         },
         calculateRadius: function (value) {
-            const maxVal = this.get("maxVal"),
+            const minVal = this.get("minVal"),
+                maxVal = this.get("maxVal"),
+                deltaMinMaxVal = maxVal - minVal,
                 minPx = this.get("minPx"),
                 maxPx = this.get("maxPx"),
-                percent = (value * 100) / maxVal,
-                pixel = ((maxPx - minPx) / 100) * percent,
-                radius = Math.round(minPx + pixel);
+                deltaMinMaxPx = maxPx - minPx,
+                deltaVal = value - minVal,
+                percentage = (deltaVal / deltaMinMaxVal) * 100,
+                radius = Math.round(minPx + (percentage * (deltaMinMaxPx / 100)));
 
             return radius;
         },
 
-        getOppositeClassAttr: function (attr, level) {
+        getOppositeClassAttr: function (level) {
             const classes = this.get("classes"),
                 selectedClass = this.get("selectedClass"),
                 selectedClassName = selectedClass.name,
@@ -501,12 +543,15 @@ function initializePendlerAnimationModel () {
         setNow: function (value) {
             this.set("now", value);
         },
+        setMinVal: function (value) {
+            this.set("minVal", value);
+        },
         setMaxVal: function (value) {
             this.set("maxVal", value);
         }
     });
 
-    PendlerAnimationModel.initialize();
-    return PendlerAnimationModel;
+    AnimationModel.initialize();
+    return AnimationModel;
 }
-export default initializePendlerAnimationModel;
+export default initializeAnimationModel;

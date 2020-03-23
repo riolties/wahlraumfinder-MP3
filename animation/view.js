@@ -1,13 +1,14 @@
-import PendlerAnimationTemplate from "text-loader!./template.html";
-import PendlerAnimationModel from "./model.js";
+import AnimationTemplate from "text-loader!./template.html";
+import AnimationModel from "./model.js";
 import "./style.less";
 
-const PendlerAnimationView = Backbone.View.extend({
+const AnimationView = Backbone.View.extend({
     events: {
         "change #select-class": "selectClass",
         "change .select-level": "selectLevel",
         "change .select-top-most": "selectTopMost",
-        "click .start": "start"
+        "click .start": "start",
+        "click .reset": "reset"
     },
 
     initialize: function () {
@@ -18,9 +19,9 @@ const PendlerAnimationView = Backbone.View.extend({
             "render": this.render
         });
     },
-    model: new PendlerAnimationModel(),
-    id: "pendler-animation",
-    template: _.template(PendlerAnimationTemplate),
+    model: new AnimationModel(),
+    id: "animation",
+    template: _.template(AnimationTemplate),
     render: function (model, value) {
         if (value) {
             this.setElement(document.getElementsByClassName("win-body")[0]);
@@ -50,7 +51,10 @@ const PendlerAnimationView = Backbone.View.extend({
     },
     start: function () {
         this.model.startAnimation();
+    },
+    reset: function () {
+        this.model.stopAnimation();
     }
 });
 
-export default PendlerAnimationView;
+export default AnimationView;
