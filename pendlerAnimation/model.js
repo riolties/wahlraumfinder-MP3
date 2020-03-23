@@ -22,7 +22,7 @@ function initializePendlerAnimationModel () {
             selectedTopMost: undefined,
             sort: "desc",
             showPlayButton: false,
-            steps: 50,
+            steps: 10,
             minPx: 5,
             maxPx: 20
         };
@@ -157,14 +157,13 @@ function initializePendlerAnimationModel () {
             this.showMarkerOnFocus(selection);
             this.zoomToExtent(filteredFeatures);
             this.setFilteredFeatures(filteredFeatures);
-            this.setMinVal(_.last(filteredFeatures).get(attrCount));
             this.setMaxVal(_.first(filteredFeatures).get(attrCount));
-            this.prepareLineStringLayer(filteredFeatures, attrCount, oppositeClassAttr);
+            this.prepareLineStringLayer(filteredFeatures, attrCount);
             this.setShowPlayButton(true);
             this.render();
         },
 
-        prepareLineStringLayer: function (relevantFeatures, attrCount, oppositeClassAttr) {
+        prepareLineStringLayer: function (relevantFeatures, attrCount) {
             const layer = this.get("layer");
             let startPoint,
                 endPoint,
@@ -175,8 +174,7 @@ function initializePendlerAnimationModel () {
                 line,
                 newEndPt,
                 i,
-                anzahlPendler,
-                gemeinde;
+                count;
 
             layer.getSource().clear();
             relevantFeatures.forEach(feature => {
@@ -186,8 +184,7 @@ function initializePendlerAnimationModel () {
                 directionX = (endPoint[0] - startPoint[0]) / steps;
                 directionY = (endPoint[1] - startPoint[1]) / steps;
                 lineCoords = [];
-                anzahlPendler = feature.get(attrCount);
-                gemeinde = feature.get(oppositeClassAttr);
+                count = feature.get(attrCount);
 
                 for (i = 0; i <= steps; i++) {
                     newEndPt = new Point([startPoint[0] + (i * directionX), startPoint[1] + (i * directionY), 0]);
@@ -197,10 +194,9 @@ function initializePendlerAnimationModel () {
 
                 line = new Feature({
                     geometry: new LineString(lineCoords),
-                    anzahlPendler: anzahlPendler,
-                    gemeindeName: gemeinde,
-                    color: feature.color
+                    color: feature.get("color")
                 });
+                line.set(this.get("attrCount"), count);
 
                 layer.getSource().addFeature(line);
             });
@@ -227,7 +223,7 @@ function initializePendlerAnimationModel () {
                 index = Math.round(elapsedTime / 100);
 
 
-            if (this.get("animating")) {
+            if (this.get("animating") && index < this.get("steps")) {
                 this.draw(vectorContext, features, index);
                 Radio.trigger("Map", "render");
             }
@@ -242,22 +238,13 @@ function initializePendlerAnimationModel () {
             features.forEach(feature => {
                 coordinates = feature.getGeometry().getCoordinates();
                 style = this.preparePointStyle(feature.get(attrCount), feature.get("color"));
-                console.log(coordinates);
-                console.log(index);
-
                 currentPoint = new Point(coordinates[index]);
                 newFeature = new Feature(currentPoint);
                 vectorContext.drawFeature(newFeature, style);
             }, this);
         },
         preparePointStyle: function (value, color) {
-            const minVal = this.get("minVal"),
-                maxVal = this.get("maxVal"),
-                minPx = this.get("minPx"),
-                maxPx = this.get("maxPx"),
-                percent = (value * 100) / (maxVal - minVal),
-                pixel = ((maxPx - minPx) / 100) * percent,
-                radius = Math.round(minPx + pixel),
+            const radius = this.calculateRadius(value),
                 style = new Style({
                     image: new Circle({
                         radius: radius,
@@ -267,6 +254,17 @@ function initializePendlerAnimationModel () {
 
             return style;
         },
+        calculateRadius: function (value) {
+            const maxVal = this.get("maxVal"),
+                minPx = this.get("minPx"),
+                maxPx = this.get("maxPx"),
+                percent = (value * 100) / maxVal,
+                pixel = ((maxPx - minPx) / 100) * percent,
+                radius = Math.round(minPx + pixel);
+
+            return radius;
+        },
+
         getOppositeClassAttr: function (attr, level) {
             const classes = this.get("classes"),
                 selectedClass = this.get("selectedClass"),
@@ -322,7 +320,7 @@ function initializePendlerAnimationModel () {
             features.forEach(feature => {
                 legend.push({
                     count: feature.get(this.get("attrCount")),
-                    color: this.rgbaArrayToString(feature.color),
+                    color: this.rgbaArrayToString(feature.get("color")),
                     name: feature.get(attr)
                 });
             }, this);
@@ -353,9 +351,9 @@ function initializePendlerAnimationModel () {
             }
 
             // Füge eine Farbe zur Darstellung hinzu
-            for (let i = 0; i < features.length; i++) {
-                features[i].color = colors[i];
-            }
+            features.forEach((feature, index) => {
+                features[index].set("color", colors[index]);
+            });
 
             return features;
         },
@@ -502,9 +500,6 @@ function initializePendlerAnimationModel () {
         },
         setNow: function (value) {
             this.set("now", value);
-        },
-        setMinVal: function (value) {
-            this.set("minVal", value);
         },
         setMaxVal: function (value) {
             this.set("maxVal", value);
