@@ -59,13 +59,19 @@
 <%}%>
 <% if (showPlayButton) { %>
     <% if (animating === true) { %>
-        <button class="btn btn-default pull-right reset">
-            <span class="glyphicon glyphicon-stop"></span>&nbsp;Reset
+        <button class="btn btn-default pull-right stop">
+            <span class="glyphicon glyphicon-stop"></span>&nbsp;Stop
         </button>
-    <% }
-    else { %>
-        <button class="btn btn-default pull-right start">
+        <button class="btn btn-default pull-right reset">
+            <span class="glyphicon glyphicon-trash"></span>&nbsp;Reset
+        </button>
+        <% }
+        else { %>
+            <button class="btn btn-default pull-right start">
             <span class="glyphicon glyphicon-play"></span>&nbsp;Start
+        </button>
+        <button class="btn btn-default pull-right reset">
+            <span class="glyphicon glyphicon-trash"></span>&nbsp;Reset
         </button>
     <% } %>
 <%}%>

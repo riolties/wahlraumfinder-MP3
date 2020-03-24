@@ -8,7 +8,8 @@ const AnimationView = Backbone.View.extend({
         "change .select-level": "selectLevel",
         "change .select-top-most": "selectTopMost",
         "click .start": "start",
-        "click .reset": "reset"
+        "click .reset": "reset",
+        "click .stop": "stop"
     },
 
     initialize: function () {
@@ -20,7 +21,7 @@ const AnimationView = Backbone.View.extend({
         });
     },
     model: new AnimationModel(),
-    id: "animation",
+    id: "animationAddOn",
     template: _.template(AnimationTemplate),
     render: function (model, value) {
         if (value) {
@@ -54,6 +55,9 @@ const AnimationView = Backbone.View.extend({
     },
     reset: function () {
         this.model.stopAnimation();
+    },
+    stop: function () {
+        this.model.pauseAnimation();
     }
 });
 

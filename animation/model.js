@@ -27,7 +27,8 @@ function initializeAnimationModel () {
             animating: false,
             steps: 10,
             minPx: 5,
-            maxPx: 20
+            maxPx: 20,
+            showLineStringLayer: true
         };
 
     Object.assign(AnimationModel, {
@@ -97,6 +98,7 @@ function initializeAnimationModel () {
                 classes = this.get("classes");
             let selectedClass;
 
+            this.stopAnimation();
             classes.forEach(classObj => {
                 classObj.levels = this.unsetSelectedValues(classObj.levels);
             });
@@ -120,6 +122,7 @@ function initializeAnimationModel () {
                 nextLevel = level + 1,
                 hasNextLevel = nextLevel < maxLevel;
 
+            this.stopAnimation();
             selectedClass.levels = this.unsetSelectedValues(selectedClass.levels, level);
             selectedClass.levels[level].selectedValue = selection;
             filteredFeatures = this.filterFeatures(selectedClass);
@@ -169,6 +172,9 @@ function initializeAnimationModel () {
             this.setMinVal(_.last(filteredFeatures).get(attrCount));
             this.setMaxVal(_.first(filteredFeatures).get(attrCount));
             this.prepareLineStringLayer(filteredFeatures, attrCount, oppositeClassAttr);
+            if (this.get("showLineStringLayer")) {
+                this.addLineStringLayerToMap();
+            }
             this.setShowPlayButton(true);
             this.render();
         },
@@ -185,7 +191,8 @@ function initializeAnimationModel () {
                 newEndPt,
                 i,
                 count,
-                name;
+                name,
+                color;
 
             layer.getSource().clear();
 
@@ -198,6 +205,7 @@ function initializeAnimationModel () {
                 lineCoords = [];
                 count = feature.get(attrCount);
                 name = feature.get(oppositeClassAttr);
+                color = feature.get("color");
 
                 for (i = 0; i <= steps; i++) {
                     newEndPt = new Point([startPoint[0] + (i * directionX), startPoint[1] + (i * directionY), 0]);
@@ -207,22 +215,42 @@ function initializeAnimationModel () {
 
                 line = new Feature({
                     geometry: new LineString(lineCoords),
-                    color: feature.get("color")
+                    color: color
                 });
                 line.set(this.get("attrCount"), count);
                 line.set("name", name);
+                line.setStyle(this.createLineStringStyle(color));
                 layer.getSource().addFeature(line);
             });
 
         },
+        createLineStringStyle: function (color) {
+            const style = new Style({
+                stroke: new Stroke({
+                    color: color,
+                    width: 2
+                })
+            });
 
+            return style;
+        },
         startAnimation: function () {
             this.stopAnimation();
             this.setPostcomposeListener(Radio.request("Map", "registerListener", "postcompose", this.moveFeature.bind(this)));
             this.setAnimating(true);
             this.setNow(new Date().getTime());
+            if (this.get("showLineStringLayer")) {
+                this.addLineStringLayerToMap();
+            }
             Radio.trigger("Map", "render");
             this.render();
+        },
+
+        addLineStringLayerToMap: function () {
+            const layer = Radio.request("Map", "createLayerIfNotExists", "animation_layer"),
+                features = this.get("layer").getSource().getFeatures();
+
+            layer.getSource().addFeatures(features);
         },
 
         stopAnimation: function (features) {
@@ -233,16 +261,27 @@ function initializeAnimationModel () {
             this.setAnimating(false);
             this.render();
             if (features) {
+                if (this.get("showLineStringLayer")) {
+                    this.addLineStringLayerToMap();
+                }
                 layer.getSource().addFeatures(features);
             }
+        },
+
+        pauseAnimation: function () {
+            const currentTime = new Date().getTime(),
+                index = this.calculateIndexByElapsedTime(currentTime);
+            let features = this.get("layer").getSource().getFeatures();
+
+            features = this.draw(undefined, features, index);
+            this.stopAnimation(features);
         },
 
         moveFeature: function (event) {
             const vectorContext = event.vectorContext,
                 frameState = event.frameState,
                 features = this.get("layer").getSource().getFeatures(),
-                elapsedTime = frameState.time - this.get("now"),
-                index = Math.round(elapsedTime / 100);
+                index = this.calculateIndexByElapsedTime(frameState.time);
             let pointFeatures = [];
 
 
@@ -257,6 +296,13 @@ function initializeAnimationModel () {
             else {
                 this.stopAnimation();
             }
+        },
+        calculateIndexByElapsedTime: function (time) {
+            const now = this.get("now"),
+                elapsedTime = time - now,
+                index = Math.round(elapsedTime / 100);
+
+            return index;
         },
         draw: function (vectorContext, features, index) {
             let currentPoint,
@@ -448,7 +494,13 @@ function initializeAnimationModel () {
                     return b.get(attr) - a.get(attr);
                 });
             }
+            else if (mode === "asc") {
+                features.sort(function (a, b) {
+                    return a.get(attr) - b.get(attr);
+                });
+            }
             else {
+                console.error("Sort mode '" + mode + "' not implemented yet, sorting desc");
                 features.sort(function (a, b) {
                     return a.get(attr) - b.get(attr);
                 });
@@ -503,6 +555,7 @@ function initializeAnimationModel () {
                 level = selectedClass.levels.length - 1;
 
             this.setSelectedTopMost(value);
+            this.stopAnimation();
             this.prepareAnimation(selectedClass.levels[level].attr, level);
         },
 
