@@ -8,9 +8,7 @@ Das Addon strassenBefahrung bindet die API von Infra3D (https://client.infra3d.c
 |user|nein|String|undefined|User für die Anmeldung im Infra3d-Client. Ist kein user und password angegeben erscheint eine Anmeldemaske.|false|
 |password|nein|String|Password für die Anmeldung im Infra3d-Client. Ist kein user und password angegeben erscheint eine Anmeldemaske.|false|
 |coords|nein|**[Coordinate](#markdown-header-datatypescoordinate)**|[691604, 5334760]|Startkoordinate für den Infra3d-Client.|false|
-|styleId|nein|**[StyleId](#markdown-header-strassenbefahrungstyleid)**[]|[
-                {id: "strassenBefahrung_woman", name: "Style: Woman"}
-            ]|Style-Definitionen für den Marker in der Karte.|false|
+|styleId|nein|**[StyleId](#markdown-header-strassenbefahrungstyleid)**[]|[{id:"strassenBefahrung_woman", name: "Style: Woman"}]|Style-Definitionen für den Marker in der Karte.|false|
 
 **Beispiel**
 ```
