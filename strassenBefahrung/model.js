@@ -26,7 +26,7 @@ function initializeStrassenBefahrungModel () {
         /**
          * @class StrassenBefahrungModel
          * @extends Tool
-         * @memberof AddOns.StrassenBefahrung
+         * @memberof Addons.StrassenBefahrung
          * @fires Core.ModelList#RadioRequestModelListGetModelByAttributes
          * @fires Core#RadioRequestMapViewGetProjection
          * @fires Core#RadioRequestMapCreateLayerIfNotExists
@@ -34,7 +34,7 @@ function initializeStrassenBefahrungModel () {
          * @fires Core#RadioTriggerMapAddInteraction
          * @fires Core#RadioTriggerMapViewSetCenter
          * @fires Core#RadioTriggerMapRemoveInteraction
-         * @fires AddOns.StrassenBefahrung#deactivateButton
+         * @fires Addons.StrassenBefahrung#deactivateButton
          * @contructs
          */
         initialize: function () {
@@ -292,7 +292,7 @@ function initializeStrassenBefahrungModel () {
         /**
          * Removes the interaction from the map.
          * @fires Core#RadioTriggerMapRemoveInteraction
-         * @fires AddOns.StrassenBefahrung#deactivateButton
+         * @fires Addons.StrassenBefahrung#deactivateButton
          * @returns {void}
          */
         removeInteraction: function () {

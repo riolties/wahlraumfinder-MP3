@@ -13,9 +13,9 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
     /**
      * @class StrassenBefahrungView
      * @extends Backbone.View
-     * @memberof AddOns.StrassenBefahrung
-     * @listens AddOns.StrassenBefahrung#changeIsActive
-     * @listens AddOns.StrassenBefahrung#deactivateButton
+     * @memberof Addons.StrassenBefahrung
+     * @listens Addons.StrassenBefahrung#changeIsActive
+     * @listens Addons.StrassenBefahrung#deactivateButton
      * @fires Sidebar#RadioTriggerSidebarAppend
      * @fires Sidebar#RadioTriggerSidebarToggle
      * @contructs
@@ -36,7 +36,7 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
     /**
      * @member StrassenBefahrungTemplate
      * @description Template used to create the View for StrassenBefahrung
-     * @memberof AddOns.StrassenBefahrung
+     * @memberof Addons.StrassenBefahrung
      */
     template: _.template(StrassenBefahrungTemplate),
 

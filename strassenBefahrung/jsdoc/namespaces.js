@@ -1,4 +1,4 @@
 /**
 * @namespace StrassenBefahrung
-* @memberof AddOns
+* @memberof Addons
 */
