@@ -31,8 +31,26 @@ function initializeAnimationModel () {
             showLineStringLayer: true
         };
 
-    Object.assign(AnimationModel, {
+    Object.assign(AnimationModel, /** @lends AnimationModel.prototype */ {
         attributes: Object.assign(defaults, AnimationModel.attributes),
+        /**
+         * @class AnimationModel
+         * @extends Tool
+         * @memberof Addons.Animation
+         * @fires Core#RadioRequestUtilGetProxyURL
+         * @fires Controls.Attributions#RadioTriggerAttributionsCreateAttribution
+         * @fires Controls.Attributions#RadioTriggerAttributionsRemoveAttribution
+         * @fires MapMarker#RadioTriggerMapMarkerHideMarker
+         * @fires MapMarker#RadioTriggerMapMarkerShowMarker
+         * @fires Core#RadioRequestMapCreateLayerIfNotExists
+         * @fires Core#RadioTriggerMapRegisterListener
+         * @fires Core#RadioTriggerMapUnregisterListener
+         * @fires Core#RadioTriggerMapRender
+         * @fires Core#RadioTriggerMapZoomToExtent
+         * @fires Addons.Animation#render
+         * @listens Addons.Animation#changeIsActive
+         * @contructs
+         */
         initialize: function () {
             const dataType = this.get("dataType"),
                 url = Radio.request("Util", "getProxyURL", this.get("url")),
@@ -56,9 +74,16 @@ function initializeAnimationModel () {
             });
             this.superInitialize();
             this.prepareSelectedTopMost();
-            this.loadData(dataType, url);
+            if (url) {
+                this.loadData(dataType, url);
+            }
             this.setLayer(layer);
         },
+
+        /**
+         * Selects the first topMost.
+         * @returns {void}
+         */
         prepareSelectedTopMost: function () {
             const topMost = this.get("topMost");
             let selectedTopMost = this.get("selectedTopMost");
@@ -70,6 +95,12 @@ function initializeAnimationModel () {
             this.setSelectedTopMost(selectedTopMost);
         },
 
+        /**
+         * Loads data and saves the features.
+         * @param {String} dataType Datatype.
+         * @param {String} url url.
+         * @returns {void}
+         */
         loadData: function (dataType, url) {
             let features = [];
 
@@ -79,6 +110,11 @@ function initializeAnimationModel () {
             this.setFeatures(features);
         },
 
+        /**
+         * Loads the Data from GeoJSON datasource.
+         * @param {*} url Url.
+         * @returns {ol/feature[]} - ol features.
+         */
         loadDataFromGeoJson: function (url) {
             const xhr = new XMLHttpRequest(),
                 format = new GeoJSON();
@@ -93,6 +129,13 @@ function initializeAnimationModel () {
             xhr.send();
             return features;
         },
+
+        /**
+         * Function that is triggered when a class is selected.
+         * @param {String} className Class name.
+         * @fires MapMarker#RadioTriggerMapMarkerHideMarker
+         * @returns {void}
+         */
         selectClass: function (className) {
             const currentLevel = 0,
                 classes = this.get("classes");
@@ -115,6 +158,12 @@ function initializeAnimationModel () {
             this.render();
         },
 
+        /**
+         * Function that is triggered when a level is selected.
+         * @param {String} level Level.
+         * @param {String} selection Selection.
+         * @returns {void}
+         */
         selectLevel: function (level, selection) {
             let selectedClass = this.get("selectedClass"),
                 filteredFeatures = [];
@@ -140,6 +189,12 @@ function initializeAnimationModel () {
             this.render();
         },
 
+        /**
+         * Unsets the selected Values.
+         * @param {Object[]} levels Levels.
+         * @param {Number} index Index.
+         * @returns {Object[]} - Levels without selected values.
+         */
         unsetSelectedValues: function (levels, index) {
             const levelsWithoutSelectedValues = levels;
 
@@ -155,6 +210,12 @@ function initializeAnimationModel () {
             return levelsWithoutSelectedValues;
         },
 
+        /**
+         * Prepares the animation.
+         * @param {String} attr Attribute.
+         * @param {*} level Level.
+         * @returns {void}
+         */
         prepareAnimation: function (attr, level) {
             const selectedTopMost = this.get("selectedTopMost"),
                 selection = this.get("filteredFeatures")[0],
@@ -179,6 +240,13 @@ function initializeAnimationModel () {
             this.render();
         },
 
+        /**
+         * Prepares the line string layer.
+         * @param {ol/Feature[]} relevantFeatures Features.
+         * @param {String} attrCount Attribute for count.
+         * @param {String} oppositeClassAttr Attribute for oppositeClass.
+         * @returns {void}
+         */
         prepareLineStringLayer: function (relevantFeatures, attrCount, oppositeClassAttr) {
             const layer = this.get("layer");
             let startPoint,
@@ -224,6 +292,12 @@ function initializeAnimationModel () {
             });
 
         },
+
+        /**
+         * Creates line string style.
+         * @param {String} color Color.
+         * @returns {ol/Style} - style.
+         */
         createLineStringStyle: function (color) {
             const style = new Style({
                 stroke: new Stroke({
@@ -234,6 +308,11 @@ function initializeAnimationModel () {
 
             return style;
         },
+
+        /**
+         * Starts the animation.
+         * @returns {void}
+         */
         startAnimation: function () {
             this.stopAnimation();
             this.setPostcomposeListener(Radio.request("Map", "registerListener", "postcompose", this.moveFeature.bind(this)));
@@ -246,6 +325,11 @@ function initializeAnimationModel () {
             this.render();
         },
 
+        /**
+         * Adds the line string layer to the map.
+         * @fires Core#RadioRequestMapCreateLayerIfNotExists
+         * @returns {void}
+         */
         addLineStringLayerToMap: function () {
             const layer = Radio.request("Map", "createLayerIfNotExists", "animation_layer"),
                 features = this.get("layer").getSource().getFeatures();
@@ -253,6 +337,13 @@ function initializeAnimationModel () {
             layer.getSource().addFeatures(features);
         },
 
+        /**
+         * Stops the animation.
+         * @param {ol/feature[]} features Features.
+         * @fires Core#RadioRequestMapCreateLayerIfNotExists
+         * @fires Core#RadioTriggerMapUnregisterListener
+         * @returns {void}
+         */
         stopAnimation: function (features) {
             const layer = Radio.request("Map", "createLayerIfNotExists", "animation_layer");
 
@@ -268,6 +359,10 @@ function initializeAnimationModel () {
             }
         },
 
+        /**
+         * Pauses the animation.
+         * @returns {void}
+         */
         pauseAnimation: function () {
             const currentTime = new Date().getTime(),
                 index = this.calculateIndexByElapsedTime(currentTime);
@@ -277,6 +372,12 @@ function initializeAnimationModel () {
             this.stopAnimation(features);
         },
 
+        /**
+         * Moves the feature.
+         * @param {event} event Event.
+         * @fires Core#RadioTriggerMapRender
+         * @returns {void}
+         */
         moveFeature: function (event) {
             const vectorContext = event.vectorContext,
                 frameState = event.frameState,
@@ -297,6 +398,12 @@ function initializeAnimationModel () {
                 this.stopAnimation();
             }
         },
+
+        /**
+         * Calculates the Index by the elapsed Time.
+         * @param {Number} time Time.
+         * @returns {Number} - Index.
+         */
         calculateIndexByElapsedTime: function (time) {
             const now = this.get("now"),
                 elapsedTime = time - now,
@@ -304,6 +411,14 @@ function initializeAnimationModel () {
 
             return index;
         },
+
+        /**
+         * Draws the features.
+         * @param {*} vectorContext context.
+         * @param {ol/feature[]} features Features.
+         * @param {Number} index Index.
+         * @returns {ol/feature[]} - generated PointFeatures.
+         */
         draw: function (vectorContext, features, index) {
             let currentPoint,
                 newFeature,
@@ -326,6 +441,14 @@ function initializeAnimationModel () {
             }, this);
             return pointFeatures;
         },
+
+        /**
+         * Creates a point style.
+         * @param {String} value Value to be shown.
+         * @param {String} color Color of circle.
+         * @param {String} name Name to be shown.
+         * @returns {ol/Style} - Point style.
+         */
         preparePointStyle: function (value, color, name) {
             const radius = this.calculateRadius(value),
                 style = new Style({
@@ -349,6 +472,12 @@ function initializeAnimationModel () {
 
             return style;
         },
+
+        /**
+         * Calculates the radius based on the value, and mins and maxs of px and values.
+         * @param {Number} value Value.
+         * @returns {Number} - radius.
+         */
         calculateRadius: function (value) {
             const minVal = this.get("minVal"),
                 maxVal = this.get("maxVal"),
@@ -363,6 +492,11 @@ function initializeAnimationModel () {
             return radius;
         },
 
+        /**
+         * Gets the attribute of the oppisite class. Used for displaying purposes.
+         * @param {Number} level Level.
+         * @returns {String} - OppositeClassAttr.
+         */
         getOppositeClassAttr: function (level) {
             const classes = this.get("classes"),
                 selectedClass = this.get("selectedClass"),
@@ -374,11 +508,24 @@ function initializeAnimationModel () {
 
             return oppositeClassAttr;
         },
+
+        /**
+         * Zooms to the extent of the given features.
+         * @param {ol/feature[]} features Features.
+         * @fires Core#RadioTriggerMapZoomToExtent
+         * @returns {void}
+         */
         zoomToExtent: function (features) {
             const extent = this.calculateExtent(features);
 
             Radio.trigger("Map", "zoomToExtent", extent);
         },
+
+        /**
+         * Calculates teh extent based on the given features.
+         * @param {ol/feature[]} features Features.
+         * @returns {Number[]} - Extent of the features.
+         */
         calculateExtent: function (features) {
             var extent = [9999999, 9999999, 0, 0];
 
@@ -392,6 +539,13 @@ function initializeAnimationModel () {
             });
             return extent;
         },
+
+        /**
+         * Shows the Map marker.
+         * @param {ol/feature} selection Selected Feature of interest.
+         * @fires MapMarker#RadioTriggerMapMarkerShowMarker
+         * @returns {void}
+         */
         showMarkerOnFocus: function (selection) {
             let coords = [];
             const classes = this.get("classes"),
@@ -407,11 +561,25 @@ function initializeAnimationModel () {
 
             Radio.trigger("MapMarker", "showMarker", coords);
         },
+
+        /**
+         * Prepares the legend
+         * @param {ol/feature[]} filteredFeatures Features.
+         * @param {String} attr Attribute name.
+         * @returns {void}
+         */
         prepareLegend: function (filteredFeatures, attr) {
             const legend = this.createLegend(filteredFeatures, attr);
 
             this.setLegend(legend);
         },
+
+        /**
+         * Creates the legend
+         * @param {ol/feature[]} features Features.
+         * @param {String} attr Attribute name.
+         * @returns {Object[]} - Legend
+         */
         createLegend: function (features, attr) {
             const legend = [];
 
@@ -425,6 +593,12 @@ function initializeAnimationModel () {
 
             return legend;
         },
+
+        /**
+         * Converts an rgb array into and rgb string.
+         * @param {Number[]} rgbArray Array.
+         * @returns {String} - rgb string.
+         */
         rgbaArrayToString: function (rgbArray) {
             let rgbString = "";
 
@@ -439,6 +613,12 @@ function initializeAnimationModel () {
 
             return rgbString;
         },
+
+        /**
+         * Colors the features. Sets for each feature an attribute "color".
+         * @param {ol/feature[]} features Features.
+         * @returns {ol/feature[]} - Features with color attribute.
+         */
         colorFeatures: function (features) {
             let colors = this.get("colors");
 
@@ -456,6 +636,11 @@ function initializeAnimationModel () {
             return features;
         },
 
+        /**
+         * Generates colors. As many colors are generated as the amout says.
+         * @param {Number} amount Number of colors to create.
+         * @returns {Number[]} - generated colors.
+         */
         generateColors: function (amount) {
             const colors = [],
                 max = 255,
@@ -478,6 +663,12 @@ function initializeAnimationModel () {
             return colors;
         },
 
+        /**
+         * Filters the features from the selection.
+         * @param {ol/feature} selection Selection feature.
+         * @param {String} attr Attribute
+         * @returns {ol/feature[]} - filtered features.
+         */
         filterFeaturesFromSelection: function (selection, attr) {
             const features = this.get("features"),
                 value = selection.get(attr);
@@ -488,6 +679,14 @@ function initializeAnimationModel () {
             });
             return filteredFeatures;
         },
+
+        /**
+         * Sorts the feature by the given attribute name and mode.
+         * @param {ol/feature[]} features Features to be sorted.
+         * @param {String} attr Attr to be sorted by.
+         * @param {String} mode Sort mode. "asc" or "desc".
+         * @returns {ol/feature[]} - sorted features.
+         */
         sortFeaturesByAttr: function (features, attr, mode) {
             if (mode === "desc") {
                 features.sort(function (a, b) {
@@ -508,16 +707,35 @@ function initializeAnimationModel () {
 
             return features;
         },
+
+        /**
+         * Filters the features by the selected top most.
+         * @param {ol/feature[]} features Features to be filtered.
+         * @param {Number} selectedTopMost Value top slice the array.
+         * @returns {ol/feature[]} - top most selected features.
+         */
         filterFeaturesByTopMost: function (features, selectedTopMost) {
             return features.slice(0, selectedTopMost);
         },
 
+        /**
+         * Prepares the level.
+         * @param {Object} selectedClass Selected class.
+         * @param {Number} level Level.
+         * @returns {Object} - selected class with prepared level.
+         */
         prepareLevel: function (selectedClass, level) {
             selectedClass.levels[level].values = this.getFeatureValuesByLevel(selectedClass, level);
 
             return selectedClass;
         },
 
+        /**
+         * Gets the feature values for the given level.
+         * @param {Object} selectedClass Selected class.
+         * @param {Number} level Level.
+         * @returns {String[]} - The values for the level.
+         */
         getFeatureValuesByLevel: function (selectedClass, level) {
             const levels = selectedClass.levels,
                 filteredFeatures = this.filterFeatures(selectedClass);
@@ -536,6 +754,11 @@ function initializeAnimationModel () {
             return values;
         },
 
+        /**
+         * Filteres the features of the selected class.
+         * @param {Object} selectedClass Selected class.
+         * @returns {ol/feature[]} - Selected features.
+         */
         filterFeatures: function (selectedClass) {
             const levels = selectedClass.levels;
             let filteredFeatures = this.get("features");
@@ -550,6 +773,11 @@ function initializeAnimationModel () {
             return filteredFeatures;
         },
 
+        /**
+         * Selects the top most features.
+         * @param {Number} value Number of features to select.
+         * @returns {void}
+         */
         selectTopMost: function (value) {
             const selectedClass = this.get("selectedClass"),
                 level = selectedClass.levels.length - 1;
@@ -559,56 +787,154 @@ function initializeAnimationModel () {
             this.prepareAnimation(selectedClass.levels[level].attr, level);
         },
 
+        /**
+         * Resets the legen.
+         * @returns {void}
+         */
         resetLegend: function () {
             this.setLegend([]);
         },
 
+        /**
+         * Triggers the view to render itself.
+         * @fires Addons.Animation#render
+         * @returns {void}
+         */
         render: function () {
             this.trigger("render", this, true);
         },
 
+        /**
+         * Setter for attribute "features"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setFeatures: function (value) {
             this.set("features", value);
         },
+
+        /**
+         * Setter for attribute "selectedClass"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setSelectedClass: function (value) {
             this.set("selectedClass", value);
         },
+
+        /**
+         * Setter for attribute "currentLevel"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setCurrentLevel: function (value) {
             this.set("currentLevel", value);
         },
+
+        /**
+         * Setter for attribute "filteredFeatures"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setFilteredFeatures: function (value) {
             this.set("filteredFeatures", value);
         },
+
+        /**
+         * Setter for attribute "legend"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setLegend: function (value) {
             this.set("legend", value);
         },
+
+        /**
+         * Setter for attribute "selectedTopMost"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setSelectedTopMost: function (value) {
             this.set("selectedTopMost", value);
         },
+
+        /**
+         * Setter for attribute "classes"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setClasses: function (value) {
             this.set("classes", value);
         },
+
+        /**
+         * Setter for attribute "layer"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setLayer: function (value) {
             this.set("layer", value);
         },
+
+        /**
+         * Setter for attribute "showPlayButton"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setShowPlayButton: function (value) {
             this.set("showPlayButton", value);
         },
+
+        /**
+         * Setter for attribute "postcomposeListener"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setPostcomposeListener: function (value) {
             this.set("postcomposeListener", value);
         },
+
+        /**
+         * Setter for attribute "animationLayer"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setAnimationLayer: function (value) {
             this.set("animationLayer", value);
         },
+
+        /**
+         * Setter for attribute "animating"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setAnimating: function (value) {
             this.set("animating", value);
         },
+
+        /**
+         * Setter for attribute "now"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setNow: function (value) {
             this.set("now", value);
         },
+
+        /**
+         * Setter for attribute "minVal"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setMinVal: function (value) {
             this.set("minVal", value);
         },
+
+        /**
+         * Setter for attribute "maxVal"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setMaxVal: function (value) {
             this.set("maxVal", value);
         }
