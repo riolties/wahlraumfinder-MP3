@@ -18,6 +18,13 @@ function initializePerformanceTesterModel () {
 
     Object.assign(PerformanceTesterModel, /** @lends PerformanceTesterModel.prototype */ {
         attributes: Object.assign(defaults, PerformanceTesterModel.attributes),
+        /**
+         * @class PerformanceTesterModel
+         * @extends Tool
+         * @memberof Addons.PerformanceTester
+         * @fires Core#RadioRequestMapCreateLayerIfNotExists
+         * @contructs
+         */
         initialize: function () {
             const layer = Radio.request("Map", "createLayerIfNotExists", "performanceTest");
 
@@ -26,6 +33,10 @@ function initializePerformanceTesterModel () {
             this.setSupportedIn3d(["performanceTester"]);
         },
 
+        /**
+         * Creates the features and adds them to the tools layer.
+         * @returns {void}
+         */
         createFeatures: function () {
             const source = this.get("layer").getSource(),
                 numFeatures = this.get("numFeatures");
@@ -41,12 +52,23 @@ function initializePerformanceTesterModel () {
             }
         },
 
+        /**
+         * Starts the Movement of features
+         * @param {ol/features[]} features The Features to be moved.
+         * @returns {void}
+         */
         startMovement: function (features) {
             const intervalId = setInterval(this.moveFeatures, this.get("interval"), features, this);
 
             this.setIntervalId(intervalId);
         },
 
+        /**
+         * Moves the features by creating a random coordinate.
+         * @param {ol/features[]} features The Features to be moved.
+         * @param {Object} context The context. In this case the model itself.
+         * @returns {void}
+         */
         moveFeatures: function (features, context) {
             features.forEach(feature => {
                 const newRandomCoords = context.createRandomCoordinate();
@@ -54,6 +76,11 @@ function initializePerformanceTesterModel () {
                 feature.getGeometry().setCoordinates(newRandomCoords);
             });
         },
+
+        /**
+         * Create a feature with a random coordinate.
+         * @returns {ol/feature} - feature with random coordinate.
+         */
         createRandomFeature: function () {
             const coordinate = this.createRandomCoordinate(),
                 feature = new Feature({
@@ -63,6 +90,10 @@ function initializePerformanceTesterModel () {
             return feature;
         },
 
+        /**
+         * Creates a random coordinate.
+         * @returns {Number[]} - random coordinate.
+         */
         createRandomCoordinate: function () {
             const extent = this.get("extent"),
                 minX = extent[0],
@@ -77,39 +108,85 @@ function initializePerformanceTesterModel () {
             return randomCoordinate;
         },
 
+        /**
+         * Creates a random value between the given min and max.
+         * @param {Number} min Minimum value.
+         * @param {Number} max Maximum value.
+         * @returns {Number} - random value.
+         */
         createRandomValue: function (min, max) {
             const randomValue = Math.random() * (max - min) + min;
 
             return randomValue;
         },
+        /**
+         * Clears the interval and deletes the features.
+         * @returns {void}
+         */
         deleteFeatures: function () {
             window.clearInterval(this.get("intervalId"));
             this.get("layer").getSource().clear();
         },
 
+        /**
+         * Setter for attribute "layer"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setLayer: function (value) {
             this.set("layer", value);
         },
 
+        /**
+         * Setter for attribute "numFeatures"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setNumFeatures: function (value) {
             this.set("numFeatures", value);
         },
 
+        /**
+         * Setter for attribute "height"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setHeight: function (value) {
             this.set("height", value);
         },
 
+        /**
+         * Setter for attribute "movement"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setMovement: function (value) {
             this.set("movement", value);
         },
 
+        /**
+         * Setter for attribute "intervalId"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setIntervalId: function (value) {
             this.set("intervalId", value);
         },
 
+        /**
+         * Setter for attribute "interval"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setInterval: function (value) {
             this.set("interval", value);
         },
+
+        /**
+         * Setter for attribute "supportedIn3d"
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setSupportedIn3d: function (value) {
             this.set("supportedIn3d", value);
         }

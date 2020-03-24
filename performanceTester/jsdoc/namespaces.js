@@ -1,0 +1,4 @@
+/**
+* @namespace PerformanceTester
+* @memberof Addons
+*/
