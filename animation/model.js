@@ -183,7 +183,7 @@ function initializeAnimationModel () {
                 this.resetLegend();
             }
             else {
-                this.prepareAnimation(selectedClass.levels[level].attr, level);
+                this.prepareAnimation(level);
             }
             this.setSelectedClass(selectedClass);
             this.render();
@@ -212,16 +212,16 @@ function initializeAnimationModel () {
 
         /**
          * Prepares the animation.
-         * @param {String} attr Attribute.
          * @param {*} level Level.
          * @returns {void}
          */
-        prepareAnimation: function (attr, level) {
-            const selectedTopMost = this.get("selectedTopMost"),
+        prepareAnimation: function (level) {
+            const selectedClass = this.get("selectedClass"),
+                selectedTopMost = this.get("selectedTopMost"),
                 selection = this.get("filteredFeatures")[0],
                 oppositeClassAttr = this.getOppositeClassAttr(level),
                 attrCount = this.get("attrCount");
-            let filteredFeatures = this.filterFeaturesFromSelection(selection, attr);
+            let filteredFeatures = this.filterFeaturesFromSelection(selectedClass);
 
             filteredFeatures = this.colorFeatures(filteredFeatures);
             filteredFeatures = this.sortFeaturesByAttr(filteredFeatures, attrCount, this.get("sort"));
@@ -665,17 +665,21 @@ function initializeAnimationModel () {
 
         /**
          * Filters the features from the selection.
-         * @param {ol/feature} selection Selection feature.
+         * @param {Object} selectedClass SelectedClass.
          * @param {String} attr Attribute
          * @returns {ol/feature[]} - filtered features.
          */
-        filterFeaturesFromSelection: function (selection, attr) {
-            const features = this.get("features"),
-                value = selection.get(attr);
-            let filteredFeatures = [];
+        filterFeaturesFromSelection: function (selectedClass) {
+            const features = this.get("features");
+            let filteredFeatures = features;
 
-            filteredFeatures = features.filter(feature => {
-                return feature.get(attr) === value;
+            selectedClass.levels.forEach(level => {
+                const attr = level.attr,
+                    value = level.selectedValue;
+
+                filteredFeatures = filteredFeatures.filter(feature => {
+                    return feature.get(attr) === value;
+                });
             });
             return filteredFeatures;
         },
@@ -784,7 +788,7 @@ function initializeAnimationModel () {
 
             this.setSelectedTopMost(value);
             this.stopAnimation();
-            this.prepareAnimation(selectedClass.levels[level].attr, level);
+            this.prepareAnimation(level);
         },
 
         /**
