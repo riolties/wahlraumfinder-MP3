@@ -9,7 +9,8 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
         "change .select-top-most": "selectTopMost",
         "click .start": "start",
         "click .reset": "reset",
-        "click .stop": "stop"
+        "click .stop": "stop",
+        "click .glyphicon-question-sign": "showHelp"
     },
     /**
      * @class AnimationView
@@ -110,6 +111,17 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
      */
     stop: function () {
         this.model.pauseAnimation();
+    },
+
+    showHelp: function (evt) {
+        const target = evt.currentTarget,
+            helpText = target.getAttribute("title"),
+            alertObj = {
+                text: helpText,
+                fadeOut: 2000
+            };
+
+        Radio.trigger("Alert", "alert", alertObj);
     }
 });
 

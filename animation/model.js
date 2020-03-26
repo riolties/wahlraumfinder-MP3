@@ -28,7 +28,9 @@ function initializeAnimationModel () {
             steps: 10,
             minPx: 5,
             maxPx: 20,
-            showLineStringLayer: true
+            showLineStringLayer: true,
+            classesHelpText: "Wähle hier das Ziel der Pendler.",
+            topMostHelpText: "Zeige nur die Gemeinden mit den meisten Pendlern an."
         };
 
     Object.assign(AnimationModel, /** @lends AnimationModel.prototype */ {

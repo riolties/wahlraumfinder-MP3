@@ -8,7 +8,9 @@ Das Addon animation
 |url|ja|String||Url auf den Datensatz.|false|
 |dataType|nein|enum["GeoJSON"]|"GeoJSON"|Datentyp. Dort wird festgelegt wie die Daten geholt werden. Momentan kann nur eine JSON geholt werden.|false|
 |classes|ja|**[class](#markdown-header-animationclass)**||Definition der Klassen, die die Richtung der Pendlerströme definiert. Es müssen 2 Klassen definiert sein.|false|
+|classesHelpText|nein|String|'"Wähle hier das Ziel der Pendler."'|Hilfetext für die Klassen.|false|
 |topMost|nein|Number[]|[3, 5, 10]|Limitierung der gefundenen Features.|false|
+|topMostHelpText|nein|String|'"Zeige nur die Gemeinden mit den meisten Pendlern an."'|Hilfetext für die Limitierung.|false|
 |sort|nein|enum["asc", "desc"]|"desc"|Reihenfolge der Sortierung. "asc" für aufsteigend (ascending) und "desc" für absteigend (descending).|false|
 |colors|nein|Array[]|[]|RGB oder RGBA Farbarrays. Farbdefinition für die Features und Legende. Sind keine Farben oder nicht genügend Farben definiert werden neue Farben generiert.|false|
 |attrCount|nein|String|"anzahl_pendler"|Attribut für die anzuzeigende Anzahl.|false|
@@ -21,39 +23,45 @@ Das Addon animation
 ```
 #!json
 "animationAddOn": {
-    "name": "AddOn:Animation",
+    "name": "AddOn:PendlerAnimation",
     "glyphicon": "glyphicon-play-circle",
-    "url": "url/to/json.json",
+    "url": "../muc_config/PendlerAtlasMuenchen.json",
     "dataType": "GeoJSON",
+    "classesHelpText": "Wähle hier das Ziel der Pendler.",
     "classes": [
         {
-        "name": "Wohnort",
-        "levels": [
-            {
-            "title": "Kreis auswählen",
-            "attr":"wohnort_kreis"
-            },
-            {
-            "title": "Gemeinde auswählen",
-            "attr":"wohnort"
-            }
-        ]
+            "name": "Wohnort",
+            "levels": [
+                {
+                    "title": "Kreis auswählen",
+                    "attr":"wohnort_kreis",
+                    "levelHelpText": "Wähle hier den Kreis aus."
+                },
+                {
+                    "title": "Gemeinde auswählen",
+                    "attr":"wohnort_gemeinde",
+                    "levelHelpText": "Wähle hier die Gemeinde aus."
+                }
+            ]
         },
         {
-        "name": "Arbeitsort",
-        "levels": [
-            {
-            "title": "Kreis auswählen",
-            "attr":"arbeitsort_kreis"
-            },
-            {
-            "title": "Gemeinde auswählen",
-            "attr":"arbeitsort"
-            }
-        ]
+            "name": "Arbeitsort",
+            "levels": [
+                {
+                    "title": "Kreis auswählen",
+                    "attr":"arbeitsort_kreis",
+                    "levelHelpText": "Wähle hier den Kreis aus."
+                },
+                {
+                    "title": "Gemeinde auswählen",
+                    "attr":"arbeitsort_gemeinde",
+                    "levelHelpText": "Wähle hier die Gemeinde aus."
+                }
+            ]
         }
     ],
-    "topMost": [3, 5, 10],
+    "topMost": [3, 5, 10, 15, 20, 30, 40, 50],
+    "topMostHelpText": "Zeige nur die Gemeinden mit den meisten Pendlern an.",
     "sort": "desc",
     "colors": [],
     "attrCount": "anzahl_pendler",
@@ -81,11 +89,13 @@ Das Addon animation
     "levels": [
         {
             "title": "Kreis auswählen",
-            "attr":"wohnort_kreis"
+            "attr":"wohnort_kreis",
+            "levelHelpText": "Wähle hier den Kreis aus."
         },
         {
             "title": "Gemeinde auswählen",
-            "attr":"wohnort"
+            "attr":"wohnort",
+            "levelHelpText": "Wähle hier die Gemeinde aus."
         }
     ]
 }
@@ -99,13 +109,15 @@ Das Addon animation
 |----|-------------|---|-------|------------|------|
 |title|ja|String||Titel der im Dropdown angezeigt wird.|false|
 |attr|ja|String||Attributname der für dieses Level notwendig ist.|false|
+|levelHelpText|ja|String||Hilfetext für dieses Level.|false|
 
 **Beispiel**
 ```
 #!json
 {
     "title": "Gemeinde auswählen",
-    "attr":"arbeitsort"
+    "attr":"arbeitsort",
+    "levelHelpText": "Wähle hier die Gemeinde aus."
 }
 ```
 

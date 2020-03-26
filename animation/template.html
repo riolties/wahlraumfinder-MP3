@@ -1,77 +1,86 @@
 <!DOCTYPE html>
-<div class="form-group">
-    <select id="select-class" class="form-control">
-        <option disabled selected hidden>Ziel auswählen</option>
-        <% classes.forEach(function (element) { %>
-            <% if (selectedClass.hasOwnProperty("name") && element.name === selectedClass.name) { %>
-                <option selected><%= element.name %></option>
-            <% }
-            else { %>
-                <option><%= element.name %></option>
-            <% } %>
-        <% }); %>
-    </select>
-</div>
-<% if (selectedClass.hasOwnProperty("levels")) {%>
-    <% selectedClass.levels.forEach(function(level, index){%>
-        <%if (level.hasOwnProperty("values") && level.values.length > 0){%>
+<div id="animation-add-on">
+    <span>Zeige mir alle Pendler mit</span>
+
+    <div class="form-group">
+        <select id="select-class" class="form-control">
+            <option disabled selected hidden>Ziel auswählen</option>
+            <% classes.forEach(function (element) { %>
+                <% if (selectedClass.hasOwnProperty("name") && element.name === selectedClass.name) { %>
+                    <option selected><%= element.name %></option>
+                <% }
+                else { %>
+                    <option><%= element.name %></option>
+                <% } %>
+            <% }); %>
+        </select>
+        <span class="glyphicon glyphicon-question-sign pull-right" title="<%=classesHelpText%>"/>
+    </div>
+    <% if (selectedClass.hasOwnProperty("levels")) {%>
+        <span>in</span>
+        <% selectedClass.levels.forEach(function(level, index){%>
+            <%if (level.hasOwnProperty("values") && level.values.length > 0){%>
+                <div class="form-group">
+                    <select class="form-control select-level" level="<%=index%>">
+                        <option disabled selected hidden><%=level.title%></option>
+                        <% level.values.forEach(function (element) { %>
+                            <% if (level.hasOwnProperty("selectedValue") && element === level.selectedValue) { %>
+                                <option selected><%= element %></option>
+                            <% }
+                            else { %>
+                                <option><%= element %></option>
+                            <% } %>
+                        <% }); %>
+                    </select>
+                    <span class="glyphicon glyphicon-question-sign pull-right" title="<%=level.levelHelpText%>"/>
+                </div>
+            <%}%>
+        <%});%>
+        <%if (topMost.length > 0){%>
+            <span>aber nur die</span>
             <div class="form-group">
-                <select class="form-control select-level" level="<%=index%>">
-                    <option disabled selected hidden><%=level.title%></option>
-                    <% level.values.forEach(function (element) { %>
-                        <% if (level.hasOwnProperty("selectedValue") && element === level.selectedValue) { %>
-                            <option selected><%= element %></option>
+                <select class="form-control select-top-most">
+                    <option disabled selected hidden>TopMost</option>
+                    <% topMost.forEach(function (top) { %>
+                        <% if (top === selectedTopMost) { %>
+                            <option selected value="<%=top%>">Größten <%= top %></option>
                         <% }
                         else { %>
-                            <option><%= element %></option>
+                            <option value="<%=top%>">Größten <%= top %></option>
                         <% } %>
                     <% }); %>
                 </select>
+                <span class="glyphicon glyphicon-question-sign pull-right" title="<%=topMostHelpText%>"/>
             </div>
         <%}%>
-    <%});%>
-    <%if (topMost.length > 0){%>
-        <div class="form-group">
-            <select class="form-control select-top-most">
-                <option disabled selected hidden>TopMost</option>
-                <% topMost.forEach(function (top) { %>
-                    <% if (top === selectedTopMost) { %>
-                        <option selected value="<%=top%>">Top <%= top %></option>
-                    <% }
-                    else { %>
-                        <option value="<%=top%>">Top <%= top %></option>
-                    <% } %>
-                <% }); %>
-            </select>
-        </div>
     <%}%>
-<%}%>
-<% if (legend.length > 0) { %>
-    <table class="table">
-        <% legend.forEach(function(legendPart){ %>
-            <tr>
-                <td>
-                    <div class="form-group pull-left animation_legend" style="background-color:<%= legendPart.color %>"></div></td>
-                <td><%= legendPart.name %>: <%= legendPart.count %> Personen</td>
-            </tr>
-        <% }); %>
-    </table>
-<%}%>
-<% if (showPlayButton) { %>
-    <% if (animating === true) { %>
-        <button class="btn btn-default pull-right stop">
-            <span class="glyphicon glyphicon-stop"></span>&nbsp;Stop
-        </button>
-        <button class="btn btn-default pull-right reset">
-            <span class="glyphicon glyphicon-trash"></span>&nbsp;Reset
-        </button>
-        <% }
-        else { %>
-            <button class="btn btn-default pull-right start">
-            <span class="glyphicon glyphicon-play"></span>&nbsp;Start
-        </button>
-        <button class="btn btn-default pull-right reset">
-            <span class="glyphicon glyphicon-trash"></span>&nbsp;Reset
-        </button>
-    <% } %>
-<%}%>
+    <% if (legend.length > 0) { %>
+        <table class="table">
+            <% legend.forEach(function(legendPart){ %>
+                <tr>
+                    <td>
+                        <div class="form-group pull-left animation_legend" style="background-color:<%= legendPart.color %>"></div></td>
+                    <td><%= legendPart.name %>: <%= legendPart.count %> Personen</td>
+                </tr>
+            <% }); %>
+        </table>
+    <%}%>
+    <% if (showPlayButton) { %>
+        <% if (animating === true) { %>
+            <button class="btn btn-default pull-right stop">
+                <span class="glyphicon glyphicon-stop"></span>&nbsp;Stop
+            </button>
+            <button class="btn btn-default pull-right reset">
+                <span class="glyphicon glyphicon-trash"></span>&nbsp;Reset
+            </button>
+            <% }
+            else { %>
+                <button class="btn btn-default pull-right start">
+                <span class="glyphicon glyphicon-play"></span>&nbsp;Start
+            </button>
+            <button class="btn btn-default pull-right reset">
+                <span class="glyphicon glyphicon-trash"></span>&nbsp;Reset
+            </button>
+        <% } %>
+    <%}%>
+</div>
