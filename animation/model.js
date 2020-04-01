@@ -74,14 +74,51 @@ function initializeAnimationModel () {
                     }
                 }
             });
+            this.listenTo(Radio.channel("i18next"), {
+                "languageChanged": this.changeLang
+            });
             this.superInitialize();
             this.prepareSelectedTopMost();
             if (url) {
                 this.loadData(dataType, url);
             }
             this.setLayer(layer);
+            this.changeLang(i18next.language);
         },
 
+        changeLang: function () {
+            const classes = this.get("classes");
+
+            this.set({
+                name: i18next.t("additional:addOns.animationAddOn.name"),
+                classesText: i18next.t("additional:addOns.animationAddOn.classesText"),
+                classesHelpText: i18next.t("additional:addOns.animationAddOn.classesHelpText"),
+                classesDefaultOptionText: i18next.t("additional:addOns.animationAddOn.classesDefaultOptionText"),
+                topMostText: i18next.t("additional:addOns.animationAddOn.topMostText"),
+                topMostHelpText: i18next.t("additional:addOns.animationAddOn.topMostHelpText"),
+                legendUnit: i18next.t("additional:addOns.animationAddOn.legendUnit")
+            });
+
+            classes.forEach((classObj, classIndex) => {
+                classObj.name = i18next.t("additional:addOns.animationAddOn.classes." + classIndex + ".name");
+                classObj.levels.forEach((level, levelIndex) => {
+                    level.title = i18next.t("additional:addOns.animationAddOn.classes." + classIndex + ".levels." + levelIndex + ".title");
+                    level.levelHelpText = i18next.t("additional:addOns.animationAddOn.classes." + classIndex + ".levels." + levelIndex + ".levelHelpText");
+                });
+            });
+
+            if (this.get("sort") === "asc") {
+                this.set({
+                    topMostOptionPrefix: i18next.t("additional:addOns.animationAddOn.topMostAscOptionPrefix")
+                });
+            }
+            else if (this.get("sort") === "desc") {
+                this.set({
+                    topMostOptionPrefix: i18next.t("additional:addOns.animationAddOn.topMostDescOptionPrefix")
+                });
+            }
+            this.render();
+        },
         /**
          * Selects the first topMost.
          * @returns {void}

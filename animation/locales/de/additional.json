@@ -1,0 +1,43 @@
+{
+  "addOns": {
+    "animationAddOn": {
+      "name": "AddOn:PendlerAnimation",
+      "classesText": "Zeige mir alle Pendler mit",
+      "classesHelpText": "Wähle hier das Ziel der Pendler.",
+      "classesDefaultOptionText": "Ziel auswählen",
+      "topMostText": "aber nur die",
+      "topMostHelpText": "Zeige nur die Gemeinden mit den meisten Pendlern an.",
+      "topMostAscOptionPrefix": "Kleinsten",
+      "topMostDescOptionPrefix": "Größten",
+      "classes": {
+        "0":{
+          "name": "Wohnort",
+          "levels": {
+            "0":{
+              "title": "Kreis auswählen",
+              "levelHelpText": "Wähle hier den Kreis aus."
+            },
+            "1":{
+              "title": "Gemeinde auswählen",
+              "levelHelpText": "Wähle hier die Gemeinde aus."
+            }
+          }
+        },
+        "1":{
+          "name": "Arbeitsort",
+          "levels": {
+            "0":{
+              "title": "Kreis auswählen",
+              "levelHelpText": "Wähle hier den Kreis aus."
+            },
+            "1":{
+              "title": "Gemeinde auswählen",
+              "levelHelpText": "Wähle hier die Gemeinde aus."
+            }
+          }
+        }
+      },
+      "legendUnit": "Personen"
+    }
+  }
+}

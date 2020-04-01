@@ -1,0 +1,43 @@
+{
+  "addOns": {
+    "animationAddOn": {
+      "name": "AddOn:CommuterAnimation",
+      "classesText": "Show all commuters with",
+      "classesHelpText": "Select the destination.",
+      "classesDefaultOptionText": "Select destination",
+      "topMostText": "but show only the",
+      "topMostHelpText": "Only show the commune with the most commuters.",
+      "topMostAscOptionPrefix": "Smallest",
+      "topMostDescOptionPrefix": "Biggest",
+      "classes": {
+        "0":{
+          "name": "Work",
+          "levels": {
+            "0":{
+              "title": "Select county",
+              "levelHelpText": "Please select the county."
+            },
+            "1":{
+              "title": "Select commune",
+              "levelHelpText": "Please select the commune."
+            }
+          }
+        },
+        "1":{
+          "name": "Home",
+          "levels": {
+            "0":{
+              "title": "Select county",
+              "levelHelpText": "Please select the county."
+            },
+            "1":{
+              "title": "Select commune",
+              "levelHelpText": "Please select the commune."
+            }
+          }
+        }
+      },
+      "legendUnit": "People"
+    }
+  }
+}
