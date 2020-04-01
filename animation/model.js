@@ -86,9 +86,11 @@ function initializeAnimationModel () {
             this.changeLang(i18next.language);
         },
 
+        /**
+         * Changes the language.
+         * @returns {void}
+         */
         changeLang: function () {
-            const classes = this.get("classes");
-
             this.set({
                 name: i18next.t("additional:addOns.animationAddOn.name"),
                 classesText: i18next.t("additional:addOns.animationAddOn.classesText"),
@@ -99,6 +101,18 @@ function initializeAnimationModel () {
                 legendUnit: i18next.t("additional:addOns.animationAddOn.legendUnit")
             });
 
+            this.changeLangForClasses();
+            this.changeLangForTopMostOptionPrefix();
+            this.render();
+        },
+
+        /**
+         * Changes the language for the classes attributes.
+         * @returns {void}
+         */
+        changeLangForClasses: function () {
+            const classes = this.get("classes");
+
             classes.forEach((classObj, classIndex) => {
                 classObj.name = i18next.t("additional:addOns.animationAddOn.classes." + classIndex + ".name");
                 classObj.levels.forEach((level, levelIndex) => {
@@ -107,18 +121,28 @@ function initializeAnimationModel () {
                 });
             });
 
-            if (this.get("sort") === "asc") {
+            this.setClasses(classes);
+        },
+
+        /**
+         * Changes the topMostOptionPrefix based on the sort attribute and the language.
+         * @returns {void}
+         */
+        changeLangForTopMostOptionPrefix: function () {
+            const sort = this.get("sort");
+
+            if (sort === "asc") {
                 this.set({
                     topMostOptionPrefix: i18next.t("additional:addOns.animationAddOn.topMostAscOptionPrefix")
                 });
             }
-            else if (this.get("sort") === "desc") {
+            else if (sort === "desc") {
                 this.set({
                     topMostOptionPrefix: i18next.t("additional:addOns.animationAddOn.topMostDescOptionPrefix")
                 });
             }
-            this.render();
         },
+
         /**
          * Selects the first topMost.
          * @returns {void}
