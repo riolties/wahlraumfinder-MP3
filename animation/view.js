@@ -43,8 +43,8 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
      * @param {Boolean} value Flag if model "isActive".
      * @returns {Object} - itself.
      */
-    render: function (model, value) {
-        if (value) {
+    render: function (model) {
+        if (model.get("isActive")) {
             this.setElement(document.getElementsByClassName("win-body")[0]);
             this.$el.html(this.template(model.toJSON()));
             this.delegateEvents();

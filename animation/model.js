@@ -868,7 +868,7 @@ function initializeAnimationModel () {
          * @returns {void}
          */
         render: function () {
-            this.trigger("render", this, true);
+            this.trigger("render", this);
         },
 
         /**
