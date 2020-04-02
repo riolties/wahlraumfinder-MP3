@@ -809,7 +809,7 @@ function initializeAnimationModel () {
             let values = [];
 
             levels.forEach((lvl, idx) => {
-                if (idx <= level) {
+                if (idx === level) {
                     filteredFeatures.forEach(feature => {
                         values.push(feature.get(lvl.attr));
                     });
