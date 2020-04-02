@@ -10,27 +10,27 @@
       "topMostAscOptionPrefix": "Smallest",
       "topMostDescOptionPrefix": "Biggest",
       "classes": {
-        "0":{
+        "0": {
           "name": "Work",
           "levels": {
-            "0":{
+            "0": {
               "title": "Select county",
               "levelHelpText": "Please select the county."
             },
-            "1":{
+            "1": {
               "title": "Select commune",
               "levelHelpText": "Please select the commune."
             }
           }
         },
-        "1":{
+        "1": {
           "name": "Home",
           "levels": {
-            "0":{
+            "0": {
               "title": "Select county",
               "levelHelpText": "Please select the county."
             },
-            "1":{
+            "1": {
               "title": "Select commune",
               "levelHelpText": "Please select the commune."
             }

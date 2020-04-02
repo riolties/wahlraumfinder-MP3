@@ -29,8 +29,8 @@ function initializeAnimationModel () {
             minPx: 5,
             maxPx: 20,
             showLineStringLayer: true,
-            classesHelpText: "Wähle hier das Ziel der Pendler.",
-            topMostHelpText: "Zeige nur die Gemeinden mit den meisten Pendlern an."
+            classesHelpText: "",
+            topMostHelpText: ""
         };
 
     Object.assign(AnimationModel, /** @lends AnimationModel.prototype */ {
@@ -74,10 +74,10 @@ function initializeAnimationModel () {
                     }
                 }
             });
+            this.superInitialize();
             this.listenTo(Radio.channel("i18next"), {
                 "languageChanged": this.changeLang
             });
-            this.superInitialize();
             this.prepareSelectedTopMost();
             if (url) {
                 this.loadData(dataType, url);

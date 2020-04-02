@@ -10,27 +10,27 @@
       "topMostAscOptionPrefix": "Kleinsten",
       "topMostDescOptionPrefix": "Größten",
       "classes": {
-        "0":{
+        "0": {
           "name": "Wohnort",
           "levels": {
-            "0":{
+            "0": {
               "title": "Kreis auswählen",
               "levelHelpText": "Wähle hier den Kreis aus."
             },
-            "1":{
+            "1": {
               "title": "Gemeinde auswählen",
               "levelHelpText": "Wähle hier die Gemeinde aus."
             }
           }
         },
-        "1":{
+        "1": {
           "name": "Arbeitsort",
           "levels": {
-            "0":{
+            "0": {
               "title": "Kreis auswählen",
               "levelHelpText": "Wähle hier den Kreis aus."
             },
-            "1":{
+            "1": {
               "title": "Gemeinde auswählen",
               "levelHelpText": "Wähle hier die Gemeinde aus."
             }
