@@ -24,6 +24,7 @@ before(function () {
 describe("addons/performanceTester", function () {
     describe("defaultTest", function () {
         it("initial setup test", function () {
+            console.error(model.get("name"));
             expect(true).to.be.true;
         });
     });
