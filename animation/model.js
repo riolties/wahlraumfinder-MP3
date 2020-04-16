@@ -11,7 +11,7 @@ import VectorLayer from "ol/layer/Vector.js";
 function initializeAnimationModel () {
     const AnimationModel = Radio.request("ModelList", "getModelByAttributes", {id: "animationAddOn"}),
         defaults = {
-            attributionText: "&copy; <a href='https://statistik.arbeitsagentur.de/' target='_blank'>Statistik der Bundesagentur für Arbeit</a>",
+            attributionText: "&copy; <a href='https://statistik.arbeitsagentur.de/' target='_blank'>Statistik der Bundesagentur für Arbeit</a><br>&copy; GeoBasis-DE / BKG, Statistisches Bundesamt (Destatis) (2018)",
             dataType: "GeoJSON",
             url: "",
             classes: [],
