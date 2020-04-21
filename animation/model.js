@@ -4,6 +4,7 @@ import Feature from "ol/Feature.js";
 import {Text, Circle, Fill, Stroke, Style} from "ol/style.js";
 import VectorSource from "ol/source/Vector.js";
 import VectorLayer from "ol/layer/Vector.js";
+import { Radio } from "backbone";
 /**
  * TODO
  * @returns {Object} The model.
@@ -187,8 +188,15 @@ function initializeAnimationModel () {
             xhr.onreadystatechange = function (evt) {
                 const responseText = evt.currentTarget.responseText;
 
+                Radio.trigger("Alert", "alert:remove", "animation_loading_data");
+                Radio.trigger("Util", "hideLoader");
                 features = format.readFeatures(JSON.parse(responseText));
             };
+            Radio.trigger("Alert", "alert", {
+                id: "animation_loading_data",
+                text: i18next.t("additional:addOns.animationAddOn.alertLoadingData")
+            });
+            Radio.trigger("Util", "showLoader");
             xhr.send();
             return features;
         },

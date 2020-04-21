@@ -37,7 +37,8 @@
           }
         }
       },
-      "legendUnit": "Personen"
+      "legendUnit": "Personen",
+      "alertLoadingData": "Lade Daten für das Animations-Werkzeug."
     }
   }
 }
