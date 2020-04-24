@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<div id="animation-add-on">
+    <% filters.forEach(function (filter, index) { %>
+        <% if (filter.options.length > 0) { %>
+            <span><%=filter.title%></span>
+            <div class="form-group">
+                <select class="form-control select-drop-down" index="<%=index%>">
+                    <option disabled selected hidden><%=filter.defaultOptionText%></option>
+                    <% filter.options.forEach(function (option) { %>
+                        <% if (filter.selectedOption !== undefined && filter.selectedOption[filter.attr] === option[filter.attr]) { %>
+                            <option selected><%= option[filter.attr] %></option>
+                        <% }
+                        else { %>
+                            <option><%= option[filter.attr] %></option>
+                        <% } %>
+                    <% }); %>
+                </select>
+            </div>
+        <% } %>
+    <% }); %>
+</div>

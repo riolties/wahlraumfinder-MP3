@@ -4,7 +4,6 @@ import Feature from "ol/Feature.js";
 import {Text, Circle, Fill, Stroke, Style} from "ol/style.js";
 import VectorSource from "ol/source/Vector.js";
 import VectorLayer from "ol/layer/Vector.js";
-import { Radio } from "backbone";
 /**
  * TODO
  * @returns {Object} The model.
@@ -84,7 +83,7 @@ function initializeAnimationModel () {
                 this.loadData(dataType, url);
             }
             this.setLayer(layer);
-            this.changeLang(i18next.language);
+            this.changeLang();
         },
 
         /**
@@ -171,9 +170,9 @@ function initializeAnimationModel () {
             if (dataType === "GeoJSON") {
                 features = this.loadDataFromGeoJson(url);
             }
+
             this.setFeatures(features);
         },
-
         /**
          * Loads the Data from GeoJSON datasource.
          * @param {*} url Url.

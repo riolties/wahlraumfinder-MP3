@@ -1,5 +1,6 @@
 {
     "strassenBefahrung": "view.js",
     "performanceTester": "view.js",
-    "animation": "view.js"
+    "animation": "view.js",
+    "animation_new": "view.js"
 }
