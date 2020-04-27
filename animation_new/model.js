@@ -54,10 +54,27 @@ function initializeAnimationModel () {
                     attr: "name",
                     options: [], // wird systemisch gesetzt
                     selectedOption: undefined, // wird systemisch gesetzt
-                    query: {}
+                    query: {
+                        type: "URL",
+                        attr: "url",
+                        dataType: "GeoJSON"
+                    }
                 }
             ],
-            filterFeatures: [] // wird systemisch gesetzt
+            features: [], // wird systemisch gesetzt
+            topMost: {
+                title: "aber nur die",
+                defaultOptionText: "Bitte einschränken",
+                options: [3, 5, 10],
+                selectedOption: undefined, // wird systemisch gesetzt
+                optionPrefix: "Größten",
+                isActive: false // wird systemisch gesetzt
+            },
+            colors: [],
+            attrCount: "anzahl_pendler",
+            attrLegend: "name",
+            legend: [], // wird systemisch gesetzt
+            legendUnit: "Personen"
         };
 
     Object.assign(AnimationModel, /** @lends AnimationModel.prototype */ {
@@ -74,7 +91,8 @@ function initializeAnimationModel () {
         },
         selectDropDownAtIndex: function (index, value) {
             let filters = this.get("filters"),
-                nextDropDown;
+                nextDropDown,
+                features;
             const dropDown = filters[index],
                 options = dropDown.options,
                 name = dropDown.attr,
@@ -85,13 +103,151 @@ function initializeAnimationModel () {
             if (!isLastDropDown) {
                 filters = this.clearFilterOptionsWithHigherIndex(filters, index);
                 nextDropDown = filters[index + 1];
-                nextDropDown.options = this.fetchOptionsForNextFilter(dropDown.selectedOption, dropDown.query);
+                nextDropDown.options = this.fetchOptions(dropDown.selectedOption, dropDown.query);
                 this.setFilters(filters);
+                this.toggleTopMost(false);
+                this.resetLegend();
             }
             else {
-                console.log("fetch features");
+                features = this.fetchOptions(dropDown.selectedOption, dropDown.query);
+                this.setFeatures(features);
+                this.toggleTopMost(true);
+                this.prepareAnimation(features);
             }
             this.render();
+        },
+        selectTopMost: function (value) {
+            const topMost = this.get("topMost"),
+                features = this.get("features");
+
+            topMost.selectedOption = value;
+            this.setTopMost(topMost);
+            this.prepareAnimation(features);
+        },
+        toggleTopMost: function (isActive) {
+            const topMost = this.get("topMost");
+
+            topMost.isActive = isActive;
+            this.setTopMost(topMost);
+        },
+        prepareAnimation: function (features) {
+            const topMost = this.get("topMost"),
+                attrCount = this.get("attrCount"),
+                attrLegend = this.get("attrLegend");
+            let filteredFeatures = this.filterFeaturesByTopMost(features, topMost.selectedOption);
+
+            filteredFeatures = this.sortFeaturesByAttr(filteredFeatures, attrCount);
+            filteredFeatures = this.colorFeatures(filteredFeatures);
+            this.setLegend(this.createLegend(filteredFeatures, attrCount, attrLegend));
+            console.log(filteredFeatures);
+            this.render();
+        },
+
+        /**
+         * Creates the legend
+         * @param {ol/feature[]} features Features.
+         * @param {String} attrCount Attribute for number.
+         * @param {String} attrLegend Attribute for legend.
+         * @returns {Object[]} - Legend
+         */
+        createLegend: function (features, attrCount, attrLegend) {
+            const legend = [];
+
+            features.forEach(feature => {
+                legend.push({
+                    count: feature.get(attrCount),
+                    color: this.rgbaArrayToString(feature.get("color")),
+                    name: feature.get(attrLegend)
+                });
+            }, this);
+
+            return legend;
+        },
+
+        /**
+         * Converts an rgb array into and rgb string.
+         * @param {Number[]} rgbArray Array.
+         * @returns {String} - rgb string.
+         */
+        rgbaArrayToString: function (rgbArray) {
+            let rgbString = "";
+
+            if (rgbArray.length === 3) {
+                rgbString = "rgb(";
+            }
+            else if (rgbArray.length === 4) {
+                rgbString = "rgba(";
+            }
+            rgbString += rgbArray.toString();
+            rgbString += ")";
+
+            return rgbString;
+        },
+
+        /**
+         * Sorts the feature by the given attribute name descending.
+         * @param {ol/feature[]} features Features to be sorted.
+         * @param {String} attr Attr to be sorted by.
+         * @returns {ol/feature[]} - sorted features.
+         */
+        sortFeaturesByAttr: function (features, attr) {
+            features.sort(function (a, b) {
+                return b.get(attr) - a.get(attr);
+            });
+
+            return features;
+        },
+        /**
+         * Colors the features. Sets for each feature an attribute "color".
+         * @param {ol/feature[]} features Features.
+         * @returns {ol/feature[]} - Features with color attribute.
+         */
+        colorFeatures: function (features) {
+            let colors = this.get("colors");
+
+            // Wenn zu wenig Farben konfiguriert wurden wird ein alternatives Farbschema berechnet und angewendet (als Fallback)
+            if (colors.length < features.length) {
+                console.warn("Die Anzahl an konfigurierten Farben reicht zur Darstellung der Ergebnisse nicht aus. Generiere ein alternatives Farbschema.");
+                colors = this.generateColors(features.length);
+            }
+
+            // Füge eine Farbe zur Darstellung hinzu
+            features.forEach((feature, index) => {
+                feature.set("color", colors[index]);
+            });
+
+            return features;
+        },
+
+        /**
+         * Generates colors. As many colors are generated as the amout says.
+         * @param {Number} amount Number of colors to create.
+         * @returns {Number[]} - generated colors.
+         */
+        generateColors: function (amount) {
+            const colors = [],
+                max = 255,
+                min = 0,
+                range = max - min;
+            let i = 0,
+                red,
+                green,
+                blue,
+                alpha;
+
+            // generate random rgba-color-arrays
+            for (i = 0; i < amount; i++) {
+                red = Math.floor(Math.random() * range) + min;
+                green = Math.floor(Math.random() * range) + min;
+                blue = Math.floor(Math.random() * range) + min;
+                alpha = 0.75;
+                colors.push([red, green, blue, alpha]);
+            }
+            return colors;
+        },
+
+        filterFeaturesByTopMost: function (features, selectedTopMost) {
+            return features.slice(0, selectedTopMost);
         },
         findOptionByAttr: function (options, key, value) {
             let foundOption;
@@ -111,14 +267,12 @@ function initializeAnimationModel () {
             });
             return filters;
         },
-        fetchOptionsForNextFilter: function (selectedOption, query) {
+        fetchOptions: function (selectedOption, query) {
             let options;
             const value = selectedOption[query.attr];
 
             options = this.getResponseByQueryType(value, query.type);
             options = this.formatResponseByDataType(options, query.dataType);
-            console.log(selectedOption);
-            console.log(query);
             return options;
         },
         getResponseByQueryType: function (value, queryType) {
@@ -128,17 +282,21 @@ function initializeAnimationModel () {
             if (queryType === "URL") {
                 response = this.sendRequest(url + value);
             }
-            //possible other queryTypes
+            // possible other queryTypes
             return response;
         },
 
         formatResponseByDataType: function (response, dataType) {
+            const geoJsonFormat = new GeoJSON();
             let formattedResponse = [];
 
             if (dataType === "JSON") {
                 formattedResponse = JSON.parse(response);
             }
-            //possible other dataTypes
+            else if (dataType === "GeoJSON") {
+                formattedResponse = geoJsonFormat.readFeatures(JSON.parse(response));
+            }
+            // possible other dataTypes
             return formattedResponse;
         },
         sendRequest: function (url) {
@@ -155,14 +313,27 @@ function initializeAnimationModel () {
             xhr.send();
             return response;
         },
+        resetLegend: function () {
+            this.setLegend([]);
+        },
         render: function () {
             this.trigger("render", this);
+        },
+
+        setLegend: function (value) {
+            this.set("legend", value);
         },
         setLayer: function (value) {
             this.set("layer", value);
         },
         setFilters: function (value) {
             this.set("filters", value);
+        },
+        setFeatures: function (value) {
+            this.set("features", value);
+        },
+        setTopMost: function (value) {
+            this.set("topMost", value);
         }
     });
 

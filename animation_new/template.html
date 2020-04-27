@@ -18,4 +18,32 @@
             </div>
         <% } %>
     <% }); %>
+    <% if (topMost.isActive) { %>
+    <span><%=topMost.title%></span>
+    <div class="form-group">
+        <select class="form-control select-top-most">
+            <option disabled selected hidden><%=topMost.defaultOptionText%></option>
+            <% topMost.options.forEach(function (option) { %>
+                <% if (topMost.selectedOption !== undefined && topMost.selectedOption === option) { %>
+                    <option value="<%= option %>" selected><%= topMost.optionPrefix + " " + option %></option>
+                <% }
+                else { %>
+                    <option value="<%= option %>"><%= topMost.optionPrefix + " " + option %></option>
+                <% } %>
+            <% }); %>
+        </select>
+    </div>
+    <% } %>
+
+    <% if (legend.length > 0) { %>
+        <table class="table">
+            <% legend.forEach(function(legendPart){ %>
+                <tr>
+                    <td>
+                        <div class="form-group pull-left animation_legend" style="background-color:<%= legendPart.color %>"></div></td>
+                    <td><%= legendPart.name %>: <%= legendPart.count %> <%=legendUnit%></td>
+                </tr>
+            <% }); %>
+        </table>
+    <% } %>
 </div>

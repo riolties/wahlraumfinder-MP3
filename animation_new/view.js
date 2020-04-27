@@ -4,7 +4,8 @@ import "./style.less";
 
 const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */{
     events: {
-        "change .select-drop-down": "selectDropDownAtIndex"
+        "change .select-drop-down": "selectDropDownAtIndex",
+        "change .select-top-most": "selectTopMost"
     },
 
     initialize: function () {
@@ -46,6 +47,11 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
             index = parseInt(evt.target.attributes.index.value, 10);
 
         this.model.selectDropDownAtIndex(index, value);
+    },
+    selectTopMost: function (evt) {
+        const value = parseInt(evt.target.value, 10);
+
+        this.model.selectTopMost(value);
     }
 });
 
