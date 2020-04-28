@@ -2,43 +2,38 @@
   "addOns": {
     "animationAddOn": {
       "name": "AddOn:PendlerAnimation",
-      "classesText": "Zeige mir alle Pendler mit",
-      "classesHelpText": "Wähle hier das Ziel der Pendler.",
-      "classesDefaultOptionText": "Ziel auswählen",
-      "topMostText": "aber nur die",
-      "topMostHelpText": "Zeige nur die Gemeinden mit den meisten Pendlern an.",
-      "topMostAscOptionPrefix": "Kleinsten",
-      "topMostDescOptionPrefix": "Größten",
-      "classes": {
+      "filters": {
         "0": {
-          "name": "Wohnort",
-          "levels": {
+          "title": "Zeige mir alle Pendler an mit",
+          "defaultOptionText": "Bitte Ziel wählen",
+          "helpText": "Wähle hier das Ziel der Pendler",
+          "options": {
             "0": {
-              "title": "Kreis auswählen",
-              "levelHelpText": "Wähle hier den Kreis aus."
+              "name": "Wohnort"
             },
             "1": {
-              "title": "Gemeinde auswählen",
-              "levelHelpText": "Wähle hier die Gemeinde aus."
+              "name": "Arbeitsort"
             }
           }
         },
         "1": {
-          "name": "Arbeitsort",
-          "levels": {
-            "0": {
-              "title": "Kreis auswählen",
-              "levelHelpText": "Wähle hier den Kreis aus."
-            },
-            "1": {
-              "title": "Gemeinde auswählen",
-              "levelHelpText": "Wähle hier die Gemeinde aus."
-            }
-          }
+          "title": "in Kreis",
+          "defaultOptionText": "Bitte Kreis wählen",
+          "helpText": "Wähle hier den Kreis"
+        },
+        "2": {
+          "title": "in Gemeinde",
+          "defaultOptionText": "Bitte Gemeinde wählen",
+          "helpText": "Wähle hier die Gemeinde"
         }
       },
-      "legendUnit": "Personen",
-      "alertLoadingData": "Lade Daten für das Animations-Werkzeug."
+      "topMost": {
+        "title": "aber nur die",
+        "defaultOptionText": "Bitte einschränken",
+        "helpText": "Zeige nur die größten Gemeinden",
+        "optionPrefix": "Größten"
+      },
+      "legendUnit": "Personen"
     }
   }
 }

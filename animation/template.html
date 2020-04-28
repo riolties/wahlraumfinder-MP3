@@ -1,58 +1,42 @@
 <!DOCTYPE html>
 <div id="animation-add-on">
-    <span><%=classesText%></span>
-    <div class="form-group">
-        <select id="select-class" class="form-control">
-            <option disabled selected hidden><%=classesDefaultOptionText%></option>
-            <% classes.forEach(function (element) { %>
-                <% if (selectedClass.hasOwnProperty("name") && element.name === selectedClass.name) { %>
-                    <option selected><%= element.name %></option>
-                <% }
-                else { %>
-                    <option><%= element.name %></option>
-                <% } %>
-            <% }); %>
-        </select>
-        <span class="glyphicon glyphicon-question-sign pull-right" title="<%=classesHelpText%>"/>
-    </div>
-    <% if (selectedClass.hasOwnProperty("levels")) {%>
-        <span>in</span>
-        <% selectedClass.levels.forEach(function(level, index){%>
-            <%if (level.hasOwnProperty("values") && level.values.length > 0){%>
-                <div class="form-group">
-                    <select class="form-control select-level" level="<%=index%>">
-                        <option disabled selected hidden><%=level.title%></option>
-                        <% level.values.forEach(function (element) { %>
-                            <% if (level.hasOwnProperty("selectedValue") && element === level.selectedValue) { %>
-                                <option selected><%= element %></option>
-                            <% }
-                            else { %>
-                                <option><%= element %></option>
-                            <% } %>
-                        <% }); %>
-                    </select>
-                    <span class="glyphicon glyphicon-question-sign pull-right" title="<%=level.levelHelpText%>"/>
-                </div>
-            <%}%>
-        <%});%>
-        <%if (topMost.length > 0){%>
-            <span><%=topMostText%></span>
+    <% filters.forEach(function (filter, index) { %>
+        <% if (filter.hasOwnProperty("options") && filter.options.length > 0) { %>
+            <span><%=filter.title%></span>
             <div class="form-group">
-                <select class="form-control select-top-most">
-                    <option disabled selected hidden>TopMost</option>
-                    <% topMost.forEach(function (top) { %>
-                        <% if (top === selectedTopMost) { %>
-                            <option selected value="<%=top%>"><%=topMostOptionPrefix%> <%= top %></option>
+                <select class="form-control select-drop-down" index="<%=index%>">
+                    <option disabled selected hidden><%=filter.defaultOptionText%></option>
+                    <% filter.options.forEach(function (option) { %>
+                        <% if (filter.selectedOption !== undefined && filter.selectedOption[filter.attr] === option[filter.attr]) { %>
+                            <option selected><%= option[filter.attr] %></option>
                         <% }
                         else { %>
-                            <option value="<%=top%>"><%=topMostOptionPrefix%> <%= top %></option>
+                            <option><%= option[filter.attr] %></option>
                         <% } %>
                     <% }); %>
                 </select>
-                <span class="glyphicon glyphicon-question-sign pull-right" title="<%=topMostHelpText%>"/>
+                <span class="glyphicon glyphicon-question-sign pull-right" title="<%=filter.helpText%>"/>
             </div>
-        <%}%>
-    <%}%>
+        <% } %>
+    <% }); %>
+    <% if (topMost.isActive) { %>
+    <span><%=topMost.title%></span>
+    <div class="form-group">
+        <select class="form-control select-top-most">
+            <option disabled selected hidden><%=topMost.defaultOptionText%></option>
+            <% topMost.options.forEach(function (option) { %>
+                <% if (topMost.selectedOption !== undefined && topMost.selectedOption === option) { %>
+                    <option value="<%= option %>" selected><%= topMost.optionPrefix + " " + option %></option>
+                <% }
+                else { %>
+                    <option value="<%= option %>"><%= topMost.optionPrefix + " " + option %></option>
+                <% } %>
+            <% }); %>
+        </select>
+        <span class="glyphicon glyphicon-question-sign pull-right" title="<%=topMost.helpText%>"/>
+    </div>
+    <% } %>
+
     <% if (legend.length > 0) { %>
         <table class="table">
             <% legend.forEach(function(legendPart){ %>
@@ -63,7 +47,7 @@
                 </tr>
             <% }); %>
         </table>
-    <%}%>
+    <% } %>
     <% if (showPlayButton) { %>
         <% if (animating === true) { %>
             <button class="btn btn-default pull-right stop">

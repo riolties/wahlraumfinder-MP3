@@ -2,43 +2,38 @@
   "addOns": {
     "animationAddOn": {
       "name": "AddOn:CommuterAnimation",
-      "classesText": "Show all commuters with",
-      "classesHelpText": "Select the destination.",
-      "classesDefaultOptionText": "Select destination",
-      "topMostText": "but show only the",
-      "topMostHelpText": "Only show the commune with the most commuters.",
-      "topMostAscOptionPrefix": "Smallest",
-      "topMostDescOptionPrefix": "Biggest",
-      "classes": {
+      "filters": {
         "0": {
-          "name": "Work",
-          "levels": {
+          "title": "Show all commuters with",
+          "defaultOptionText": "Choose Destination",
+          "helpText": "Please choose a destination",
+          "options": {
             "0": {
-              "title": "Select county",
-              "levelHelpText": "Please select the county."
+              "name": "Home"
             },
             "1": {
-              "title": "Select commune",
-              "levelHelpText": "Please select the commune."
+              "name": "Work"
             }
           }
         },
         "1": {
-          "name": "Home",
-          "levels": {
-            "0": {
-              "title": "Select county",
-              "levelHelpText": "Please select the county."
-            },
-            "1": {
-              "title": "Select commune",
-              "levelHelpText": "Please select the commune."
-            }
-          }
+          "title": "in county",
+          "defaultOptionText": "Choose county",
+          "helpText": "Please choose a county"
+        },
+        "2": {
+          "title": "in commune",
+          "defaultOptionText": "Choose commune",
+          "helpText": "Please choose a commune"
         }
       },
-      "legendUnit": "People",
-      "alertLoadingData": "Loading data for animation tool."
+      "topMost": {
+        "title": "only show",
+        "defaultOptionText": "Please select",
+        "helpText": "Only show communes with the biggest amount of commuters",
+        "optionPrefix": "biggest"
+      },
+      "legendUnit": "people"
     }
   }
 }

@@ -4,22 +4,14 @@ import "./style.less";
 
 const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */{
     events: {
-        "change #select-class": "selectClass",
-        "change .select-level": "selectLevel",
+        "change .select-drop-down": "selectDropDownAtIndex",
         "change .select-top-most": "selectTopMost",
         "click .start": "start",
         "click .reset": "reset",
         "click .stop": "stop",
         "click .glyphicon-question-sign": "showHelp"
     },
-    /**
-     * @class AnimationView
-     * @extends Backbone.View
-     * @memberof Addons.Animation
-     * @listens Addons.Animation#changeIsActive
-     * @listens Addons.Animation#render
-     * @contructs
-     */
+
     initialize: function () {
         this.listenTo(this.model, {
             // ändert sich der Fensterstatus wird neu gezeichnet
@@ -54,41 +46,17 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
         }
         return this;
     },
-
-    /**
-     * Selects a class.
-     * @param {event} evt Event.
-     * @returns {void}
-     */
-    selectClass: function (evt) {
-        const value = evt.target.value;
-
-        this.model.selectClass(value);
-    },
-
-    /**
-     * Selects a level.
-     * @param {event} evt Event.
-     * @returns {void}
-     */
-    selectLevel: function (evt) {
+    selectDropDownAtIndex: function (evt) {
         const value = evt.target.value,
-            level = parseInt(evt.target.attributes.level.value, 10);
+            index = parseInt(evt.target.attributes.index.value, 10);
 
-        this.model.selectLevel(level, value);
+        this.model.selectDropDownAtIndex(index, value);
     },
-
-    /**
-     * Selects the top most.
-     * @param {event} evt Event.
-     * @returns {void}
-     */
     selectTopMost: function (evt) {
         const value = parseInt(evt.target.value, 10);
 
         this.model.selectTopMost(value);
     },
-
     /**
      * Starts the animation
      * @returns {void}
@@ -112,7 +80,6 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
     stop: function () {
         this.model.pauseAnimation();
     },
-
     showHelp: function (evt) {
         const target = evt.currentTarget,
             helpText = target.getAttribute("title"),

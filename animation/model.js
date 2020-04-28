@@ -4,6 +4,7 @@ import Feature from "ol/Feature.js";
 import {Text, Circle, Fill, Stroke, Style} from "ol/style.js";
 import VectorSource from "ol/source/Vector.js";
 import VectorLayer from "ol/layer/Vector.js";
+import {getMapProjection} from "masterportalAPI/src/crs";
 /**
  * TODO
  * @returns {Object} The model.
@@ -11,56 +12,92 @@ import VectorLayer from "ol/layer/Vector.js";
 function initializeAnimationModel () {
     const AnimationModel = Radio.request("ModelList", "getModelByAttributes", {id: "animationAddOn"}),
         defaults = {
+            name: "Animation_new", // wird systemisch gesetzt aus Übersetzung
+            glyphicon: "glyphicon-play-circle",
             attributionText: "&copy; <a href='https://statistik.arbeitsagentur.de/' target='_blank'>Statistik der Bundesagentur für Arbeit</a><br>&copy; GeoBasis-DE / BKG, Statistisches Bundesamt (Destatis) (2018)",
-            dataType: "GeoJSON",
-            url: "",
-            classes: [],
-            selectedClass: {},
-            currentLevel: 0,
+            url: "../muc_config/Pendler",
+            filters: [
+                {
+                    title: "Zeige mir alle Pendler an mit", // wird systemisch gesetzt aus Übersetzung
+                    defaultOptionText: "Bitte Ziel wählen", // wird systemisch gesetzt aus Übersetzung
+                    helpText: "Wähle hier das Ziel der Pendler", // wird systemisch gesetzt aus Übersetzung
+                    attr: "name",
+                    options: [
+                        {
+                            name: "Wohnort", // wird systemisch gesetzt aus Übersetzung
+                            url: "/wohnort/kreise.json"
+                        },
+                        {
+                            name: "Arbeitsort", // wird systemisch gesetzt aus Übersetzung
+                            url: "/arbeitsort/kreise.json"
+                        }
+                    ],
+                    selectedOption: undefined, // wird systemisch gesetzt
+                    query: {
+                        type: "URL",
+                        attr: "url",
+                        dataType: "JSON"
+                    }
+                },
+                {
+                    title: "in Kreis", // wird systemisch gesetzt aus Übersetzung
+                    defaultOptionText: "Bitte Kreis wählen", // wird systemisch gesetzt aus Übersetzung
+                    helpText: "Wähle hier den Kreis", // wird systemisch gesetzt aus Übersetzung
+                    attr: "name",
+                    options: [], // wird systemisch gesetzt
+                    selectedOption: undefined, // wird systemisch gesetzt
+                    query: {
+                        type: "URL",
+                        attr: "url",
+                        dataType: "JSON"
+                    }
+                },
+                {
+                    title: "in Gemeinde", // wird systemisch gesetzt aus Übersetzung
+                    defaultOptionText: "Bitte Gemeinde wählen", // wird systemisch gesetzt aus Übersetzung
+                    helpText: "Wähle hier die Gemeinde", // wird systemisch gesetzt aus Übersetzung
+                    attr: "name",
+                    options: [], // wird systemisch gesetzt
+                    selectedOption: undefined, // wird systemisch gesetzt
+                    query: {
+                        type: "URL",
+                        attr: "url",
+                        dataType: "GeoJSON"
+                    }
+                }
+            ],
+            features: [], // wird systemisch gesetzt
+            topMost: {
+                title: "", // wird systemisch gesetzt aus Übersetzung
+                defaultOptionText: "", // wird systemisch gesetzt aus Übersetzung
+                helpText: "", // wird systemisch gesetzt aus Übersetzung
+                options: [3, 5, 10],
+                selectedOption: undefined, // wird systemisch gesetzt
+                optionPrefix: "", // wird systemisch gesetzt
+                isActive: false // wird systemisch gesetzt
+            },
             colors: [],
             attrCount: "anzahl_pendler",
-            legend: [],
-            topMost: [3, 5, 10],
-            selectedTopMost: undefined,
-            sort: "desc",
-            showPlayButton: false,
-            animating: false,
+            attrLegend: "name",
+            legend: [], // wird systemisch gesetzt
+            legendUnit: "Personen", // wird systemisch gesetzt aus Übersetzung
             steps: 10,
             minPx: 5,
             maxPx: 20,
             showLineStringLayer: true,
-            classesHelpText: "",
-            topMostHelpText: ""
+            showPlayButton: false, // wird systemisch gesetzt
+            animating: false, // wird systemisch gesetzt
+            now: undefined // wird systemisch gesetzt
         };
 
     Object.assign(AnimationModel, /** @lends AnimationModel.prototype */ {
         attributes: Object.assign(defaults, AnimationModel.attributes),
-        /**
-         * @class AnimationModel
-         * @extends Tool
-         * @memberof Addons.Animation
-         * @fires Core#RadioRequestUtilGetProxyURL
-         * @fires Controls.Attributions#RadioTriggerAttributionsCreateAttribution
-         * @fires Controls.Attributions#RadioTriggerAttributionsRemoveAttribution
-         * @fires MapMarker#RadioTriggerMapMarkerHideMarker
-         * @fires MapMarker#RadioTriggerMapMarkerShowMarker
-         * @fires Core#RadioRequestMapCreateLayerIfNotExists
-         * @fires Core#RadioTriggerMapRegisterListener
-         * @fires Core#RadioTriggerMapUnregisterListener
-         * @fires Core#RadioTriggerMapRender
-         * @fires Core#RadioTriggerMapZoomToExtent
-         * @fires Addons.Animation#render
-         * @listens Addons.Animation#changeIsActive
-         * @contructs
-         */
         initialize: function () {
-            const dataType = this.get("dataType"),
-                url = Radio.request("Util", "getProxyURL", this.get("url")),
-                layer = new VectorLayer({
-                    source: new VectorSource(),
-                    alwaysOnTop: true,
-                    style: null
-                });
+            const layer = new VectorLayer({
+                source: new VectorSource(),
+                alwaysOnTop: true,
+                style: null
+            });
 
             this.listenTo(this, {
                 "change:isActive": function (model, value) {
@@ -74,235 +111,110 @@ function initializeAnimationModel () {
                     }
                 }
             });
-            this.superInitialize();
             this.listenTo(Radio.channel("i18next"), {
                 "languageChanged": this.changeLang
             });
-            this.prepareSelectedTopMost();
-            if (url) {
-                this.loadData(dataType, url);
-            }
+            this.superInitialize();
             this.setLayer(layer);
+            this.setAnimationLayer(Radio.request("Map", "createLayerIfNotExists", "animation_layer"));
             this.changeLang();
         },
-
-        /**
-         * Changes the language.
-         * @returns {void}
-         */
         changeLang: function () {
             this.set({
                 name: i18next.t("additional:addOns.animationAddOn.name"),
-                classesText: i18next.t("additional:addOns.animationAddOn.classesText"),
-                classesHelpText: i18next.t("additional:addOns.animationAddOn.classesHelpText"),
-                classesDefaultOptionText: i18next.t("additional:addOns.animationAddOn.classesDefaultOptionText"),
-                topMostText: i18next.t("additional:addOns.animationAddOn.topMostText"),
-                topMostHelpText: i18next.t("additional:addOns.animationAddOn.topMostHelpText"),
                 legendUnit: i18next.t("additional:addOns.animationAddOn.legendUnit")
             });
-
-            this.changeLangForClasses();
-            this.changeLangForTopMostOptionPrefix();
+            this.changeLangForFilters();
+            this.changeLangForTopMost();
             this.render();
         },
+        changeLangForFilters: function () {
+            const filters = this.get("filters");
 
-        /**
-         * Changes the language for the classes attributes.
-         * @returns {void}
-         */
-        changeLangForClasses: function () {
-            const classes = this.get("classes");
-
-            classes.forEach((classObj, classIndex) => {
-                classObj.name = i18next.t("additional:addOns.animationAddOn.classes." + classIndex + ".name");
-                classObj.levels.forEach((level, levelIndex) => {
-                    level.title = i18next.t("additional:addOns.animationAddOn.classes." + classIndex + ".levels." + levelIndex + ".title");
-                    level.levelHelpText = i18next.t("additional:addOns.animationAddOn.classes." + classIndex + ".levels." + levelIndex + ".levelHelpText");
-                });
+            filters.forEach((filter, filterIndex) => {
+                filter.title = i18next.t("additional:addOns.animationAddOn.filters." + filterIndex + ".title");
+                filter.defaultOptionText = i18next.t("additional:addOns.animationAddOn.filters." + filterIndex + ".defaultOptionText");
+                filter.helpText = i18next.t("additional:addOns.animationAddOn.filters." + filterIndex + ".helpText");
+                if (filterIndex === 0) {
+                    filter.options.forEach((option, optionIndex) => {
+                        option.name = i18next.t("additional:addOns.animationAddOn.filters." + filterIndex + ".options." + optionIndex + ".name");
+                    });
+                }
             });
-
-            this.setClasses(classes);
+            this.setFilters(filters);
         },
-
-        /**
-         * Changes the topMostOptionPrefix based on the sort attribute and the language.
-         * @returns {void}
-         */
-        changeLangForTopMostOptionPrefix: function () {
-            const sort = this.get("sort");
-
-            if (sort === "asc") {
-                this.set({
-                    topMostOptionPrefix: i18next.t("additional:addOns.animationAddOn.topMostAscOptionPrefix")
-                });
-            }
-            else if (sort === "desc") {
-                this.set({
-                    topMostOptionPrefix: i18next.t("additional:addOns.animationAddOn.topMostDescOptionPrefix")
-                });
-            }
-        },
-
-        /**
-         * Selects the first topMost.
-         * @returns {void}
-         */
-        prepareSelectedTopMost: function () {
+        changeLangForTopMost: function () {
             const topMost = this.get("topMost");
-            let selectedTopMost = this.get("selectedTopMost");
 
-            if (Array.isArray(topMost) && topMost.length > 0 && !selectedTopMost) {
-                selectedTopMost = topMost[0];
+            topMost.title = i18next.t("additional:addOns.animationAddOn.topMost.title");
+            topMost.defaultOptionText = i18next.t("additional:addOns.animationAddOn.topMost.defaultOptionText");
+            topMost.helpText = i18next.t("additional:addOns.animationAddOn.topMost.helpText");
+            topMost.optionPrefix = i18next.t("additional:addOns.animationAddOn.topMost.optionPrefix");
+            this.setTopMost(topMost);
+        },
+        selectDropDownAtIndex: function (index, value) {
+            let filters = this.get("filters"),
+                nextDropDown,
+                features;
+            const dropDown = filters[index],
+                options = dropDown.options,
+                name = dropDown.attr,
+                selectedOption = this.findOptionByAttr(options, name, value),
+                isLastDropDown = index + 1 === filters.length;
+
+            dropDown.selectedOption = selectedOption;
+            this.resetAll();
+            if (!isLastDropDown) {
+                filters = this.clearFilterOptionsWithHigherIndex(filters, index);
+                nextDropDown = filters[index + 1];
+                nextDropDown.options = this.fetchOptions(dropDown.selectedOption, dropDown.query);
+                this.setFilters(filters);
             }
-
-            this.setSelectedTopMost(selectedTopMost);
-        },
-
-        /**
-         * Loads data and saves the features.
-         * @param {String} dataType Datatype.
-         * @param {String} url url.
-         * @returns {void}
-         */
-        loadData: function (dataType, url) {
-            let features = [];
-
-            if (dataType === "GeoJSON") {
-                features = this.loadDataFromGeoJson(url);
+            else {
+                features = this.fetchOptions(dropDown.selectedOption, dropDown.query);
+                this.setFeatures(features);
+                this.toggleTopMost(true);
+                this.prepareAnimation(features);
             }
-
-            this.setFeatures(features);
+            this.render();
         },
-        /**
-         * Loads the Data from GeoJSON datasource.
-         * @param {*} url Url.
-         * @returns {ol/feature[]} - ol features.
-         */
-        loadDataFromGeoJson: function (url) {
-            const xhr = new XMLHttpRequest(),
-                format = new GeoJSON();
-            let features = [];
-
-            xhr.open("GET", url, false);
-            xhr.onreadystatechange = function (evt) {
-                const responseText = evt.currentTarget.responseText;
-
-                Radio.trigger("Alert", "alert:remove", "animation_loading_data");
-                Radio.trigger("Util", "hideLoader");
-                features = format.readFeatures(JSON.parse(responseText));
-            };
-            Radio.trigger("Alert", "alert", {
-                id: "animation_loading_data",
-                text: i18next.t("additional:addOns.animationAddOn.alertLoadingData")
-            });
-            Radio.trigger("Util", "showLoader");
-            xhr.send();
-            return features;
-        },
-
-        /**
-         * Function that is triggered when a class is selected.
-         * @param {String} className Class name.
-         * @fires MapMarker#RadioTriggerMapMarkerHideMarker
-         * @returns {void}
-         */
-        selectClass: function (className) {
-            const currentLevel = 0,
-                classes = this.get("classes");
-            let selectedClass;
-
-            this.stopAnimation();
-            classes.forEach(classObj => {
-                classObj.levels = this.unsetSelectedValues(classObj.levels);
-            });
-            this.setClasses(classes);
-            Radio.trigger("MapMarker", "hideMarker");
-
-            selectedClass = classes.filter(classPart => {
-                return classPart.name === className;
-            })[0];
-            selectedClass = this.prepareLevel(selectedClass, currentLevel);
+        resetAll: function () {
+            this.toggleTopMost(false);
             this.resetLegend();
-            this.setSelectedClass(selectedClass);
-            this.setCurrentLevel(currentLevel);
-            this.render();
+            this.resetAnimationLayer();
+            this.setAnimating(false);
+            this.setShowPlayButton(false);
+            Radio.trigger("MapMarker", "hideMarker");
         },
+        selectTopMost: function (value) {
+            const topMost = this.get("topMost"),
+                features = this.get("features");
 
-        /**
-         * Function that is triggered when a level is selected.
-         * @param {String} level Level.
-         * @param {String} selection Selection.
-         * @returns {void}
-         */
-        selectLevel: function (level, selection) {
-            let selectedClass = this.get("selectedClass"),
-                filteredFeatures = [];
-            const maxLevel = selectedClass.levels.length,
-                nextLevel = level + 1,
-                hasNextLevel = nextLevel < maxLevel;
-
-            this.stopAnimation();
-            selectedClass.levels = this.unsetSelectedValues(selectedClass.levels, level);
-            selectedClass.levels[level].selectedValue = selection;
-            filteredFeatures = this.filterFeatures(selectedClass);
-            this.setFilteredFeatures(filteredFeatures);
-
-            if (hasNextLevel) {
-                selectedClass = this.prepareLevel(selectedClass, nextLevel);
-                this.setCurrentLevel(level);
-                this.resetLegend();
-            }
-            else {
-                this.prepareAnimation(level);
-            }
-            this.setSelectedClass(selectedClass);
-            this.render();
+            topMost.selectedOption = value;
+            this.setTopMost(topMost);
+            this.resetAnimationLayer();
+            this.prepareAnimation(features);
         },
+        toggleTopMost: function (isActive) {
+            const topMost = this.get("topMost");
 
-        /**
-         * Unsets the selected Values.
-         * @param {Object[]} levels Levels.
-         * @param {Number} index Index.
-         * @returns {Object[]} - Levels without selected values.
-         */
-        unsetSelectedValues: function (levels, index) {
-            const levelsWithoutSelectedValues = levels;
-
-            if (index) {
-                delete levelsWithoutSelectedValues[index].selectedValue;
-            }
-            else {
-                levelsWithoutSelectedValues.forEach(level => {
-                    delete level.selectedValue;
-                });
-            }
-
-            return levelsWithoutSelectedValues;
+            topMost.isActive = isActive;
+            this.setTopMost(topMost);
         },
+        prepareAnimation: function (features) {
+            const topMost = this.get("topMost"),
+                attrCount = this.get("attrCount"),
+                attrLegend = this.get("attrLegend");
+            let filteredFeatures = this.filterFeaturesByTopMost(features, topMost.selectedOption);
 
-        /**
-         * Prepares the animation.
-         * @param {*} level Level.
-         * @returns {void}
-         */
-        prepareAnimation: function (level) {
-            const selectedClass = this.get("selectedClass"),
-                selectedTopMost = this.get("selectedTopMost"),
-                selection = this.get("filteredFeatures")[0],
-                oppositeClassAttr = this.getOppositeClassAttr(level),
-                attrCount = this.get("attrCount");
-            let filteredFeatures = this.filterFeaturesFromSelection(selectedClass);
-
+            filteredFeatures = this.sortFeaturesByAttr(filteredFeatures, attrCount);
             filteredFeatures = this.colorFeatures(filteredFeatures);
-            filteredFeatures = this.sortFeaturesByAttr(filteredFeatures, attrCount, this.get("sort"));
-            filteredFeatures = this.filterFeaturesByTopMost(filteredFeatures, selectedTopMost);
-            this.prepareLegend(filteredFeatures, oppositeClassAttr);
-            this.showMarkerOnFocus(selection);
+            this.setLegend(this.createLegend(filteredFeatures, attrCount, attrLegend));
+            this.showMarkerOnFocus(filteredFeatures[0]);
             this.zoomToExtent(filteredFeatures);
-            this.setFilteredFeatures(filteredFeatures);
             this.setMinVal(_.last(filteredFeatures).get(attrCount));
             this.setMaxVal(_.first(filteredFeatures).get(attrCount));
-            this.prepareLineStringLayer(filteredFeatures, attrCount, oppositeClassAttr);
+            this.prepareLineStringLayer(filteredFeatures, attrCount, attrLegend);
             if (this.get("showLineStringLayer")) {
                 this.addLineStringLayerToMap();
             }
@@ -311,13 +223,77 @@ function initializeAnimationModel () {
         },
 
         /**
-         * Prepares the line string layer.
-         * @param {ol/Feature[]} relevantFeatures Features.
-         * @param {String} attrCount Attribute for count.
-         * @param {String} oppositeClassAttr Attribute for oppositeClass.
+         * Shows the Map marker.
+         * @param {ol/feature} feature Feature.
+         * @fires MapMarker#RadioTriggerMapMarkerShowMarker
          * @returns {void}
          */
-        prepareLineStringLayer: function (relevantFeatures, attrCount, oppositeClassAttr) {
+        showMarkerOnFocus: function (feature) {
+            const coords = this.deriveCoordinates(feature);
+
+            Radio.trigger("MapMarker", "showMarker", coords);
+        },
+
+        resetAnimationLayer: function () {
+            const animationLayer = this.get("animationLayer");
+
+            animationLayer.getSource().clear();
+        },
+
+        deriveCoordinates: function (feature) {
+            const firstFilter = this.get("filters")[0],
+                selectedOption = firstFilter.selectedOption,
+                index = firstFilter.options.indexOf(selectedOption);
+            let coords = [];
+
+            if (index === 0) {
+                coords = feature.getGeometry().getFirstCoordinate();
+            }
+            else {
+                coords = feature.getGeometry().getLastCoordinate();
+            }
+            return coords;
+        },
+
+        /**
+         * Zooms to the extent of the given features.
+         * @param {ol/feature[]} features Features.
+         * @fires Core#RadioTriggerMapZoomToExtent
+         * @returns {void}
+         */
+        zoomToExtent: function (features) {
+            const extent = this.calculateExtent(features);
+
+            Radio.trigger("Map", "zoomToExtent", extent);
+        },
+
+        /**
+         * Calculates teh extent based on the given features.
+         * @param {ol/feature[]} features Features.
+         * @returns {Number[]} - Extent of the features.
+         */
+        calculateExtent: function (features) {
+            var extent = [9999999, 9999999, 0, 0];
+
+            features.forEach(feature => {
+                var featureExtent = feature.getGeometry().getExtent();
+
+                extent[0] = featureExtent[0] < extent[0] ? featureExtent[0] : extent[0];
+                extent[1] = featureExtent[1] < extent[1] ? featureExtent[1] : extent[1];
+                extent[2] = featureExtent[2] > extent[2] ? featureExtent[2] : extent[2];
+                extent[3] = featureExtent[3] > extent[3] ? featureExtent[3] : extent[3];
+            });
+            return extent;
+        },
+
+        /**
+         * Prepares the line string layer.
+         * @param {ol/Feature[]} features Features.
+         * @param {String} attrCount Attribute for count.
+         * @param {String} attrLegend Attribute for oppositeClass.
+         * @returns {void}
+         */
+        prepareLineStringLayer: function (features, attrCount, attrLegend) {
             const layer = this.get("layer");
             let startPoint,
                 endPoint,
@@ -334,7 +310,7 @@ function initializeAnimationModel () {
 
             layer.getSource().clear();
 
-            relevantFeatures.forEach(feature => {
+            features.forEach(feature => {
                 startPoint = feature.getGeometry().getFirstCoordinate();
                 endPoint = feature.getGeometry().getLastCoordinate();
                 steps = this.get("steps");
@@ -342,7 +318,7 @@ function initializeAnimationModel () {
                 directionY = (endPoint[1] - startPoint[1]) / steps;
                 lineCoords = [];
                 count = feature.get(attrCount);
-                name = feature.get(oppositeClassAttr);
+                name = feature.get(attrLegend);
                 color = feature.get("color");
 
                 for (i = 0; i <= steps; i++) {
@@ -360,7 +336,6 @@ function initializeAnimationModel () {
                 line.setStyle(this.createLineStringStyle(color));
                 layer.getSource().addFeature(line);
             });
-
         },
 
         /**
@@ -380,6 +355,58 @@ function initializeAnimationModel () {
         },
 
         /**
+         * Adds the line string layer to the map.
+         * @fires Core#RadioRequestMapCreateLayerIfNotExists
+         * @returns {void}
+         */
+        addLineStringLayerToMap: function () {
+            const layer = this.get("animationLayer"),
+                features = this.get("layer").getSource().getFeatures();
+
+            layer.getSource().addFeatures(features);
+        },
+        /**
+         * Creates the legend
+         * @param {ol/feature[]} features Features.
+         * @param {String} attrCount Attribute for number.
+         * @param {String} attrLegend Attribute for legend.
+         * @returns {Object[]} - Legend
+         */
+        createLegend: function (features, attrCount, attrLegend) {
+            const legend = [];
+
+            features.forEach(feature => {
+                legend.push({
+                    count: feature.get(attrCount),
+                    color: this.rgbaArrayToString(feature.get("color")),
+                    name: feature.get(attrLegend)
+                });
+            }, this);
+
+            return legend;
+        },
+
+        /**
+         * Converts an rgb array into and rgb string.
+         * @param {Number[]} rgbArray Array.
+         * @returns {String} - rgb string.
+         */
+        rgbaArrayToString: function (rgbArray) {
+            let rgbString = "";
+
+            if (rgbArray.length === 3) {
+                rgbString = "rgb(";
+            }
+            else if (rgbArray.length === 4) {
+                rgbString = "rgba(";
+            }
+            rgbString += rgbArray.toString();
+            rgbString += ")";
+
+            return rgbString;
+        },
+
+        /**
          * Starts the animation.
          * @returns {void}
          */
@@ -396,18 +423,6 @@ function initializeAnimationModel () {
         },
 
         /**
-         * Adds the line string layer to the map.
-         * @fires Core#RadioRequestMapCreateLayerIfNotExists
-         * @returns {void}
-         */
-        addLineStringLayerToMap: function () {
-            const layer = Radio.request("Map", "createLayerIfNotExists", "animation_layer"),
-                features = this.get("layer").getSource().getFeatures();
-
-            layer.getSource().addFeatures(features);
-        },
-
-        /**
          * Stops the animation.
          * @param {ol/feature[]} features Features.
          * @fires Core#RadioRequestMapCreateLayerIfNotExists
@@ -415,7 +430,7 @@ function initializeAnimationModel () {
          * @returns {void}
          */
         stopAnimation: function (features) {
-            const layer = Radio.request("Map", "createLayerIfNotExists", "animation_layer");
+            const layer = this.get("animationLayer");
 
             layer.getSource().clear();
             Radio.trigger("Map", "unregisterListener", this.get("postcomposeListener"));
@@ -441,7 +456,6 @@ function initializeAnimationModel () {
             features = this.draw(undefined, features, index);
             this.stopAnimation(features);
         },
-
         /**
          * Moves the feature.
          * @param {event} event Event.
@@ -563,127 +577,18 @@ function initializeAnimationModel () {
         },
 
         /**
-         * Gets the attribute of the oppisite class. Used for displaying purposes.
-         * @param {Number} level Level.
-         * @returns {String} - OppositeClassAttr.
+         * Sorts the feature by the given attribute name descending.
+         * @param {ol/feature[]} features Features to be sorted.
+         * @param {String} attr Attr to be sorted by.
+         * @returns {ol/feature[]} - sorted features.
          */
-        getOppositeClassAttr: function (level) {
-            const classes = this.get("classes"),
-                selectedClass = this.get("selectedClass"),
-                selectedClassName = selectedClass.name,
-                oppositeClass = classes.filter(classObj => {
-                    return classObj.name !== selectedClassName;
-                })[0],
-                oppositeClassAttr = oppositeClass.levels[level].attr;
-
-            return oppositeClassAttr;
-        },
-
-        /**
-         * Zooms to the extent of the given features.
-         * @param {ol/feature[]} features Features.
-         * @fires Core#RadioTriggerMapZoomToExtent
-         * @returns {void}
-         */
-        zoomToExtent: function (features) {
-            const extent = this.calculateExtent(features);
-
-            Radio.trigger("Map", "zoomToExtent", extent);
-        },
-
-        /**
-         * Calculates teh extent based on the given features.
-         * @param {ol/feature[]} features Features.
-         * @returns {Number[]} - Extent of the features.
-         */
-        calculateExtent: function (features) {
-            var extent = [9999999, 9999999, 0, 0];
-
-            features.forEach(feature => {
-                var featureExtent = feature.getGeometry().getExtent();
-
-                extent[0] = featureExtent[0] < extent[0] ? featureExtent[0] : extent[0];
-                extent[1] = featureExtent[1] < extent[1] ? featureExtent[1] : extent[1];
-                extent[2] = featureExtent[2] > extent[2] ? featureExtent[2] : extent[2];
-                extent[3] = featureExtent[3] > extent[3] ? featureExtent[3] : extent[3];
+        sortFeaturesByAttr: function (features, attr) {
+            features.sort(function (a, b) {
+                return b.get(attr) - a.get(attr);
             });
-            return extent;
+
+            return features;
         },
-
-        /**
-         * Shows the Map marker.
-         * @param {ol/feature} selection Selected Feature of interest.
-         * @fires MapMarker#RadioTriggerMapMarkerShowMarker
-         * @returns {void}
-         */
-        showMarkerOnFocus: function (selection) {
-            let coords = [];
-            const classes = this.get("classes"),
-                selectedClass = this.get("selectedClass"),
-                indexOfSelectedClass = classes.indexOf(selectedClass);
-
-            if (indexOfSelectedClass === 0) {
-                coords = selection.getGeometry().getFirstCoordinate();
-            }
-            else {
-                coords = selection.getGeometry().getLastCoordinate();
-            }
-
-            Radio.trigger("MapMarker", "showMarker", coords);
-        },
-
-        /**
-         * Prepares the legend
-         * @param {ol/feature[]} filteredFeatures Features.
-         * @param {String} attr Attribute name.
-         * @returns {void}
-         */
-        prepareLegend: function (filteredFeatures, attr) {
-            const legend = this.createLegend(filteredFeatures, attr);
-
-            this.setLegend(legend);
-        },
-
-        /**
-         * Creates the legend
-         * @param {ol/feature[]} features Features.
-         * @param {String} attr Attribute name.
-         * @returns {Object[]} - Legend
-         */
-        createLegend: function (features, attr) {
-            const legend = [];
-
-            features.forEach(feature => {
-                legend.push({
-                    count: feature.get(this.get("attrCount")),
-                    color: this.rgbaArrayToString(feature.get("color")),
-                    name: feature.get(attr)
-                });
-            }, this);
-
-            return legend;
-        },
-
-        /**
-         * Converts an rgb array into and rgb string.
-         * @param {Number[]} rgbArray Array.
-         * @returns {String} - rgb string.
-         */
-        rgbaArrayToString: function (rgbArray) {
-            let rgbString = "";
-
-            if (rgbArray.length === 3) {
-                rgbString = "rgb(";
-            }
-            else if (rgbArray.length === 4) {
-                rgbString = "rgba(";
-            }
-            rgbString += rgbArray.toString();
-            rgbString += ")";
-
-            return rgbString;
-        },
-
         /**
          * Colors the features. Sets for each feature an attribute "color".
          * @param {ol/feature[]} features Features.
@@ -700,7 +605,7 @@ function initializeAnimationModel () {
 
             // Füge eine Farbe zur Darstellung hinzu
             features.forEach((feature, index) => {
-                features[index].set("color", colors[index]);
+                feature.set("color", colors[index]);
             });
 
             return features;
@@ -733,284 +638,121 @@ function initializeAnimationModel () {
             return colors;
         },
 
-        /**
-         * Filters the features from the selection.
-         * @param {Object} selectedClass SelectedClass.
-         * @param {String} attr Attribute
-         * @returns {ol/feature[]} - filtered features.
-         */
-        filterFeaturesFromSelection: function (selectedClass) {
-            const features = this.get("features");
-            let filteredFeatures = features;
-
-            selectedClass.levels.forEach(level => {
-                const attr = level.attr,
-                    value = level.selectedValue;
-
-                filteredFeatures = filteredFeatures.filter(feature => {
-                    return feature.get(attr) === value;
-                });
-            });
-            return filteredFeatures;
-        },
-
-        /**
-         * Sorts the feature by the given attribute name and mode.
-         * @param {ol/feature[]} features Features to be sorted.
-         * @param {String} attr Attr to be sorted by.
-         * @param {String} mode Sort mode. "asc" or "desc".
-         * @returns {ol/feature[]} - sorted features.
-         */
-        sortFeaturesByAttr: function (features, attr, mode) {
-            if (mode === "desc") {
-                features.sort(function (a, b) {
-                    return b.get(attr) - a.get(attr);
-                });
-            }
-            else if (mode === "asc") {
-                features.sort(function (a, b) {
-                    return a.get(attr) - b.get(attr);
-                });
-            }
-            else {
-                console.error("Sort mode '" + mode + "' not implemented yet, sorting desc");
-                features.sort(function (a, b) {
-                    return a.get(attr) - b.get(attr);
-                });
-            }
-
-            return features;
-        },
-
-        /**
-         * Filters the features by the selected top most.
-         * @param {ol/feature[]} features Features to be filtered.
-         * @param {Number} selectedTopMost Value top slice the array.
-         * @returns {ol/feature[]} - top most selected features.
-         */
         filterFeaturesByTopMost: function (features, selectedTopMost) {
             return features.slice(0, selectedTopMost);
         },
+        findOptionByAttr: function (options, key, value) {
+            let foundOption;
 
-        /**
-         * Prepares the level.
-         * @param {Object} selectedClass Selected class.
-         * @param {Number} level Level.
-         * @returns {Object} - selected class with prepared level.
-         */
-        prepareLevel: function (selectedClass, level) {
-            selectedClass.levels[level].values = this.getFeatureValuesByLevel(selectedClass, level);
-
-            return selectedClass;
-        },
-
-        /**
-         * Gets the feature values for the given level.
-         * @param {Object} selectedClass Selected class.
-         * @param {Number} level Level.
-         * @returns {String[]} - The values for the level.
-         */
-        getFeatureValuesByLevel: function (selectedClass, level) {
-            const levels = selectedClass.levels,
-                filteredFeatures = this.filterFeatures(selectedClass);
-            let values = [];
-
-            levels.forEach((lvl, idx) => {
-                if (idx === level) {
-                    filteredFeatures.forEach(feature => {
-                        values.push(feature.get(lvl.attr));
-                    });
+            options.forEach(option => {
+                if (option[key] === value) {
+                    foundOption = option;
                 }
             });
-
-            values = [...new Set(values)];
-            values = values.sort();
-            return values;
+            return foundOption;
         },
-
-        /**
-         * Filteres the features of the selected class.
-         * @param {Object} selectedClass Selected class.
-         * @returns {ol/feature[]} - Selected features.
-         */
-        filterFeatures: function (selectedClass) {
-            const levels = selectedClass.levels;
-            let filteredFeatures = this.get("features");
-
-            levels.forEach(level => {
-                if (level.hasOwnProperty("selectedValue")) {
-                    filteredFeatures = filteredFeatures.filter(feature => {
-                        return feature.get(level.attr) === level.selectedValue;
-                    });
+        clearFilterOptionsWithHigherIndex: function (filters, index) {
+            filters.forEach((filter, filterIndex) => {
+                if (filterIndex > index) {
+                    filter.options = [];
+                    filter.selectedOption = undefined;
                 }
             });
-            return filteredFeatures;
+            return filters;
+        },
+        fetchOptions: function (selectedOption, query) {
+            let options;
+            const value = selectedOption[query.attr];
+
+            options = this.getResponseByQueryType(value, query.type);
+            options = this.formatResponseByDataType(options, query.dataType);
+            return options;
+        },
+        getResponseByQueryType: function (value, queryType) {
+            const url = this.get("url");
+            let response = "";
+
+            if (queryType === "URL") {
+                response = this.sendRequest(url + value);
+            }
+            // possible other queryTypes
+            return response;
         },
 
-        /**
-         * Selects the top most features.
-         * @param {Number} value Number of features to select.
-         * @returns {void}
-         */
-        selectTopMost: function (value) {
-            const selectedClass = this.get("selectedClass"),
-                level = selectedClass.levels.length - 1;
+        formatResponseByDataType: function (response, dataType) {
+            const map = Radio.request("Map", "getMap"),
+                proj = getMapProjection(map),
+                geoJsonFormat = new GeoJSON({
+                    // dataProjection: "EPSG:4326", // default projection
+                    featureProjection: proj
+                });
+            let formattedResponse = [];
 
-            this.setSelectedTopMost(value);
-            this.stopAnimation();
-            this.prepareAnimation(level);
+            if (dataType === "JSON") {
+                formattedResponse = JSON.parse(response);
+            }
+            else if (dataType === "GeoJSON") {
+                formattedResponse = geoJsonFormat.readFeatures(JSON.parse(response));
+            }
+            // possible other dataTypes
+            return formattedResponse;
         },
+        sendRequest: function (url) {
+            const xhr = new XMLHttpRequest(),
+                proxiedUrl = Radio.request("Util", "getProxyURL", url);
+            let response;
 
-        /**
-         * Resets the legen.
-         * @returns {void}
-         */
+            xhr.open("GET", proxiedUrl, false);
+            xhr.onreadystatechange = function (evt) {
+                const responseText = evt.currentTarget.responseText;
+
+                response = responseText;
+            };
+            xhr.send();
+            return response;
+        },
         resetLegend: function () {
             this.setLegend([]);
         },
-
-        /**
-         * Triggers the view to render itself.
-         * @fires Addons.Animation#render
-         * @returns {void}
-         */
         render: function () {
             this.trigger("render", this);
         },
 
-        /**
-         * Setter for attribute "features"
-         * @param {*} value Value.
-         * @returns {void}
-         */
-        setFeatures: function (value) {
-            this.set("features", value);
-        },
-
-        /**
-         * Setter for attribute "selectedClass"
-         * @param {*} value Value.
-         * @returns {void}
-         */
-        setSelectedClass: function (value) {
-            this.set("selectedClass", value);
-        },
-
-        /**
-         * Setter for attribute "currentLevel"
-         * @param {*} value Value.
-         * @returns {void}
-         */
-        setCurrentLevel: function (value) {
-            this.set("currentLevel", value);
-        },
-
-        /**
-         * Setter for attribute "filteredFeatures"
-         * @param {*} value Value.
-         * @returns {void}
-         */
-        setFilteredFeatures: function (value) {
-            this.set("filteredFeatures", value);
-        },
-
-        /**
-         * Setter for attribute "legend"
-         * @param {*} value Value.
-         * @returns {void}
-         */
         setLegend: function (value) {
             this.set("legend", value);
         },
-
-        /**
-         * Setter for attribute "selectedTopMost"
-         * @param {*} value Value.
-         * @returns {void}
-         */
-        setSelectedTopMost: function (value) {
-            this.set("selectedTopMost", value);
-        },
-
-        /**
-         * Setter for attribute "classes"
-         * @param {*} value Value.
-         * @returns {void}
-         */
-        setClasses: function (value) {
-            this.set("classes", value);
-        },
-
-        /**
-         * Setter for attribute "layer"
-         * @param {*} value Value.
-         * @returns {void}
-         */
         setLayer: function (value) {
             this.set("layer", value);
         },
-
-        /**
-         * Setter for attribute "showPlayButton"
-         * @param {*} value Value.
-         * @returns {void}
-         */
-        setShowPlayButton: function (value) {
-            this.set("showPlayButton", value);
-        },
-
-        /**
-         * Setter for attribute "postcomposeListener"
-         * @param {*} value Value.
-         * @returns {void}
-         */
-        setPostcomposeListener: function (value) {
-            this.set("postcomposeListener", value);
-        },
-
-        /**
-         * Setter for attribute "animationLayer"
-         * @param {*} value Value.
-         * @returns {void}
-         */
         setAnimationLayer: function (value) {
             this.set("animationLayer", value);
         },
-
-        /**
-         * Setter for attribute "animating"
-         * @param {*} value Value.
-         * @returns {void}
-         */
-        setAnimating: function (value) {
-            this.set("animating", value);
+        setFilters: function (value) {
+            this.set("filters", value);
         },
-
-        /**
-         * Setter for attribute "now"
-         * @param {*} value Value.
-         * @returns {void}
-         */
-        setNow: function (value) {
-            this.set("now", value);
+        setFeatures: function (value) {
+            this.set("features", value);
         },
-
-        /**
-         * Setter for attribute "minVal"
-         * @param {*} value Value.
-         * @returns {void}
-         */
+        setTopMost: function (value) {
+            this.set("topMost", value);
+        },
         setMinVal: function (value) {
             this.set("minVal", value);
         },
-
-        /**
-         * Setter for attribute "maxVal"
-         * @param {*} value Value.
-         * @returns {void}
-         */
         setMaxVal: function (value) {
             this.set("maxVal", value);
+        },
+        setShowPlayButton: function (value) {
+            this.set("showPlayButton", value);
+        },
+        setPostcomposeListener: function (value) {
+            this.set("postcomposeListener", value);
+        },
+        setAnimating: function (value) {
+            this.set("animating", value);
+        },
+        setNow: function (value) {
+            this.set("now", value);
         }
     });
 
