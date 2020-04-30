@@ -65,7 +65,7 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
     },
 
     loadInfra3dApi: function () {
-        var script = document.createElement("script");
+        const script = document.createElement("script");
 
         script.setAttribute("src", "https://client.infra3d.ch/api/js/infra3dapi.js");
         document.head.appendChild(script);

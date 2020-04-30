@@ -273,10 +273,10 @@ function initializeAnimationModel () {
          * @returns {Number[]} - Extent of the features.
          */
         calculateExtent: function (features) {
-            var extent = [9999999, 9999999, 0, 0];
+            const extent = [9999999, 9999999, 0, 0];
 
             features.forEach(feature => {
-                var featureExtent = feature.getGeometry().getExtent();
+                const featureExtent = feature.getGeometry().getExtent();
 
                 extent[0] = featureExtent[0] < extent[0] ? featureExtent[0] : extent[0];
                 extent[1] = featureExtent[1] < extent[1] ? featureExtent[1] : extent[1];
