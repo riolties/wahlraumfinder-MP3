@@ -205,9 +205,10 @@ function initializeAnimationModel () {
             const topMost = this.get("topMost"),
                 attrCount = this.get("attrCount"),
                 attrLegend = this.get("attrLegend");
-            let filteredFeatures = this.filterFeaturesByTopMost(features, topMost.selectedOption);
+            let filteredFeatures = this.sortFeaturesByAttr(features, attrCount);
 
-            filteredFeatures = this.sortFeaturesByAttr(filteredFeatures, attrCount);
+            filteredFeatures = this.filterFeaturesByTopMost(filteredFeatures, topMost.selectedOption);
+
             filteredFeatures = this.colorFeatures(filteredFeatures);
             this.setLegend(this.createLegend(filteredFeatures, attrCount, attrLegend));
             this.showMarkerOnFocus(filteredFeatures[0]);
