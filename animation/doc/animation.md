@@ -89,7 +89,7 @@ Das Addon animation
 
 ***
 
-## animation.filter
+## filter
 Aus jedem Filter wird ein Dropdown erzeugt.
 Folgende Inhalte sind konfigurierbar:
 
@@ -130,7 +130,8 @@ Folgende Inhalte sind konfigurierbar:
 
 ***
 
-## animation.filter.option
+## filter.option
+
 Eine Option ist ein Objekt, welche mindestens aus einer URL und einem weiteren Attribut bestehen muss, welches im Attribut "attr" eines Filters definiert ist. Der Inhalt des Attributes wird im dropdown angezeigt.
 Beim Selektieren der Option wird die Url an die url des Werkzeugs angehängt und ein neuer Request erzeugt.
 Dieser parsed mithilfe der **[query](#markdown-header-filterquery)** den Inhalt für das nächste Dropdown.
@@ -151,8 +152,7 @@ Dieser parsed mithilfe der **[query](#markdown-header-filterquery)** den Inhalt 
 
 ***
 
-## animation.filter.query
-
+## filter.query
 
 |Name|Verpflichtend|Typ|Default|Beschreibung|Expert|
 |----|-------------|---|-------|------------|------|
