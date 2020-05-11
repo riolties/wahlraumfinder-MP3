@@ -92,6 +92,19 @@ function initializeAnimationModel () {
 
     Object.assign(AnimationModel, /** @lends AnimationModel.prototype */ {
         attributes: Object.assign(defaults, AnimationModel.attributes),
+        /**
+         * @class AnimationModel
+         * @extends Tool
+         * @memberof Addons.Animation
+         * @listens Animation#changeIsActive
+         * @listens i18next#RadioTriggerLanguageChanged
+         * @fires Controls.Attributions#RadioTriggerAttributionsCreateAttribution
+         * @fires Controls.Attributions#RadioTriggerAttributionsRemoveAttribution
+         * @fires MapMarker#RadioTriggerMapMarkerHideMarker
+         * @fires Core#RadioRequestMapCreateLayerIfNotExists
+         * @fires Animation#render
+         * @contructs
+         */
         initialize: function () {
             const layer = new VectorLayer({
                 source: new VectorSource(),
@@ -119,6 +132,11 @@ function initializeAnimationModel () {
             this.setAnimationLayer(Radio.request("Map", "createLayerIfNotExists", "animation_layer"));
             this.changeLang();
         },
+
+        /**
+         * Sets the properties that have to be translated.
+         * @returns {void}
+         */
         changeLang: function () {
             this.set({
                 name: i18next.t("additional:addOns.animationAddOn.name"),
@@ -128,6 +146,11 @@ function initializeAnimationModel () {
             this.changeLangForTopMost();
             this.render();
         },
+
+        /**
+         * Sets the properties for filters, that have to be translated.
+         * @returns {void}
+         */
         changeLangForFilters: function () {
             const filters = this.get("filters");
 
@@ -143,6 +166,11 @@ function initializeAnimationModel () {
             });
             this.setFilters(filters);
         },
+
+        /**
+         * Sets the properties for topMost, that have to be translated.
+         * @returns {void}
+         */
         changeLangForTopMost: function () {
             const topMost = this.get("topMost");
 
@@ -152,6 +180,13 @@ function initializeAnimationModel () {
             topMost.optionPrefix = i18next.t("additional:addOns.animationAddOn.topMost.optionPrefix");
             this.setTopMost(topMost);
         },
+
+        /**
+         * Selects a dropdown option based on index of filters and value
+         * @param {Number} index Index
+         * @param {*} value Value of selection.
+         * @returns {void}
+         */
         selectDropDownAtIndex: function (index, value) {
             let filters = this.get("filters"),
                 nextDropDown,
@@ -178,6 +213,12 @@ function initializeAnimationModel () {
             }
             this.render();
         },
+
+        /**
+         * Resets all Settings
+         * @fires MapMarker#RadioTriggerMapMarkerHideMarker
+         * @returns {void}
+         */
         resetAll: function () {
             this.toggleTopMost(false);
             this.resetLegend();
@@ -186,6 +227,12 @@ function initializeAnimationModel () {
             this.setShowPlayButton(false);
             Radio.trigger("MapMarker", "hideMarker");
         },
+
+        /**
+         * Selects the dropdown and prepares the animation
+         * @param {*} value Value of selected option
+         * @returns {void}
+         */
         selectTopMost: function (value) {
             const topMost = this.get("topMost"),
                 features = this.get("features");
@@ -195,12 +242,24 @@ function initializeAnimationModel () {
             this.resetAnimationLayer();
             this.prepareAnimation(features);
         },
+
+        /**
+         * Toggles topMost if it is active.
+         * @param {Boolean} isActive Flag if topMost is active or not.
+         * @returns {void}
+         */
         toggleTopMost: function (isActive) {
             const topMost = this.get("topMost");
 
             topMost.isActive = isActive;
             this.setTopMost(topMost);
         },
+
+        /**
+         * Prepares the animation
+         * @param {[ol/feature]} features Features.
+         * @returns {void}
+         */
         prepareAnimation: function (features) {
             const topMost = this.get("topMost"),
                 attrCount = this.get("attrCount"),
@@ -235,12 +294,21 @@ function initializeAnimationModel () {
             Radio.trigger("MapMarker", "showMarker", coords);
         },
 
+        /**
+         * Resets the animation layer
+         * @returns {void}
+         */
         resetAnimationLayer: function () {
             const animationLayer = this.get("animationLayer");
 
             animationLayer.getSource().clear();
         },
 
+        /**
+         * Derives the Coordinates from the given feature
+         * @param {ol/feature} feature Feature of interest
+         * @returns {Number[]} - Coordinates of the features.
+         */
         deriveCoordinates: function (feature) {
             const firstFilter = this.get("filters")[0],
                 selectedOption = firstFilter.selectedOption,
@@ -639,9 +707,23 @@ function initializeAnimationModel () {
             return colors;
         },
 
+        /**
+         * Filters the features by the selected topMost value
+         * @param {ol/feature[]} features Features to be filtered
+         * @param {Number} selectedTopMost The value of the topMost selection
+         * @returns {ol/feature[]} - The filtered features.
+         */
         filterFeaturesByTopMost: function (features, selectedTopMost) {
             return features.slice(0, selectedTopMost);
         },
+
+        /**
+         * Finds the option by given attribute.
+         * @param {Object[]} options Options.
+         * @param {String} key Key.
+         * @param {*} value Value.
+         * @returns {Object} - The found option.
+         */
         findOptionByAttr: function (options, key, value) {
             let foundOption;
 
@@ -652,6 +734,13 @@ function initializeAnimationModel () {
             });
             return foundOption;
         },
+
+        /**
+         * Clears the filter options with a higher index than the given index.
+         * @param {Object[]} filters Filters.
+         * @param {Number} index Index.
+         * @returns {Object[]}- Filters with cleared options.
+         */
         clearFilterOptionsWithHigherIndex: function (filters, index) {
             filters.forEach((filter, filterIndex) => {
                 if (filterIndex > index) {
@@ -661,6 +750,13 @@ function initializeAnimationModel () {
             });
             return filters;
         },
+
+        /**
+         * Fetches the options by the selected Option and queryType.
+         * @param {Object} selectedOption The selected option.
+         * @param {Object} query The query object to request and parse the data.
+         * @returns {*} - fetched options.
+         */
         fetchOptions: function (selectedOption, query) {
             let options;
             const value = selectedOption[query.attr];
@@ -669,6 +765,13 @@ function initializeAnimationModel () {
             options = this.formatResponseByDataType(options, query.dataType);
             return options;
         },
+
+        /**
+         * Gets the response based on the query type.
+         * @param {String} value Value from selection.
+         * @param {String} queryType Type of query.
+         * @returns {*} - unparsed response of url.
+         */
         getResponseByQueryType: function (value, queryType) {
             const url = this.get("url");
             let response = "";
@@ -680,6 +783,12 @@ function initializeAnimationModel () {
             return response;
         },
 
+        /**
+         * Formats the response based on the dataType.
+         * @param {String} response Plain response.
+         * @param {String} dataType Data type to parse the data.
+         * @returns {Object[]} - formatted data.
+         */
         formatResponseByDataType: function (response, dataType) {
             const map = Radio.request("Map", "getMap"),
                 proj = getMapProjection(map),
@@ -698,6 +807,12 @@ function initializeAnimationModel () {
             // possible other dataTypes
             return formattedResponse;
         },
+
+        /**
+         * Sends the get request.
+         * @param {*} url Url.
+         * @returns {String} - response data string.
+         */
         sendRequest: function (url) {
             const xhr = new XMLHttpRequest(),
                 proxiedUrl = Radio.request("Util", "getProxyURL", url);
@@ -712,46 +827,127 @@ function initializeAnimationModel () {
             xhr.send();
             return response;
         },
+
+        /**
+         * Resets legend
+         * @returns {void}
+         */
         resetLegend: function () {
             this.setLegend([]);
         },
+
+        /**
+         * Renders the tool
+         * @fires Animation#render
+         * @returns {void}
+         */
         render: function () {
             this.trigger("render", this);
         },
 
+        /**
+         * Setter for attribute "legend".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setLegend: function (value) {
             this.set("legend", value);
         },
+
+        /**
+         * Setter for attribute "layer".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setLayer: function (value) {
             this.set("layer", value);
         },
+
+        /**
+         * Setter for attribute "animationLayer".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setAnimationLayer: function (value) {
             this.set("animationLayer", value);
         },
+
+        /**
+         * Setter for attribute "filters".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setFilters: function (value) {
             this.set("filters", value);
         },
+
+        /**
+         * Setter for attribute "features".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setFeatures: function (value) {
             this.set("features", value);
         },
+
+        /**
+         * Setter for attribute "topMost".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setTopMost: function (value) {
             this.set("topMost", value);
         },
+
+        /**
+         * Setter for attribute "minVal".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setMinVal: function (value) {
             this.set("minVal", value);
         },
+
+        /**
+         * Setter for attribute "maxVal".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setMaxVal: function (value) {
             this.set("maxVal", value);
         },
+
+        /**
+         * Setter for attribute "showPlayButton".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setShowPlayButton: function (value) {
             this.set("showPlayButton", value);
         },
+
+        /**
+         * Setter for attribute "postcomposeListener".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setPostcomposeListener: function (value) {
             this.set("postcomposeListener", value);
         },
+        /**
+         * Setter for attribute "animating".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setAnimating: function (value) {
             this.set("animating", value);
         },
+
+        /**
+         * Setter for attribute "now".
+         * @param {*} value Value.
+         * @returns {void}
+         */
         setNow: function (value) {
             this.set("now", value);
         }
