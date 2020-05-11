@@ -27,17 +27,17 @@ Das Addon animation
     "url": "../muc_config/Pendler",
     "filters": [
         {
-            "__title": "Zeige mir alle Pendler an mit",
-            "__defaultOptionText": "Bitte Ziel wählen",
-            "__helpText": "Wähle hier das Ziel der Pendler",
+            "title": "Zeige mir alle Pendler an mit",
+            "defaultOptionText": "Bitte Ziel wählen",
+            "helpText": "Wähle hier das Ziel der Pendler",
             "attr": "name",
             "options": [
                 {
-                    "__name": "Wohnort",
+                    "name": "Wohnort",
                     "url": "/wohnort/kreise.json"
                 },
                 {
-                    "__name": "Arbeitsort",
+                    "name": "Arbeitsort",
                     "url": "/arbeitsort/kreise.json"
                 }
             ],
@@ -48,9 +48,9 @@ Das Addon animation
             }
         },
         {
-            "__title": "in Kreis",
-            "__defaultOptionText": "Bitte Kreis wählen",
-            "__helpText": "Wähle hier den Kreis",
+            "title": "in Kreis",
+            "defaultOptionText": "Bitte Kreis wählen",
+            "helpText": "Wähle hier den Kreis",
             "attr": "name",
             "query": {
                 "type": "URL",
@@ -59,9 +59,9 @@ Das Addon animation
             }
         },
         {
-            "__title": "in Gemeinde",
-            "__defaultOptionText": "Bitte Gemeinde wählen",
-            "__helpText": "Wähle hier die Gemeinde",
+            "title": "in Gemeinde",
+            "defaultOptionText": "Bitte Gemeinde wählen",
+            "helpText": "Wähle hier die Gemeinde",
             "attr": "name",
             "query": {
                 "type": "URL",
@@ -71,15 +71,15 @@ Das Addon animation
         }
     ],
     "topMost": {
-        "__title": "aber nur die",
-        "__defaultOptionText": "Bitte einschränken",
-        "__helpText": "Zeige nur die größten Gemeinden",
+        "title": "aber nur die",
+        "defaultOptionText": "Bitte einschränken",
+        "helpText": "Zeige nur die größten Gemeinden",
         "options": [5, 10, 15, 20, 30, 40, 50],
         "optionPrefix": "Größten"
     },
     "attrCount": "anzahl_pendler",
     "attrLegend": "name",
-    "__legendUnit": "Personen",
+    "legendUnit": "Personen",
     "steps": 50,
     "minPx": 5,
     "maxPx": 20,
@@ -106,17 +106,17 @@ Folgende Inhalte sind konfigurierbar:
 ```
 #!json
 {
-    "__title": "Zeige mir alle Pendler an mit",
-    "__defaultOptionText": "Bitte Ziel wählen",
-    "__helpText": "Wähle hier das Ziel der Pendler",
+    "title": "Zeige mir alle Pendler an mit",
+    "defaultOptionText": "Bitte Ziel wählen",
+    "helpText": "Wähle hier das Ziel der Pendler",
     "attr": "name",
     "options": [
         {
-            "__name": "Wohnort",
+            "name": "Wohnort",
             "url": "/wohnort/kreise.json"
         },
         {
-            "__name": "Arbeitsort",
+            "name": "Arbeitsort",
             "url": "/arbeitsort/kreise.json"
         }
     ],
@@ -167,6 +167,29 @@ Dieser parsed mithilfe der **[query](#markdown-header-filterquery)** den Inhalt 
     "type": "URL",
     "attr": "url",
     "dataType": "JSON"
+}
+```
+
+***
+
+## topMost
+|Name|Verpflichtend|Typ|Default|Beschreibung|Expert|
+|----|-------------|---|-------|------------|------|
+|title|ja|String||Titel. Wird über dem Dropdown angezeigt. Wird in der Sprachdatei festgelegt.|false|
+|defaultOptionText|ja|String||Text der im initialen Dropdown als Inhalt steht. Dieser ist aber nicht auswählbar. Wird in der Sprachdatei festgelegt.|false|
+|helpText|ja|String||Text der beim hovern über bzw. Klick auf das "?" angezeigt wird. Wird in der Sprachdatei festgelegt.|false|
+|options|ja|Number[]||Limitierung der Features.|false|
+|optionPrefix|ja|String||Text der vor jeder Option eingetragen wird. Wird in der Sprachdatei festgelegt.|false|
+
+**Beispiel**
+```
+#!json
+"topMost": {
+    "title": "aber nur die",
+    "defaultOptionText": "Bitte einschränken",
+    "helpText": "Zeige nur die größten Gemeinden",
+    "options": [5, 10, 15, 20, 30, 40, 50],
+    "optionPrefix": "Größten"
 }
 ```
 
