@@ -9,8 +9,11 @@ import {getMapProjection} from "masterportalAPI/src/crs";
 
 const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
     defaults: Object.assign({}, Tool.prototype.defaults, {
+        type: "tool",
+        parentId: "tools",
         id: "animationAddOn",
         name: "AddOn:PendlerAnimation", // wird systemisch gesetzt aus Übersetzung
+        nameTranslationKey: "additional:addOns.animationAddOn.name",
         glyphicon: "glyphicon-play-circle",
         attributionText: "&copy; <a href='https://statistik.arbeitsagentur.de/' target='_blank'>Statistik der Bundesagentur für Arbeit</a><br>&copy; GeoBasis-DE / BKG, Statistisches Bundesamt (Destatis) (2018)",
         url: "../muc_config/Pendler",
@@ -108,6 +111,7 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
             style: null
         });
 
+        this.changeLang();
         this.superInitialize();
         this.listenTo(this, {
             "change:isActive": function (model, value) {
@@ -126,7 +130,6 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
         });
         this.setLayer(layer);
         this.setAnimationLayer(Radio.request("Map", "createLayerIfNotExists", "animation_layer"));
-        this.changeLang();
     },
 
     /**
@@ -140,7 +143,18 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
         });
         this.changeLangForFilters();
         this.changeLangForTopMost();
+        this.updateNameForMenuEntry();
         this.render();
+    },
+
+    /**
+     * Dirty hack to overwrite name in menu. Is for initial loading.
+     * @returns {void}
+     */
+    updateNameForMenuEntry: function () {
+        const menuModel = Radio.request("ModelList", "getModelByAttributes", {id: this.get("id")});
+
+        menuModel.set("name", this.get("name"));
     },
 
     /**
