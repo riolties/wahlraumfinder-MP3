@@ -11,7 +11,15 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
         "click .stop": "stop",
         "click .glyphicon-question-sign": "showHelp"
     },
-
+    /**
+     * @class AnimationView
+     * @extends Tool
+     * @memberof Addons.Animation
+     * @listens Addons.Animation#changeIsActive
+     * @listens Addons.Animation#render
+     * @fires Alerting#RadioTriggerAlertAlert
+     * @contructs
+     */
     initialize: function () {
         this.listenTo(this.model, {
             // ändert sich der Fensterstatus wird neu gezeichnet
@@ -46,17 +54,30 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
         }
         return this;
     },
+
+    /**
+     * Selects the dropdown at the given index.
+     * @param {event} evt Change event of select.
+     * @returns {void}
+     */
     selectDropDownAtIndex: function (evt) {
         const value = evt.target.value,
             index = parseInt(evt.target.attributes.index.value, 10);
 
         this.model.selectDropDownAtIndex(index, value);
     },
+
+    /**
+     * Selects the topmost dropdown.
+     * @param {event} evt Chang event of dropdown select.
+     * @returns {void}
+     */
     selectTopMost: function (evt) {
         const value = parseInt(evt.target.value, 10);
 
         this.model.selectTopMost(value);
     },
+
     /**
      * Starts the animation
      * @returns {void}
@@ -80,6 +101,13 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
     stop: function () {
         this.model.pauseAnimation();
     },
+
+    /**
+     * Shows the help
+     * @param {event} evt Klick event on the questionmark.
+     * @fires Alerting#RadioTriggerAlertAlert
+     * @returns {void}
+     */
     showHelp: function (evt) {
         const target = evt.currentTarget,
             helpText = target.getAttribute("title"),

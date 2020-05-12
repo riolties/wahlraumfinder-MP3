@@ -96,13 +96,13 @@ function initializeAnimationModel () {
          * @class AnimationModel
          * @extends Tool
          * @memberof Addons.Animation
-         * @listens Animation#changeIsActive
+         * @listens Addons.Animation#changeIsActive
          * @listens i18next#RadioTriggerLanguageChanged
          * @fires Controls.Attributions#RadioTriggerAttributionsCreateAttribution
          * @fires Controls.Attributions#RadioTriggerAttributionsRemoveAttribution
          * @fires MapMarker#RadioTriggerMapMarkerHideMarker
          * @fires Core#RadioRequestMapCreateLayerIfNotExists
-         * @fires Animation#render
+         * @fires Addons.Animation#render
          * @contructs
          */
         initialize: function () {
@@ -257,7 +257,7 @@ function initializeAnimationModel () {
 
         /**
          * Prepares the animation
-         * @param {[ol/feature]} features Features.
+         * @param {ol/feature[]} features Features.
          * @returns {void}
          */
         prepareAnimation: function (features) {
@@ -838,7 +838,7 @@ function initializeAnimationModel () {
 
         /**
          * Renders the tool
-         * @fires Animation#render
+         * @fires Addons.Animation#render
          * @returns {void}
          */
         render: function () {
