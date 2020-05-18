@@ -72,7 +72,7 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
             title: "", // wird systemisch gesetzt aus Übersetzung
             defaultOptionText: "", // wird systemisch gesetzt aus Übersetzung
             helpText: "", // wird systemisch gesetzt aus Übersetzung
-            options: [3, 5, 10],
+            options: [5, 10, 15, 20, 30, 40, 50],
             selectedOption: undefined, // wird systemisch gesetzt
             optionPrefix: "", // wird systemisch gesetzt
             isActive: false // wird systemisch gesetzt
@@ -82,7 +82,7 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
         attrLegend: "name",
         legend: [], // wird systemisch gesetzt
         legendUnit: "Personen", // wird systemisch gesetzt aus Übersetzung
-        steps: 10,
+        steps: 50,
         minPx: 5,
         maxPx: 20,
         showLineStringLayer: true,
