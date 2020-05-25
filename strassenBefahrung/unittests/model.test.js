@@ -46,9 +46,9 @@ describe("addons/strassenBefahrung", function () {
         });
     });
 
-    describe("styleFeature", function () {
-        it("", function () {});
-    });
+    // describe("styleFeature", function () {
+    //     it("", function () {});
+    // });
 
     describe("placeMarkerInMap", function () {
         it("", function () {
@@ -57,47 +57,47 @@ describe("addons/strassenBefahrung", function () {
         });
     });
 
-    describe("stopMarkerInMap", function () {
-        it("", function () {});
-    });
+    // describe("stopMarkerInMap", function () {
+    //     it("", function () {});
+    // });
 
-    describe("showMarker", function () {
-        it("", function () {});
-    });
+    // describe("showMarker", function () {
+    //     it("", function () {});
+    // });
 
-    describe("hideMarker", function () {
-        it("", function () {});
-    });
+    // describe("hideMarker", function () {
+    //     it("", function () {});
+    // });
 
-    describe("clearEnnLayer", function () {
-        it("", function () {});
-    });
+    // describe("clearEnnLayer", function () {
+    //     it("", function () {});
+    // });
 
-    describe("setMarker", function () {
-        it("", function () {});
-    });
+    // describe("setMarker", function () {
+    //     it("", function () {});
+    // });
 
-    describe("initInfra3d", function () {
-        it("", function () {});
-    });
+    // describe("initInfra3d", function () {
+    //     it("", function () {});
+    // });
 
-    describe("infra3dInitialized", function () {
-        it("", function () {});
-    });
+    // describe("infra3dInitialized", function () {
+    //     it("", function () {});
+    // });
 
-    describe("getEnn", function () {
-        it("", function () {});
-    });
+    // describe("getEnn", function () {
+    //     it("", function () {});
+    // });
 
-    describe("createEdgeNodeNetworkLayer", function () {
-        it("", function () {});
-    });
+    // describe("createEdgeNodeNetworkLayer", function () {
+    //     it("", function () {});
+    // });
 
-    describe("setOnPositionChanged", function () {
-        it("", function () {});
-    });
+    // describe("setOnPositionChanged", function () {
+    //     it("", function () {});
+    // });
 
-    describe("removeInteraction", function () {
-        it("", function () {});
-    });
+    // describe("removeInteraction", function () {
+    //     it("", function () {});
+    // });
 });
