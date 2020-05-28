@@ -9,9 +9,9 @@ import {getMapProjection} from "masterportalAPI/src/crs";
 
 const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
     defaults: Object.assign({}, Tool.prototype.defaults, {
+        id: "animationAddOn",
         type: "tool",
         parentId: "tools",
-        id: "animationAddOn",
         name: "AddOn:PendlerAnimation", // wird systemisch gesetzt aus Übersetzung
         nameTranslationKey: "additional:addOns.animationAddOn.name",
         glyphicon: "glyphicon-play-circle",

@@ -13,7 +13,7 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
     },
     /**
      * @class AnimationView
-     * @extends Tool
+     * @extends Backbone.View
      * @memberof Addons.Animation
      * @listens Addons.Animation#changeIsActive
      * @listens Addons.Animation#render
@@ -21,6 +21,7 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
      * @contructs
      */
     initialize: function () {
+        this.model = new AnimationModel();
         this.listenTo(this.model, {
             // ändert sich der Fensterstatus wird neu gezeichnet
             "change:isActive": this.render,
@@ -28,8 +29,6 @@ const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */
             "render": this.render
         });
     },
-    model: new AnimationModel(),
-    id: "animationAddOn",
     /**
      * @member AnimationTemplate
      * @description Template used to create the View for Animation
