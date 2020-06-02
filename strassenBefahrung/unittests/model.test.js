@@ -1,21 +1,10 @@
 import {expect} from "chai";
-import ModelList from "@modules/core/modelList/list.js";
-import Tool from "@modules/core/modelList/tool/model.js";
-import initializeStrassenBefahrungModel from "@addons/strassenBefahrung/model.js";
+import Model from "@addons/strassenBefahrung/model.js";
 
-let tool, model;
+let model;
 
 before(function () {
-    tool = new Tool({
-        name: "Straßen-Befahrung",
-        glyphicon: "glyphicon-road",
-        styleId: "strassenBefahrung_woman",
-        type: "tool",
-        parentId: "tools",
-        id: "strassenBefahrung"
-    });
-    new ModelList([tool]);
-    model = initializeStrassenBefahrungModel();
+    model = new Model();
 });
 
 describe("addons/strassenBefahrung", function () {

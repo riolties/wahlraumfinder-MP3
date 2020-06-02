@@ -21,6 +21,7 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
      * @contructs
      */
     initialize: function () {
+        this.model = new StrassenBefahrungModel();
         this.listenTo(this.model, {
             "change:isActive": this.render,
             "deactivateButton": this.deactivateButton
@@ -31,7 +32,6 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
         }
         this.loadInfra3dApi();
     },
-    model: new StrassenBefahrungModel(),
     className: "strassen-befahrung",
     /**
      * @member StrassenBefahrungTemplate
