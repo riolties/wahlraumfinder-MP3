@@ -154,7 +154,10 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
     updateNameForMenuEntry: function () {
         const menuModel = Radio.request("ModelList", "getModelByAttributes", {id: this.get("id")});
 
-        menuModel.set("name", this.get("name"));
+        // if-clause for unittest
+        if (menuModel) {
+            menuModel.set("name", this.get("name"));
+        }
     },
 
     /**

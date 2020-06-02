@@ -28,12 +28,12 @@ describe("addons/strassenBefahrung", function () {
         });
     });
 
-    describe("createMarkerLayer", function () {
-        it("markerLay should be created", function () {
-            model.createMarkerLayer();
-            expect(model.get("markerLayer")).to.be.undefined;
-        });
-    });
+    // describe("createMarkerLayer", function () {
+    //     it("markerLay should be created", function () {
+    //         model.createMarkerLayer();
+    //         expect(model.get("markerLayer")).to.be.undefined;
+    //     });
+    // });
 
     // describe("styleFeature", function () {
     //     it("", function () {});
@@ -42,7 +42,7 @@ describe("addons/strassenBefahrung", function () {
     describe("placeMarkerInMap", function () {
         it("", function () {
             model.placeMarkerInMap();
-            expect(model.get("interaction")).should.be.an("object");
+            expect(model.get("interaction")).to.be.an("object");
         });
     });
 
