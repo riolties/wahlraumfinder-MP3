@@ -20,6 +20,7 @@ const PerformanceTesterView = Backbone.View.extend(/** @lends PerformanceTesterV
      * @contructs
      */
     initialize: function () {
+        this.model = new PerformanceTesterModel();
         this.listenTo(this.model, {
             "change:isActive": this.render
         });
@@ -28,7 +29,6 @@ const PerformanceTesterView = Backbone.View.extend(/** @lends PerformanceTesterV
             this.render(this.model, this.model.get("isActive"));
         }
     },
-    model: new PerformanceTesterModel(),
     /**
      * @member PerformanceTesterTemplate
      * @description Template used to create the View for PerformanceTester
