@@ -116,10 +116,18 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
         this.listenTo(this, {
             "change:isActive": function (model, value) {
                 if (value) {
-                    Radio.trigger("Attributions", "createAttribution", model.get("name"), this.get("attributionText"), "Pendler");
+                    Radio.trigger("Attributions", "createAttribution", {
+                        name: model.get("name"),
+                        text: this.get("attributionText"),
+                        type: "Pendler"
+                    });
                 }
                 else {
-                    Radio.trigger("Attributions", "removeAttribution", model.get("name"), this.get("attributionText"), "Pendler");
+                    Radio.trigger("Attributions", "removeAttribution", {
+                        name: model.get("name"),
+                        text: this.get("attributionText"),
+                        type: "Pendler"
+                    });
                     Radio.trigger("MapMarker", "hideMarker");
                     this.stopAnimation();
                 }
