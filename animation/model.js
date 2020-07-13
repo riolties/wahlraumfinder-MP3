@@ -293,8 +293,8 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
         this.setLegend(this.createLegend(filteredFeatures, attrCount, attrLegend));
         this.showMarkerOnFocus(filteredFeatures[0]);
         this.zoomToExtent(filteredFeatures);
-        this.setMinVal(_.last(filteredFeatures).get(attrCount));
-        this.setMaxVal(_.first(filteredFeatures).get(attrCount));
+        this.setMinVal(filteredFeatures[filteredFeatures.length - 1].get(attrCount));
+        this.setMaxVal(filteredFeatures[0].get(attrCount));
         this.prepareLineStringLayer(filteredFeatures, attrCount, attrLegend);
         if (this.get("showLineStringLayer")) {
             this.addLineStringLayerToMap();
