@@ -16,7 +16,7 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
         nameTranslationKey: "additional:addOns.animationAddOn.name",
         glyphicon: "glyphicon-play-circle",
         attributionText: "&copy; <a href='https://statistik.arbeitsagentur.de/' target='_blank'>Statistik der Bundesagentur für Arbeit</a><br>&copy; GeoBasis-DE / BKG, Statistisches Bundesamt (Destatis) (2018)",
-        url: "/3d_daten/Pendler",
+        url: "/3d_daten/pendler",
         filters: [
             {
                 title: "Zeige mir alle Pendler an mit", // wird systemisch gesetzt aus Übersetzung
