@@ -121,11 +121,11 @@ function initializeWahllokalFinderModel () {
         },
 
         mergeFeaturesByCoordinates: function (features) {
-            var mergedFeatures = [],
-                indices = [],
+            let mergedFeatures = [],
                 things,
                 xy,
                 xy2;
+            const indices = [];
 
             features.forEach((feature, index) => {
                 if (!indices.includes(index)) {
