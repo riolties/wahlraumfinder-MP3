@@ -1,0 +1,10 @@
+{
+    "modules": {
+        "tools": {
+            "mietspiegel": {
+                "title": "Mietspiegel",
+                "content": "Ich bin ein Vue Addon"
+            }
+        }
+    }
+}

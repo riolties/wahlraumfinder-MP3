@@ -1,0 +1,10 @@
+{
+    "modules": {
+        "tools": {
+            "mietspiegel": {
+                "title": "Rent index",
+                "content": "I am a Vue Addon"
+            }
+        }
+    }
+}

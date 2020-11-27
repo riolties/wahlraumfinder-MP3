@@ -5,5 +5,8 @@
     "wahlLokalFinder": "view.js",
     "VueAddon": {
         "type": "tool"
-    }
+    },
+    "Mietspiegel": {
+      "type": "tool"
+  }
 }

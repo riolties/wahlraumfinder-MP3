@@ -52,6 +52,7 @@ const StrassenBefahrungView = Backbone.View.extend(/** @lends StrassenBefahrungV
         if (isActive) {
             const attr = model.toJSON();
 
+            Radio.trigger("Alert", "alert", "Die Straßenbefahrung ist Zugangsgeschützt, wenden Sie sich bitte an <a href=\"mailto:digitaler.zwilling@muenchen.de\">digitaler.zwilling@muenchen.de</a> .");
             this.$el.html(this.template(attr));
             Radio.trigger("Sidebar", "append", this.el);
             Radio.trigger("Sidebar", "toggle", true, "50%");
