@@ -69,40 +69,13 @@ export default {
                     v-for="value in values"
                     :key="value.name"
                 >
-                    <div
+                    <a
+                        :href="value.link"
+                    ><div
                         class="color"
                         :class="value.color"
-                    />
-                    <span class="text">
-                        <a
-                            :href="value.link"
-                        >{{ value.name }}</a>
-                    </span>
+                    />{{ value.name }}</a>
                 </div>
-                <!-- <div>
-                    <div class="color turquoise" />
-                    <span class="text"><a href="https://google.com/search?q=Durchschnittliche Lage">Durchschnittliche Lage</a></span>
-                </div>
-                <div>
-                    <div class="color yellow" />
-                    <span class="text">Gute Lage</span>
-                </div>
-                <div>
-                    <div class="color rose" />
-                    <span class="text">Beste Lage</span>
-                </div>
-                <div>
-                    <div class="color blue" />
-                    <span class="text">Zentrale durchschnittliche Lage</span>
-                </div>
-                <div>
-                    <div class="color orange" />
-                    <span class="text">Zentrale gute Lage</span>
-                </div>
-                <div>
-                    <div class="color red" />
-                    <span class="text">Zentrale beste Lage</span>
-                </div> -->
             </div>
         </template>
     </Tool>
@@ -133,9 +106,6 @@ export default {
         }
         .red {
             background-color: #ff0000;
-        }
-        .text {
-            // display: inline-block;
         }
     }
 </style>
