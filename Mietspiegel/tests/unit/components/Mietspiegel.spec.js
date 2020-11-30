@@ -42,27 +42,22 @@ describe("addons/VueAddon/components/VueAddon.vue", () => {
                 configJson: mockConfigJson
             }
         });
-        store.commit("Tools/VueAddon/setActive", true);
+        store.commit("Tools/Mietspiegel/setActive", true);
     });
 
-    it("renders the VueAddon", () => {
+    it("renders the Mietspiegel", () => {
         const wrapper = shallowMount(MietspiegelComponent, {store, localVue});
 
-        expect(wrapper.find("#vue-addon").exists()).to.be.true;
+        expect(wrapper.find("#mietspiegel").exists()).to.be.true;
     });
 
-    it("do not render the VueAddons if not active", () => {
+    it("do not render the Mietspiegel if not active", () => {
         let wrapper = null;
 
-        store.commit("Tools/VueAddon/setActive", false);
+        store.commit("Tools/Mietspiegel/setActive", false);
         wrapper = shallowMount(MietspiegelComponent, {store, localVue});
 
-        expect(wrapper.find("#vue-addon").exists()).to.be.false;
-    });
-    it("VueAddon contains correct html", () => {
-        const wrapper = shallowMount(MietspiegelComponent, {store, localVue});
-
-        expect(wrapper.find("#vue-addon").html()).to.be.equals("<div id=\"vue-addon\">\n  additional:modules.tools.mietspiegel.content\n</div>");
+        expect(wrapper.find("#mietspiegel").exists()).to.be.false;
     });
 
 });

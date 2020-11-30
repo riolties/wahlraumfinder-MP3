@@ -18,12 +18,12 @@ describe("addons/VueAddon/store/gettersVueAddon", function () {
         expect(active(stateVueAddon)).to.be.false;
     });
     it("returns the id from state", function () {
-        expect(id(stateVueAddon)).to.equals("VueAddon");
+        expect(id(stateVueAddon)).to.equals("mietspiegel");
     });
 
     describe("testing default values", function () {
         it("returns the name default value from state", function () {
-            expect(name(stateVueAddon)).to.be.equals("Simple Vue Addon");
+            expect(name(stateVueAddon)).to.be.equals("Mietspiegel");
         });
         it("returns the glyphicon default value from state", function () {
             expect(glyphicon(stateVueAddon)).to.equals("glyphicon-screenshot");
