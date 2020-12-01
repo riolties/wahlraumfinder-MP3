@@ -135,6 +135,7 @@ export default {
                     v-for="value in values"
                     :key="value.name"
                     :alias="value.alias"
+                    class="values"
                     @click="pushValuesBack"
                 >
                     <div
@@ -155,9 +156,15 @@ export default {
             width: 20px;
             height: 20px;
             border: 1px solid black;
-            margin-right: 10px;
-            margin-bottom: 5px;
+            margin: 5px 10px 5px 5px;
             vertical-align: middle;
+        }
+        .values {
+            cursor: pointer;
+        }
+        .values:hover {
+            border: 2px solid #ff0000;
+            font-weight: bold;
         }
     }
 </style>
