@@ -30,7 +30,8 @@ const state = {
     resizableWindow: true,
     isVisibleInMenu: true,
     deactivateGFI: true,
-    values: []
+    values: [],
+    address: ""
 };
 
 export default state;

@@ -20,7 +20,11 @@ const mutations = {
         if (payload && payload.indexOf("translate#") > -1) {
             state.name = payload.substr("translate#".length);
         }
+    },
+    setAddress: (state, address) => {
+        state.address = address;
     }
+
 };
 
 export default mutations;

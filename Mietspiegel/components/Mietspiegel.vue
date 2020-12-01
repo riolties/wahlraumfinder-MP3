@@ -14,6 +14,8 @@ export default {
     },
     created () {
         this.$on("close", this.close);
+        this.listenToSearchResults();
+        // this.getSearchstringFromUrl();
     },
     /**
      * Put initialize here if mounting occurs after config parsing
@@ -40,6 +42,71 @@ export default {
             if (model) {
                 model.set("isActive", false);
             }
+        },
+        pushValuesBack (evt) {
+            const alias = evt.target.attributes.alias.value,
+                address = this.address,
+                opener = window.opener ? window.opener.document : null;
+
+            if (opener) {
+                const form_lage = opener.getElementById("formwohnlage"),
+                    input_address = opener.getElementsByName("str")[0];
+
+                form_lage.target = alias;
+                form_lage.str = address;
+                input_address.value = address;
+                form_lage.submit();
+                window.opener = self;
+                window.close();
+            }
+        },
+        // getSearchstringFromUrl () {
+        //     const urlParams = location.search.substr(1).split("&");
+
+        //     urlParams.forEach(urlParam => {
+        //         const key = urlParam.split("=")[0],
+        //             value = decodeURI(urlParam.split("=")[1]);
+
+        //         if (key.toLowerCase() === "str") {
+        //             document.getElementById("searchInput").value = value;
+        //             Backbone.Radio.trigger("Searchbar", "search", value);
+        //         }
+        //     });
+        // },
+        listenToSearchResults () {
+            Backbone.Events.listenTo(Radio.channel("Searchbar"), {
+                "hit": (hit) => {
+                    const addressName = hit.name.split(",")[0];
+
+                    this.updateUrlParams("query", addressName);
+                    // this.updateUrlParams("str", addressName);
+                    this.setAddress(addressName);
+                }
+            });
+        },
+        updateUrlParams (key, value) {
+            const baseUrl = [location.protocol, "//", location.host, location.pathname].join(""),
+                urlQueryString = document.location.search,
+                newParam = key + "=" + value;
+
+            let keyRegex,
+                params = "?" + newParam;
+
+            // If the "search" string exists, then build params from it
+            if (urlQueryString) {
+                keyRegex = new RegExp("([?,&])" + key + "[^&]*");
+
+                // If param exists already, update it
+                if (urlQueryString.match(keyRegex) !== null) {
+                    params = urlQueryString.replace(keyRegex, "$1" + newParam);
+                }
+                // Otherwise, add it to end of query string
+                else {
+                    params = urlQueryString + "&" + newParam;
+                }
+            }
+
+            window.history.replaceState({}, "", baseUrl + params);
         }
     }
 };
@@ -68,13 +135,14 @@ export default {
                 <div
                     v-for="value in values"
                     :key="value.name"
+                    :alias="value.alias"
+                    @click="pushValuesBack"
                 >
-                    <a
-                        :href="value.link"
-                    ><div
+                    <div
                         class="color"
-                        :class="value.color"
-                    />{{ value.name }}</a>
+                        :style="{'background-color': value.color}"
+                        :alias="value.alias"
+                    />{{ value.name }}
                 </div>
             </div>
         </template>
@@ -88,24 +156,6 @@ export default {
             width: 20px;
             height: 20px;
             border: 1px solid black
-        }
-        .turquoise {
-            background-color:#80FFFF
-        }
-        .yellow {
-            background-color:#ffff00
-        }
-        .rose {
-            background-color:#ff9999
-        }
-        .blue {
-            background-color:#0066ff
-        }
-        .orange {
-            background-color:#ffb300
-        }
-        .red {
-            background-color: #ff0000;
         }
     }
 </style>
