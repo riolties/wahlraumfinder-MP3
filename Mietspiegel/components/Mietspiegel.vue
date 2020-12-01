@@ -128,9 +128,8 @@ export default {
             >
                 <!-- {{ $t("additional:modules.tools.mietspiegel.content") }} -->
                 <p>
-                    Hinweis: Bitte schauen Sie sich in der Karte die Position des Markers an.
-                    Klicken Sie dann hier auf die Farbe, auf welcher der Marker sitzt.
-                    Sie werden dann automatisch zurück zum Formular geführt.
+                    Hinweis:<br>
+                    Eine Anleitung finden Sie im Menü unter "Hilfe".
                 </p>
                 <div
                     v-for="value in values"
@@ -155,7 +154,10 @@ export default {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 1px solid black
+            border: 1px solid black;
+            margin-right: 10px;
+            margin-bottom: 5px;
+            vertical-align: middle;
         }
     }
 </style>
