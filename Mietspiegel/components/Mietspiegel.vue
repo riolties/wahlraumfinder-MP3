@@ -15,7 +15,6 @@ export default {
     created () {
         this.$on("close", this.close);
         this.listenToSearchResults();
-        // this.getSearchstringFromUrl();
     },
     /**
      * Put initialize here if mounting occurs after config parsing
@@ -49,37 +48,20 @@ export default {
                 opener = window.opener ? window.opener.document : null;
 
             if (opener) {
-                const form_lage = opener.getElementById("formwohnlage"),
-                    input_address = opener.getElementsByName("str")[0];
-
-                form_lage.target = alias;
-                form_lage.str = address;
-                input_address.value = address;
-                form_lage.submit();
+                // set input with given title to checked=true
+                opener.querySelectorAll("input[title='" + alias + "']")[0].checked = true;
+                // set input with placeholder 'Straße und Hausnummer' value to found Adress
+                opener.querySelectorAll("input[placeholder='Straße und Hausnummer']")[0].value = address;
                 window.opener = self;
                 window.close();
             }
         },
-        // getSearchstringFromUrl () {
-        //     const urlParams = location.search.substr(1).split("&");
-
-        //     urlParams.forEach(urlParam => {
-        //         const key = urlParam.split("=")[0],
-        //             value = decodeURI(urlParam.split("=")[1]);
-
-        //         if (key.toLowerCase() === "str") {
-        //             document.getElementById("searchInput").value = value;
-        //             Backbone.Radio.trigger("Searchbar", "search", value);
-        //         }
-        //     });
-        // },
         listenToSearchResults () {
             Backbone.Events.listenTo(Radio.channel("Searchbar"), {
                 "hit": (hit) => {
                     const addressName = hit.name.split(",")[0];
 
                     this.updateUrlParams("query", addressName);
-                    // this.updateUrlParams("str", addressName);
                     this.setAddress(addressName);
                 }
             });
