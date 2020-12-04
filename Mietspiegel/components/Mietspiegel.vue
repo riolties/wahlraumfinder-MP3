@@ -45,14 +45,14 @@ export default {
         pushValuesBack (evt) {
             const alias = evt.target.attributes.alias.value,
                 address = this.address,
-                opener = window.opener ? window.opener.document : null;
+                opener = window.opener ? window.opener : null,
+                url = Config.remoteInterface.postMessageUrl;
 
             if (opener) {
-                // set input with given title to checked=true
-                opener.querySelectorAll("input[title='" + alias + "']")[0].checked = true;
-                // set input with placeholder 'Straße und Hausnummer' value to found Adress
-                opener.querySelectorAll("input[placeholder='Straße und Hausnummer']")[0].value = address;
-                window.opener = self;
+                opener.postMessage({
+                    lage: alias,
+                    address: address
+                }, url);
                 window.close();
             }
         },
