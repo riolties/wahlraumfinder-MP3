@@ -46,7 +46,7 @@ export default {
             const alias = evt.target.attributes.alias.value,
                 address = this.address,
                 opener = window.opener ? window.opener : null,
-                url = Config.remoteInterface.postMessageUrl;
+                url = opener.location.origin;
 
             if (opener) {
                 opener.postMessage({
