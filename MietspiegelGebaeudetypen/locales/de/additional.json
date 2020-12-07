@@ -1,0 +1,11 @@
+{
+  "modules": {
+    "tools": {
+      "mietspiegel": {
+        "gebaeudetypen": {
+          "title": "Mietspiegel Gebäudetypen"
+        }
+      }
+    }
+  }
+}

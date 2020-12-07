@@ -1,7 +1,7 @@
 import Vuex from "vuex";
 import {config, shallowMount, createLocalVue} from "@vue/test-utils";
-import MietspiegelWohnlageComponent from "../../../components/MietspiegelWohnlage.vue";
-import MietspiegelWohnlage from "../../../store/index";
+import MietspiegelGebaeudetypenComponent from "../../../components/MietspiegelGebaeudetypen.vue";
+import MietspiegelGebaeudetypen from "../../../store/index";
 import {expect} from "chai";
 
 const localVue = createLocalVue();
@@ -15,9 +15,9 @@ describe("addons/VueAddon/components/VueAddon.vue", () => {
             menu: {
                 tools: {
                     children: {
-                        MietspiegelWohnlage:
+                        MietspiegelGebaeudetypen:
                             {
-                                "name": "translate#additional:modules.tools.mietspiegel.wohnlage.title",
+                                "name": "translate#additional:modules.tools.mietspiegel.gebaeudetypen.title",
                                 "glyphicon": "glyphicon-th-list"
                             }
                     }
@@ -34,7 +34,7 @@ describe("addons/VueAddon/components/VueAddon.vue", () => {
                 Tools: {
                     namespaced: true,
                     modules: {
-                        MietspiegelWohnlage
+                        MietspiegelGebaeudetypen
                     }
                 }
             },
@@ -42,22 +42,22 @@ describe("addons/VueAddon/components/VueAddon.vue", () => {
                 configJson: mockConfigJson
             }
         });
-        store.commit("Tools/MietspiegelWohnlage/setActive", true);
+        store.commit("Tools/MietspiegelGebaeudetypen/setActive", true);
     });
 
     it("renders the Mietspiegel", () => {
-        const wrapper = shallowMount(MietspiegelWohnlageComponent, {store, localVue});
+        const wrapper = shallowMount(MietspiegelGebaeudetypenComponent, {store, localVue});
 
-        expect(wrapper.find("#mietspiegel_wohnlage").exists()).to.be.true;
+        expect(wrapper.find("#mietspiegel_gebaeudetypen").exists()).to.be.true;
     });
 
     it("do not render the Mietspiegel if not active", () => {
         let wrapper = null;
 
-        store.commit("Tools/MietspiegelWohnlage/setActive", false);
-        wrapper = shallowMount(MietspiegelWohnlageComponent, {store, localVue});
+        store.commit("Tools/MietspiegelGebaeudetypen/setActive", false);
+        wrapper = shallowMount(MietspiegelGebaeudetypenComponent, {store, localVue});
 
-        expect(wrapper.find("#mietspiegel_wohnlage").exists()).to.be.false;
+        expect(wrapper.find("#mietspiegel_gebaeudetypen").exists()).to.be.false;
     });
 
 });

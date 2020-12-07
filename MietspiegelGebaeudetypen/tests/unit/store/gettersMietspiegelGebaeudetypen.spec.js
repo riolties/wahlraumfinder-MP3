@@ -1,6 +1,6 @@
 import {expect} from "chai";
-import getters from "../../../store/gettersMietspiegelWohnlage";
-import state from "../../../store/stateMietspiegelWohnlage";
+import getters from "../../../store/gettersMietspiegelGebaeudetypen";
+import state from "../../../store/stateMietspiegelGebaeudetypen";
 
 
 const {
@@ -13,17 +13,17 @@ const {
     isVisibleInMenu,
     deactivateGFI} = getters;
 
-describe("addons/MietspiegelWohnlage/store/gettersMietspiegelWohnlage", function () {
+describe("addons/MietspiegelWohnlage/store/gettersMietspiegelGebaeudetypen", function () {
     it("returns the active from state", function () {
         expect(active(state)).to.be.false;
     });
     it("returns the id from state", function () {
-        expect(id(state)).to.equals("mietspiegel_wohnlage");
+        expect(id(state)).to.equals("mietspiegel_gebaeudetypen");
     });
 
     describe("testing default values", function () {
         it("returns the name default value from state", function () {
-            expect(name(state)).to.be.equals("Mietspiegel Wohnlage");
+            expect(name(state)).to.be.equals("Mietspiegel Gebaeudetypen");
         });
         it("returns the glyphicon default value from state", function () {
             expect(glyphicon(state)).to.equals("glyphicon-screenshot");

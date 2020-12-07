@@ -1,12 +1,15 @@
 {
-    "strassenBefahrung": "view.js",
-    "performanceTester": "view.js",
-    "animation": "view.js",
-    "wahlLokalFinder": "view.js",
-    "VueAddon": {
-        "type": "tool"
-    },
-    "MietspiegelWohnlage": {
-      "type": "tool"
+  "strassenBefahrung": "view.js",
+  "performanceTester": "view.js",
+  "animation": "view.js",
+  "wahlLokalFinder": "view.js",
+  "VueAddon": {
+    "type": "tool"
+  },
+  "MietspiegelWohnlage": {
+    "type": "tool"
+  },
+  "MietspiegelGebaeudetypen": {
+    "type": "tool"
   }
 }
