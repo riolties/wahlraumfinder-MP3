@@ -13,8 +13,8 @@ export default {
         ...mapGetters("Tools/Mietspiegel", Object.keys(getters))
     },
     created () {
-        this.$on("close", this.close);
         this.listenToSearchResults();
+        this.$on("close", this.close);
     },
     /**
      * Put initialize here if mounting occurs after config parsing
@@ -43,16 +43,17 @@ export default {
             }
         },
         pushValuesBack (evt) {
-            const alias = evt.target.attributes.alias.value,
+            const valueToPost = evt.target.attributes.valueToPost.value,
                 address = this.address,
-                opener = window.opener ? window.opener : null,
-                url = opener.location.origin;
+                opener = window.opener ? window.opener : null;
 
             if (opener) {
-                opener.postMessage({
-                    lage: alias,
-                    address: address
-                }, url);
+                this.postMessageUrls.forEach(url => {
+                    opener.postMessage({
+                        lage: valueToPost,
+                        address: address
+                    }, url);
+                });
                 window.close();
             }
         },
@@ -116,14 +117,14 @@ export default {
                 <div
                     v-for="value in values"
                     :key="value.name"
-                    :alias="value.alias"
+                    :valueToPost="value.valueToPost"
                     class="values"
                     @click="pushValuesBack"
                 >
                     <div
                         class="color"
                         :style="{'background-color': value.color}"
-                        :alias="value.alias"
+                        :valueToPost="value.valueToPost"
                     />{{ value.name }}
                 </div>
             </div>

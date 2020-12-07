@@ -31,6 +31,7 @@ const state = {
     isVisibleInMenu: true,
     deactivateGFI: true,
     values: [],
+    postMessageUrls: [],
     address: ""
 };
 
