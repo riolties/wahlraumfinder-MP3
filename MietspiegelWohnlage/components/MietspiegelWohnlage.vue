@@ -1,16 +1,16 @@
 <script>
 import Tool from "../../../src/modules/tools/Tool.vue";
 import {mapGetters, mapMutations} from "vuex";
-import getters from "../store/gettersMietspiegel";
-import mutations from "../store/mutationsMietspiegel";
+import getters from "../store/gettersMietspiegelWohnlage";
+import mutations from "../store/mutationsMietspiegelWohnlage";
 
 export default {
-    name: "Mietspiegel",
+    name: "MietspiegelWohnlage",
     components: {
         Tool
     },
     computed: {
-        ...mapGetters("Tools/Mietspiegel", Object.keys(getters))
+        ...mapGetters("Tools/MietspiegelWohnlage", Object.keys(getters))
     },
     created () {
         this.listenToSearchResults();
@@ -24,7 +24,7 @@ export default {
         this.applyTranslationKey(this.name);
     },
     methods: {
-        ...mapMutations("Tools/Mietspiegel", Object.keys(mutations)),
+        ...mapMutations("Tools/MietspiegelWohnlage", Object.keys(mutations)),
 
         /**
          * Closes this tool window by setting active to false
@@ -107,7 +107,7 @@ export default {
         <template v-slot:toolBody>
             <div
                 v-if="active"
-                id="mietspiegel"
+                id="mietspiegel_wohnlage"
             >
                 <!-- {{ $t("additional:modules.tools.mietspiegel.content") }} -->
                 <p>
@@ -133,7 +133,7 @@ export default {
 </template>
 
 <style lang="less" scoped>
-    #mietspiegel {
+    #mietspiegel_wohnlage {
         .color {
             display: inline-block;
             width: 20px;

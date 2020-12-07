@@ -1,0 +1,11 @@
+{
+  "modules": {
+    "tools": {
+      "mietspiegel": {
+        "wohnlage": {
+          "title": "Mietspiegel Wohnlage"
+        }
+      }
+    }
+  }
+}

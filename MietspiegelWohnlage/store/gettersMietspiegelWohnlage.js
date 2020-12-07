@@ -1,8 +1,8 @@
 import {generateSimpleGetters} from ".../../../src/app-store/utils/generators";
-import mietspiegelState from "./stateMietspiegel";
+import stateMietspiegelWohnlage from "./stateMietspiegelWohnlage";
 
 const getters = {
-    ...generateSimpleGetters(mietspiegelState)
+    ...generateSimpleGetters(stateMietspiegelWohnlage)
 };
 
 export default getters;

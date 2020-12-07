@@ -1,5 +1,5 @@
 import {generateSimpleMutations} from "../../../src/app-store/utils/generators";
-import stateMietspiegel from "./stateMietspiegel";
+import stateMietspiegelWohnlage from "./stateMietspiegelWohnlage";
 
 const mutations = {
     /**
@@ -8,7 +8,7 @@ const mutations = {
      * {setKey:   (state, payload) => *   state[key] = payload * }
      * will be returned.
      */
-    ...generateSimpleMutations(stateMietspiegel),
+    ...generateSimpleMutations(stateMietspiegelWohnlage),
 
     /**
      * If name from config.json starts with "translate#", the corrected key is set to name here.

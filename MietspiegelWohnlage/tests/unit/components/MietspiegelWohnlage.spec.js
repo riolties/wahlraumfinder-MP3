@@ -1,6 +1,6 @@
 import Vuex from "vuex";
 import {config, shallowMount, createLocalVue} from "@vue/test-utils";
-import MietspiegelComponent from "../../../components/Mietspiegel.vue";
+import MietspiegelWohnlageComponent from "../../../components/MietspiegelWohnlage.vue";
 import Mietspiegel from "../../../store/index";
 import {expect} from "chai";
 
@@ -17,7 +17,7 @@ describe("addons/VueAddon/components/VueAddon.vue", () => {
                     children: {
                         Mietspiegel:
                             {
-                                "name": "translate#additional:modules.tools.mietspiegel.title",
+                                "name": "translate#additional:modules.tools.mietspiegel.wohnlage.title",
                                 "glyphicon": "glyphicon-th-list"
                             }
                     }
@@ -42,22 +42,22 @@ describe("addons/VueAddon/components/VueAddon.vue", () => {
                 configJson: mockConfigJson
             }
         });
-        store.commit("Tools/Mietspiegel/setActive", true);
+        store.commit("Tools/MietspiegelWohnlage/setActive", true);
     });
 
     it("renders the Mietspiegel", () => {
-        const wrapper = shallowMount(MietspiegelComponent, {store, localVue});
+        const wrapper = shallowMount(MietspiegelWohnlageComponent, {store, localVue});
 
-        expect(wrapper.find("#mietspiegel").exists()).to.be.true;
+        expect(wrapper.find("#mietspiegel_wohnlage").exists()).to.be.true;
     });
 
     it("do not render the Mietspiegel if not active", () => {
         let wrapper = null;
 
-        store.commit("Tools/Mietspiegel/setActive", false);
-        wrapper = shallowMount(MietspiegelComponent, {store, localVue});
+        store.commit("Tools/MietspiegelWohnlage/setActive", false);
+        wrapper = shallowMount(MietspiegelWohnlageComponent, {store, localVue});
 
-        expect(wrapper.find("#mietspiegel").exists()).to.be.false;
+        expect(wrapper.find("#mietspiegel_wohnlage").exists()).to.be.false;
     });
 
 });
