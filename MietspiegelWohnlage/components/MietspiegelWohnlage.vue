@@ -114,7 +114,7 @@ export default {
                     Hinweis:<br>
                     Eine Anleitung finden Sie im Menü unter "Hilfe".
                 </p>
-                <div
+                <!-- <div
                     v-for="value in values"
                     :key="value.name"
                     :valueToPost="value.valueToPost"
@@ -125,7 +125,30 @@ export default {
                         class="color"
                         :style="{'background-color': value.color}"
                         :valueToPost="value.valueToPost"
-                    />{{ value.name }}
+                    >
+                        {{ value.name }}
+                    </div>
+                </div> -->
+                <div
+                    v-for="value in values"
+                    :key="value.name"
+                    class="form-group form-group-sm"
+                >
+                    <div class="col-xs-12">
+                        <button
+                            :valueToPost="value.valueToPost"
+                            class="btn btn-sm btn-block"
+                            @click="pushValuesBack"
+                        >
+                            <div
+                                class="color"
+                                :valueToPost="value.valueToPost"
+                                :style="{'background-color': value.color}"
+                                @click="pushValuesBack"
+                            />
+                            {{ value.name }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </template>
@@ -135,18 +158,19 @@ export default {
 <style lang="less" scoped>
     #mietspiegel_wohnlage {
         .color {
-            display: inline-block;
             width: 20px;
             height: 20px;
             border: 1px solid black;
-            margin: 5px 10px 5px 5px;
-            vertical-align: middle;
+            float: left;
         }
-        .values {
-            cursor: pointer;
+        button {
+            margin-top: 5px;
+            margin-bottom: 5px;
+            background-color:#e7e7e7;
+            color: #00aa9b
         }
-        .values:hover {
-            border: 2px solid #ff0000;
+        button:hover {
+            border: 2px solid #00aa9b;
             font-weight: bold;
         }
     }

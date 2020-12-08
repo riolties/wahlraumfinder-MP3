@@ -114,30 +114,17 @@ export default {
                     Hinweis:<br>
                     Eine Anleitung finden Sie im Menü unter "Hilfe".
                 </p>
-                <!-- <div
-                    v-for="value in values"
-                    :key="value.name"
-                    :valueToPost="value.valueToPost"
-                    class="values"
-                    @click="pushValuesBack"
-                >
-                    <div
-                        class="color"
-                        :valueToPost="value.valueToPost"
-                    />{{ value.name }}
-                </div> -->
                 <div
                     v-for="value in values"
                     :key="value.name"
-                    :valueToPost="value.valueToPost"
-                    class="values form-group form-group-sm"
-                    @click="pushValuesBack"
+                    class="form-group form-group-sm"
                 >
-                    <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="col-xs-12">
                         <button
-                            class="btn btn-sm btn-block btn-lgv-grey"
+                            :valueToPost="value.valueToPost"
+                            class="btn btn-sm btn-block"
+                            @click="pushValuesBack"
                         >
-                            <!-- <span class="glyphicon glyphicon-trash" /> -->
                             {{ value.name }}
                         </button>
                     </div>
@@ -149,19 +136,14 @@ export default {
 
 <style lang="less" scoped>
     #mietspiegel_gebaeudetypen {
-        .color {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 1px solid black;
-            margin: 5px 10px 5px 5px;
-            vertical-align: middle;
-        }
-        .values {
-            cursor: pointer;
+        button {
+            margin-top: 5px;
+            margin-bottom: 5px;
+            background-color:#e7e7e7;
+            color: #00aa9b
         }
         button:hover {
-            border: 2px solid #ff0000;
+            border: 2px solid #00aa9b;
             font-weight: bold;
         }
     }
