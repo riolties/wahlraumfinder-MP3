@@ -114,21 +114,6 @@ export default {
                     Hinweis:<br>
                     Eine Anleitung finden Sie im Menü unter "Hilfe".
                 </p>
-                <!-- <div
-                    v-for="value in values"
-                    :key="value.name"
-                    :valueToPost="value.valueToPost"
-                    class="values"
-                    @click="pushValuesBack"
-                >
-                    <div
-                        class="color"
-                        :style="{'background-color': value.color}"
-                        :valueToPost="value.valueToPost"
-                    >
-                        {{ value.name }}
-                    </div>
-                </div> -->
                 <div
                     v-for="value in values"
                     :key="value.name"
