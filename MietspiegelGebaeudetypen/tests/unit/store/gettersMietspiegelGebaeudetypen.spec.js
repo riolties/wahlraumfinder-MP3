@@ -23,7 +23,7 @@ describe("addons/MietspiegelWohnlage/store/gettersMietspiegelGebaeudetypen", fun
 
     describe("testing default values", function () {
         it("returns the name default value from state", function () {
-            expect(name(state)).to.be.equals("Mietspiegel Gebaeudetypen");
+            expect(name(state)).to.be.equals("Mietspiegel Gebäudetypen");
         });
         it("returns the glyphicon default value from state", function () {
             expect(glyphicon(state)).to.equals("glyphicon-screenshot");
