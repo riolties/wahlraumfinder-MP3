@@ -11,5 +11,8 @@
   },
   "MietspiegelGebaeudetypen": {
     "type": "tool"
+  },
+  "Routing": {
+    "type": "tool"
   }
 }
