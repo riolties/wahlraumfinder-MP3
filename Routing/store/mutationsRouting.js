@@ -21,8 +21,18 @@ const mutations = {
             state.name = payload.substr("translate#".length);
         }
     },
-    setAddress: (state, address) => {
-        state.address = address;
+    // ORSD = OpenRouteService Directions
+    setORSDFromX: (state, value) => {
+        state.openRouteService.directions.from_x = value;
+    },
+    setORSDFromY: (state, value) => {
+        state.openRouteService.directions.from_y = value;
+    },
+    setORSDToX: (state, value) => {
+        state.openRouteService.directions.to_x = value;
+    },
+    setORSDToY: (state, value) => {
+        state.openRouteService.directions.to_y = value;
     }
 
 };

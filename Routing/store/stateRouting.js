@@ -1,3 +1,7 @@
+import VectorLayer from "ol/layer/Vector.js";
+import VectorSource from "ol/source/Vector.js";
+import {Style} from "ol/style.js";
+
 /**
  * User type definition
  * @typedef {object} RoutingState
@@ -11,7 +15,28 @@ const state = {
     renderToWindow: true,
     resizableWindow: true,
     isVisibleInMenu: true,
-    deactivateGFI: true
+    deactivateGFI: true,
+    routingType: "OpenRouteService",
+    routingMode: "Directions",
+    url: "",
+    useProxy: false,
+    profile: "",
+    styleId: "",
+    routingLayer: new VectorLayer({
+        name: "routingLayer",
+        source: new VectorSource(),
+        visible: true,
+        style: new Style()
+    }),
+    openRouteService: {
+        directions: {
+            from_x: -1,
+            from_y: -1,
+            to_x: -1,
+            to_y: -1
+        },
+        optimization: {}
+    }
 };
 
 export default state;

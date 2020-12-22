@@ -1,13 +1,16 @@
 <script>
 import Tool from "../../../src/modules/tools/Tool.vue";
-import {mapGetters, mapMutations} from "vuex";
+import {mapGetters, mapActions, mapMutations} from "vuex";
 import getters from "../store/gettersRouting";
+import actions from "../store/actionsRouting";
 import mutations from "../store/mutationsRouting";
+import OpenRouteService from "./OpenRouteService/OpenRouteService.vue";
 
 export default {
     name: "Routing",
     components: {
-        Tool
+        Tool,
+        OpenRouteService
     },
     computed: {
         ...mapGetters("Tools/Routing", Object.keys(getters))
@@ -23,6 +26,7 @@ export default {
         this.applyTranslationKey(this.name);
     },
     methods: {
+        ...mapActions("Tools/Routing", Object.keys(actions)),
         ...mapMutations("Tools/Routing", Object.keys(mutations)),
 
         /**
@@ -40,6 +44,7 @@ export default {
             if (model) {
                 model.set("isActive", false);
             }
+            this.removeRoutingLayer();
         }
     }
 };
@@ -60,13 +65,14 @@ export default {
                 id="routing"
             >
                 <!-- {{ $t("additional:modules.tools.mietspiegel.content") }} -->
+                <OpenRouteService
+                    v-if="routingType==='OpenRouteService'"
+                />
             </div>
         </template>
     </Tool>
 </template>
 
 <style lang="less" scoped>
-    #routing {
-        background-color: grey
-    }
+    #routing {}
 </style>
