@@ -8,6 +8,11 @@ import getProxyUrl from "../../../../src/utils/getProxyUrl";
 
 export default {
     name: "OpenRouteServiceOptimization",
+    data () {
+        return {
+            activetab: 1
+        };
+    },
     computed: {
         ...mapGetters("Tools/Routing", Object.keys(getters))
     },
@@ -141,85 +146,111 @@ export default {
         <!-- {{ $t("additional:modules.tools.mietspiegel.content") }} -->
         <!-- {{ routingMode }}: {{ routingType }} -->
         <div
-            class="form-group form-group-sm"
+            id="tabs"
+            class="container"
         >
-            <input
-                id="from_x"
-                type="number"
-                step="0.00001"
-                placeholder="Start X"
-                :value="openRouteService.from.x"
-                @change="coordinatePartChanged"
-            />
-            <input
-                id="from_y"
-                type="number"
-                step="0.00001"
-                placeholder="Start Y"
-                :value="openRouteService.from.y"
-                @change="coordinatePartChanged"
-            />
-        </div>
-        <div id="vias">
-            <div
-                v-for="(via, pos) in openRouteService.vias"
-                :key="pos"
-                class="form-group form-group-sm"
-            >
-                <input
-                    :id="'via_'+ pos + '_x'"
-                    type="number"
-                    step="0.00001"
-                    placeholder="Via X"
-                    :value="via.x"
-                    @change="coordinatePartChanged"
-                />
-                <input
-                    :id="'via_'+ pos + '_y'"
-                    type="number"
-                    step="0.00001"
-                    placeholder="Via Y"
-                    :value="via.y"
-                    @change="coordinatePartChanged"
-                />
-                <button
-                    :index="pos"
-                    class="btn btn-sm btn-gsm"
-                    @click="removeVia"
-                >
-                    <span
-                        class="glyphicon glyphicon-minus"
-                        :index="pos"
-                    />
-                </button>
+            <div class="tabs">
+                <a
+                    :class="[activetab === 1 ? 'active' : '']"
+                    @click="activetab=1"
+                >Vehicles</a>
+                <a
+                    :class="[activetab === 2 ? 'active' : '']"
+                    @click="activetab=2"
+                >Jobs</a>
             </div>
-            <button
-                class="btn btn-sm btn-gsm"
-                @click="addVia"
-            >
-                <span class="glyphicon glyphicon-plus" />
-                <span>Via hinzufügen</span>
-            </button>
-        </div>
-        <div
-            class="form-group form-group-sm"
-        >
-            <input
-                id="to_x"
-                type="number"
-                step="0.00001"
-                placeholder="Ziel X"
-                :value="openRouteService.to.x"
-                @change="coordinatePartChanged"
-            />
-            <input
-                id="to_y"
-                type="number"
-                step="0.00001"
-                placeholder="Ziel Y"
-                :value="openRouteService.to.y"
-                @change="coordinatePartChanged"
-            />
+
+            <div class="content">
+                <div
+                    v-if="activetab === 1"
+                    class="tabcontent"
+                >
+                    <div
+                        class="form-group form-group-sm"
+                    >
+                        <input
+                            id="from_x"
+                            type="number"
+                            step="0.00001"
+                            placeholder="Start X"
+                            :value="openRouteService.from.x"
+                            @change="coordinatePartChanged"
+                        />
+                        <input
+                            id="from_y"
+                            type="number"
+                            step="0.00001"
+                            placeholder="Start Y"
+                            :value="openRouteService.from.y"
+                            @change="coordinatePartChanged"
+                        />
+                    </div>
+                    <div
+                        class="form-group form-group-sm"
+                    >
+                        <input
+                            id="to_x"
+                            type="number"
+                            step="0.00001"
+                            placeholder="Ziel X"
+                            :value="openRouteService.to.x"
+                            @change="coordinatePartChanged"
+                        />
+                        <input
+                            id="to_y"
+                            type="number"
+                            step="0.00001"
+                            placeholder="Ziel Y"
+                            :value="openRouteService.to.y"
+                            @change="coordinatePartChanged"
+                        />
+                    </div>
+                </div>
+                <div
+                    v-if="activetab === 2"
+                    class="tabcontent"
+                >
+                    <div
+                        v-for="(via, pos) in openRouteService.vias"
+                        :key="pos"
+                        class="form-group form-group-sm"
+                    >
+                        <input
+                            :id="'via_'+ pos + '_x'"
+                            type="number"
+                            step="0.00001"
+                            placeholder="Via X"
+                            :value="via.x"
+                            @change="coordinatePartChanged"
+                        />
+                        <input
+                            :id="'via_'+ pos + '_y'"
+                            type="number"
+                            step="0.00001"
+                            placeholder="Via Y"
+                            :value="via.y"
+                            @change="coordinatePartChanged"
+                        />
+                        <button
+                            :index="pos"
+                            class="btn btn-sm btn-gsm"
+                            @click="removeVia"
+                        >
+                            <span
+                                class="glyphicon glyphicon-minus"
+                                :index="pos"
+                            />
+                        </button>
+                    </div>
+                    <button
+                        class="btn btn-sm btn-gsm"
+                        @click="addVia"
+                    >
+                        <span class="glyphicon glyphicon-plus" />
+                        <span>Via hinzufügen</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <button
@@ -242,6 +273,68 @@ export default {
         .btn-gsm:hover {
             // border: 2px solid #00aa9b;
             font-weight: bold;
+        }
+        #tabs {
+            width: 100%;
+            padding: unset;
+            // .container {
+            //     max-width: 620px;
+            //     min-width: 420px;
+            //     margin: 40px auto;
+            //     font-family: Arial, Helvetica, sans-serif;
+            //     font-size: 0.9em;
+            //     color: #888;
+            // }
+
+            /* Style the tabs */
+            .tabs {
+                overflow: hidden;
+                margin-left: 20px;
+                margin-bottom: -2px; // hide bottom border
+            }
+
+            .tabs ul {
+                list-style-type: none;
+                margin-left: 20px;
+            }
+
+            .tabs a{
+                float: left;
+                cursor: pointer;
+                padding: 12px 24px;
+                transition: background-color 0.2s;
+                border: 1px solid #ccc;
+                border-right: none;
+                background-color: #f1f1f1;
+                border-radius: 10px 10px 0 0;
+                font-weight: bold;
+                color: #00aa9b;
+            }
+            .tabs a:last-child {
+                border-right: 1px solid #ccc;
+            }
+
+            /* Change background color of tabs on hover */
+            .tabs a:hover {
+                background-color: #aaa;
+                color: #fff;
+            }
+
+            /* Styling for active tab */
+            .tabs a.active {
+                background-color: #fff;
+                color: #484848;
+                border-bottom: 2px solid #fff;
+                cursor: default;
+            }
+
+            /* Style the tab content */
+            .tabcontent {
+                padding: 30px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+            box-shadow: 3px 3px 6px #e1e1e1
+            }
         }
     }
 </style>
