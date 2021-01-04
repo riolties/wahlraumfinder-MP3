@@ -4,7 +4,7 @@ const actions = {
     // NOTE write actions here if you need them
     setORSDCoordinatePart: function ({commit}, val) {
         const id = val.id,
-            value = val.value;
+            value = parseFloat(val.value);
 
         if (id === "from_x") {
             commit("setORSDFromX", value);
@@ -18,9 +18,6 @@ const actions = {
         if (id === "to_y") {
             commit("setORSDToY", value);
         }
-    },
-    getORSDCoordinatePart: function ({state}, id) {
-        return state.openRouteService.directions[id];
     },
     addGeoJSONToRoutingLayer ({state, commit, dispatch}, geojson) {
         const styleListModel = Radio.request("StyleList", "returnModelById", state.styleId),
@@ -49,8 +46,21 @@ const actions = {
 
         source.addFeatures(features);
     },
+    clearSource ({state}) {
+        const layer = state.routingLayer,
+            source = layer.getSource();
+
+        source.clear();
+    },
     removeRoutingLayer ({state, commit}) {
         commit("Map/removeLayerFromMap", state.routingLayer, {root: true});
+    },
+
+    addViaToStore: function ({commit}) {
+        commit("addViaToStore");
+    },
+    removeViaFromStore: function ({commit}, index) {
+        commit("removeViaFromStore", index);
     }
 };
 

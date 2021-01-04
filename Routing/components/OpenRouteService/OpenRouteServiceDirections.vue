@@ -13,11 +13,18 @@ export default {
     },
     watch: {
         active (active) {
-            console.log("active");
             if (!active) {
                 this.removeRoutingLayer();
             }
         }
+    },
+
+    // fake from and to coordinates
+    created () {
+        this.setORSDCoordinatePart({id: "from_x", value: "11.570855787992599"});
+        this.setORSDCoordinatePart({id: "from_y", value: "48.1321665162355"});
+        this.setORSDCoordinatePart({id: "to_x", value: "11.556272788090807"});
+        this.setORSDCoordinatePart({id: "to_y", value: "48.14441693714643"});
     },
     methods: {
         ...mapActions("Tools/Routing", Object.keys(actions)),
@@ -30,26 +37,26 @@ export default {
 
         },
         startRouting () {
-            // const from_x = this.getORSDCoordinatePart("from_x");
-            const coordFrom = from_x.value + "," + from_y.value,
-                coordTo = to_x.value + "," + to_y.value,
+            const from_x = this.openRouteService.from.x,
+                from_y = this.openRouteService.from.y,
+                to_x = this.openRouteService.to.x,
+                to_y = this.openRouteService.to.y,
+                coordFrom = from_x + "," + from_y,
+                coordTo = to_x + "," + to_y,
                 url = this.useProxy ? getProxyUrl(this.url) : this.url,
                 apiKey = "5b3ce3597851110001cf62489a7a04728b764689a1eaf55857e43cc2",
-                query = url + "/" + this.profile + "?start=" + coordFrom + "&end=" + coordTo + "&api_key=" + apiKey;
+                query = url + "/v2/directions/" + this.profile + "?start=" + coordFrom + "&end=" + coordTo + "&api_key=" + apiKey;
 
             axios.get(query)
                 .then(response => {
-                    console.log(response);
+                    console.log(response.data);
+                    this.clearSource();
                     this.addGeoJSONToRoutingLayer(response.data);
                 })
                 .catch(error => {
                     console.log(error);
 
                 });
-            // axios.post(query, data)
-            //     .then(response => {
-            //         console.log(response);
-            //     });
         }
     }
 };
@@ -66,16 +73,16 @@ export default {
         >
             <input
                 id="from_x"
-                type="number"
+                type="text"
                 placeholder="Start X"
-                value="11.570855787992599"
+                :value="openRouteService.from.x"
                 @change="coordinatePartChanged"
             />
             <input
                 id="from_y"
                 type="number"
                 placeholder="Start Y"
-                value="48.1321665162355"
+                :value="openRouteService.from.y"
                 @change="coordinatePartChanged"
             />
         </div>
@@ -86,14 +93,14 @@ export default {
                 id="to_x"
                 type="number"
                 placeholder="Ziel X"
-                value="11.556272788090807"
+                :value="openRouteService.to.x"
                 @change="coordinatePartChanged"
             />
             <input
                 id="to_y"
                 type="number"
                 placeholder="Ziel Y"
-                value="48.14441693714643"
+                :value="openRouteService.to.y"
                 @change="coordinatePartChanged"
             />
         </div>

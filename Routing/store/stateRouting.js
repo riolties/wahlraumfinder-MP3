@@ -29,13 +29,17 @@ const state = {
         style: new Style()
     }),
     openRouteService: {
-        directions: {
-            from_x: -1,
-            from_y: -1,
-            to_x: -1,
-            to_y: -1
+        from: {
+            x: -1,
+            y: -1,
+            name: ""
         },
-        optimization: {}
+        to: {
+            x: -1,
+            y: -1,
+            name: ""
+        },
+        vias: []
     }
 };
 
