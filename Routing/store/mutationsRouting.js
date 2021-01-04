@@ -47,28 +47,28 @@ const mutations = {
 
         // fake values
         if (length === 0) {
-            via.x = 11.653909242678891;
-            via.y = 48.157728105827626;
+            via.x = 11.65390;
+            via.y = 48.15772;
             via.description = "Container 1";
         }
         if (length === 1) {
-            via.x = 11.644679690510779;
-            via.y = 48.1607022776266895;
+            via.x = 11.64467;
+            via.y = 48.16070;
             via.description = "Container 2";
         }
         if (length === 2) {
-            via.x = 11.656977751729558;
-            via.y = 48.164353862146754;
+            via.x = 11.65697;
+            via.y = 48.16435;
             via.description = "Container 3";
         }
         if (length === 3) {
-            via.x = 11.659629875739959;
-            via.y = 48.167340973115387;
+            via.x = 11.65962;
+            via.y = 48.16734;
             via.description = "Container 4";
         }
         if (length === 4) {
-            via.x = 11.643119794434442;
-            via.y = 48.169288814856912;
+            via.x = 11.64311;
+            via.y = 48.16928;
             via.description = "Container 5";
         }
         state.openRouteService.vias.push(via);

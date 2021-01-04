@@ -21,10 +21,10 @@ export default {
 
     // fake from and to coordinates
     created () {
-        this.setORSDCoordinatePart({id: "from_x", value: "11.570855787992599"});
-        this.setORSDCoordinatePart({id: "from_y", value: "48.1321665162355"});
-        this.setORSDCoordinatePart({id: "to_x", value: "11.556272788090807"});
-        this.setORSDCoordinatePart({id: "to_y", value: "48.14441693714643"});
+        this.setORSDCoordinatePart({id: "from_x", value: "11.57085"});
+        this.setORSDCoordinatePart({id: "from_y", value: "48.13216"});
+        this.setORSDCoordinatePart({id: "to_x", value: "11.55627"});
+        this.setORSDCoordinatePart({id: "to_y", value: "48.14441"});
     },
     methods: {
         ...mapActions("Tools/Routing", Object.keys(actions)),
@@ -73,7 +73,8 @@ export default {
         >
             <input
                 id="from_x"
-                type="text"
+                type="number"
+                step="0.00001"
                 placeholder="Start X"
                 :value="openRouteService.from.x"
                 @change="coordinatePartChanged"
@@ -81,6 +82,7 @@ export default {
             <input
                 id="from_y"
                 type="number"
+                step="0.00001"
                 placeholder="Start Y"
                 :value="openRouteService.from.y"
                 @change="coordinatePartChanged"
@@ -92,6 +94,7 @@ export default {
             <input
                 id="to_x"
                 type="number"
+                step="0.00001"
                 placeholder="Ziel X"
                 :value="openRouteService.to.x"
                 @change="coordinatePartChanged"
@@ -99,6 +102,7 @@ export default {
             <input
                 id="to_y"
                 type="number"
+                step="0.00001"
                 placeholder="Ziel Y"
                 :value="openRouteService.to.y"
                 @change="coordinatePartChanged"

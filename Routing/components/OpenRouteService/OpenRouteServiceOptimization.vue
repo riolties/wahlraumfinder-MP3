@@ -13,10 +13,10 @@ export default {
     },
     // fake from and to coordinates
     created () {
-        this.setORSDCoordinatePart({id: "from_x", value: "11.648913853436119"});
-        this.setORSDCoordinatePart({id: "from_y", value: "48.162899676716059"});
-        this.setORSDCoordinatePart({id: "to_x", value: "11.648913853436119"});
-        this.setORSDCoordinatePart({id: "to_y", value: "48.162899676716059"});
+        this.setORSDCoordinatePart({id: "from_x", value: "11.64891"});
+        this.setORSDCoordinatePart({id: "from_y", value: "48.16289"});
+        this.setORSDCoordinatePart({id: "to_x", value: "11.64891"});
+        this.setORSDCoordinatePart({id: "to_y", value: "48.16289"});
     },
     methods: {
         ...mapActions("Tools/Routing", Object.keys(actions)),
@@ -146,6 +146,7 @@ export default {
             <input
                 id="from_x"
                 type="number"
+                step="0.00001"
                 placeholder="Start X"
                 :value="openRouteService.from.x"
                 @change="coordinatePartChanged"
@@ -153,6 +154,7 @@ export default {
             <input
                 id="from_y"
                 type="number"
+                step="0.00001"
                 placeholder="Start Y"
                 :value="openRouteService.from.y"
                 @change="coordinatePartChanged"
@@ -167,6 +169,7 @@ export default {
                 <input
                     :id="'via_'+ pos + '_x'"
                     type="number"
+                    step="0.00001"
                     placeholder="Via X"
                     :value="via.x"
                     @change="coordinatePartChanged"
@@ -174,6 +177,7 @@ export default {
                 <input
                     :id="'via_'+ pos + '_y'"
                     type="number"
+                    step="0.00001"
                     placeholder="Via Y"
                     :value="via.y"
                     @change="coordinatePartChanged"
@@ -203,6 +207,7 @@ export default {
             <input
                 id="to_x"
                 type="number"
+                step="0.00001"
                 placeholder="Ziel X"
                 :value="openRouteService.to.x"
                 @change="coordinatePartChanged"
@@ -210,6 +215,7 @@ export default {
             <input
                 id="to_y"
                 type="number"
+                step="0.00001"
                 placeholder="Ziel Y"
                 :value="openRouteService.to.y"
                 @change="coordinatePartChanged"
