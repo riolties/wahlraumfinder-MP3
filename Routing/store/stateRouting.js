@@ -21,7 +21,7 @@ const state = {
     url: "",
     useProxy: false,
     profile: "",
-    styleId: "",
+    styleId: [],
     routingLayer: new VectorLayer({
         name: "routingLayer",
         source: new VectorSource(),

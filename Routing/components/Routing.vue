@@ -15,6 +15,17 @@ export default {
     computed: {
         ...mapGetters("Tools/Routing", Object.keys(getters))
     },
+    watch: {
+        active (active) {
+            if (active) {
+                this.addRoutingLayer();
+                this.initiallyAddFeatures();
+            }
+            else {
+                this.removeRoutingLayer();
+            }
+        }
+    },
     created () {
         this.$on("close", this.close);
     },
@@ -44,7 +55,6 @@ export default {
             if (model) {
                 model.set("isActive", false);
             }
-            this.removeRoutingLayer();
         }
     }
 };

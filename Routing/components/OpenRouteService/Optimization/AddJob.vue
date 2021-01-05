@@ -32,6 +32,7 @@ export default {
                 };
 
             this.orsoAddJob(job);
+            this.orsoAddJobToRoutingLayer(job);
             this.orsoCreatingJob(false);
         },
         cancelJob () {
@@ -74,6 +75,7 @@ export default {
                 class="float-right"
                 type="text"
                 placeholder="Bitte Koordinaten setzen wählen"
+                value="696410.62, 5338293.74 "
             />
         </div>
         <!-- service -->
@@ -84,6 +86,7 @@ export default {
                 class="float-right"
                 type="number"
                 placeholder="Bitte Dauer wählen"
+                value="0"
             />
         </div>
         <!-- pickup -->
@@ -94,6 +97,7 @@ export default {
                 class="float-right"
                 type="number"
                 placeholder="Bitte Anzahl wählen"
+                value="1"
             />
         </div>
         <!-- style-id -->
@@ -103,12 +107,6 @@ export default {
                 id="job-style-id"
                 class="float-right"
             >
-                <option
-                    disabled
-                    selected
-                >
-                    Bitte StyleId wählen
-                </option>
                 <option
                     v-for="style in styleId"
                     :key="style"

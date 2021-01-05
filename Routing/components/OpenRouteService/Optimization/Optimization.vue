@@ -29,6 +29,7 @@ export default {
             const vehicleId = parseInt(evt.target.getAttribute("vehicle-id"), 10);
 
             this.orsoRemoveVehicle(vehicleId);
+            this.removeFeaturesFromSource({attribute: "id", value: vehicleId});
         },
         enableCreatingJob () {
             this.orsoCreatingJob(true);
@@ -37,6 +38,7 @@ export default {
             const jobId = parseInt(evt.target.getAttribute("job-id"), 10);
 
             this.orsoRemoveJob(jobId);
+            this.removeFeaturesFromSource({attribute: "id", value: jobId});
         },
         coordinatePartChanged (evt) {
             const id = evt.target.id,
@@ -87,7 +89,7 @@ export default {
                     const routes = response.data.routes;
 
                     console.log(response.data);
-                    this.clearSource();
+                    this.removeFeaturesFromSource({geometry: "LineString"});
                     routes.forEach(route => {
                         const steps = route.steps;
 

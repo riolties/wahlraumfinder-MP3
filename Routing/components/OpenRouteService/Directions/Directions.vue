@@ -50,7 +50,7 @@ export default {
             axios.get(query)
                 .then(response => {
                     console.log(response.data);
-                    this.clearSource();
+                    this.removeFeaturesFromSource();
                     this.addRouteGeoJSONToRoutingLayer(response.data);
                 })
                 .catch(error => {

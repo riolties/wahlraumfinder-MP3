@@ -87,6 +87,7 @@ export default {
                 class="float-right"
                 type="text"
                 placeholder="Bitte Start wählen"
+                value="696966.29,5337798.43"
             />
         </div>
         <!-- end -->
@@ -97,6 +98,7 @@ export default {
                 class="float-right"
                 type="text"
                 placeholder="Bitte Ziel wählen"
+                value="696966.29,5337798.43"
             />
         </div>
         <!-- capacity -->
@@ -107,6 +109,7 @@ export default {
                 class="float-right"
                 type="number"
                 placeholder="Bitte Kapazität wählen"
+                value="10"
             />
         </div>
         <!-- style-id -->
@@ -116,12 +119,6 @@ export default {
                 id="vehicle-style-id"
                 class="float-right"
             >
-                <option
-                    disabled
-                    selected
-                >
-                    Bitte StyleId wählen
-                </option>
                 <option
                     v-for="style in styleId"
                     :key="style"
