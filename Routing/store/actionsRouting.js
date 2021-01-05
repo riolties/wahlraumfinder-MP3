@@ -54,6 +54,10 @@ const actions = {
     },
     removeRoutingLayer ({state, commit}) {
         commit("Map/removeLayerFromMap", state.routingLayer, {root: true});
+    },
+    createRandomId () {
+        console.log(":-D");
+        return 123;
     }
 };
 

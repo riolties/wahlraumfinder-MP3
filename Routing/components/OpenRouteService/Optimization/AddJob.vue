@@ -7,7 +7,10 @@ import actions from "../../../store/actionsRouting";
 export default {
     name: "AddJob",
     computed: {
-        ...mapGetters("Tools/Routing", Object.keys(getters))
+        ...mapGetters("Tools/Routing", Object.keys(getters)),
+        id () {
+            return Math.round(Math.random() * 1000);
+        }
     },
     methods: {
         ...mapActions("Tools/Routing", Object.keys(actions)),
@@ -47,7 +50,7 @@ export default {
                 id="job-id"
                 class="float-right"
                 type="number"
-                :value="openRouteService.jobs.length"
+                :value="id"
                 disabled
             />
         </div>

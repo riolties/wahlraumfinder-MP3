@@ -7,11 +7,11 @@ import actions from "../../../store/actionsRouting";
 export default {
     name: "AddVehicle",
     computed: {
-        ...mapGetters("Tools/Routing", Object.keys(getters))
+        ...mapGetters("Tools/Routing", Object.keys(getters)),
+        id () {
+            return Math.round(Math.random() * 1000);
+        }
     },
-    // created () {
-    //     console.log(this.defaultVehicleSpec);
-    // },
     methods: {
         ...mapActions("Tools/Routing", Object.keys(actions)),
         ...mapMutations("Tools/Routing", Object.keys(mutations)),
@@ -51,7 +51,7 @@ export default {
                 id="vehicle-id"
                 class="float-right"
                 type="number"
-                :value="openRouteService.vehicles.length"
+                :value="id"
                 disabled
             />
         </div>

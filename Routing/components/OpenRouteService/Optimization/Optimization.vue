@@ -20,11 +20,21 @@ export default {
     methods: {
         ...mapActions("Tools/Routing", Object.keys(actions)),
         ...mapMutations("Tools/Routing", Object.keys(mutations)),
+        addVehicle () {
+            this.orsoCreatingVehicle(true);
+        },
+        removeVehicle (evt) {
+            const vehicleId = parseInt(evt.target.getAttribute("vehicle-id"), 10);
+
+            this.orsoRemoveVehicle(vehicleId);
+        },
         addJob () {
             this.orsoCreatingJob(true);
         },
-        addVehicle () {
-            this.orsoCreatingVehicle(true);
+        removeJob (evt) {
+            const jobId = parseInt(evt.target.getAttribute("job-id"), 10);
+
+            this.orsoRemoveJob(jobId);
         },
         coordinatePartChanged (evt) {
             const id = evt.target.id,
@@ -135,6 +145,25 @@ export default {
                             <tr><td>Start</td><td>{{ vehicle.start }}</td></tr>
                             <tr><td>End</td><td>{{ vehicle.end }}</td></tr>
                             <tr><td>Kapazität</td><td>{{ vehicle.capacity }}</td></tr>
+                            <tr>
+                                <td>
+                                    <button
+                                        v-if="openRouteService.creatingVehicle === false"
+                                        class="btn btn-sm btn-gsm"
+                                        :vehicle-id="vehicle.id"
+                                        @click="removeVehicle"
+                                    >
+                                        <span
+                                            class="glyphicon glyphicon-minus"
+                                            :vehicle-id="vehicle.id"
+                                        />
+                                        <span
+                                            :vehicle-id="vehicle.id"
+                                        >Fahrzeug entfernen</span>
+                                    </button>
+                                </td>
+                                <td></td>
+                            </tr>
                         </table>
                     </div>
                     <button
@@ -167,6 +196,25 @@ export default {
                             <tr><td>Koordinaten</td><td>{{ job.location }}</td></tr>
                             <tr><td>Dauer</td><td>{{ job.service }}</td></tr>
                             <tr><td>Menge</td><td>{{ job.pickup }}</td></tr>
+                            <tr>
+                                <td>
+                                    <button
+                                        v-if="openRouteService.creatingJob === false"
+                                        class="btn btn-sm btn-gsm"
+                                        :job-id="job.id"
+                                        @click="removeJob"
+                                    >
+                                        <span
+                                            class="glyphicon glyphicon-minus"
+                                            :job-id="job.id"
+                                        />
+                                        <span
+                                            :job-id="job.id"
+                                        >Auftrag entfernen</span>
+                                    </button>
+                                </td>
+                                <td></td>
+                            </tr>
                         </table>
                     </div>
                     <button
@@ -175,7 +223,7 @@ export default {
                         @click="addJob"
                     >
                         <span class="glyphicon glyphicon-plus" />
-                        <span>Job hinzufügen</span>
+                        <span>Auftrag hinzufügen</span>
                     </button>
                     <AddJob
                         v-if="openRouteService.creatingJob === true"

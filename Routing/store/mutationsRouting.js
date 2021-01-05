@@ -34,11 +34,6 @@ const mutations = {
     setORSDToY: (state, value) => {
         state.openRouteService.to.y = value;
     },
-    // removeJobFromStore: (state, value) => {
-    //     state.openRouteService.jobs = state.openRouteService.jobs.filter(function (elem, index) {
-    //         return index !== value;
-    //     });
-    // },
 
     // orso = openrouteservice optimization
     orsoSetTabActive: (state, value) => {
@@ -50,8 +45,18 @@ const mutations = {
     orsoAddVehicle: (state, vehicle) => {
         state.openRouteService.vehicles.push(vehicle);
     },
+    orsoRemoveVehicle: (state, value) => {
+        state.openRouteService.vehicles = state.openRouteService.vehicles.filter(function (elem) {
+            return elem.id !== value;
+        });
+    },
     orsoCreatingJob: (state, value) => {
         state.openRouteService.creatingJob = value;
+    },
+    orsoRemoveJob: (state, value) => {
+        state.openRouteService.jobs = state.openRouteService.jobs.filter(function (elem) {
+            return elem.id !== value;
+        });
     },
     orsoAddJob: (state, job) => {
         state.openRouteService.jobs.push(job);

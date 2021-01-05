@@ -40,10 +40,10 @@ const state = {
             y: -1,
             name: ""
         },
-        vehicles: [],
         creatingVehicle: false,
-        jobs: [],
-        creatingJob: false
+        vehicles: [],
+        creatingJob: false,
+        jobs: []
     }
 };
 
