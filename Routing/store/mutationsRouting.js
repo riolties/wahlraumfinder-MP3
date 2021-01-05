@@ -34,49 +34,27 @@ const mutations = {
     setORSDToY: (state, value) => {
         state.openRouteService.to.y = value;
     },
-    addViaToStore: (state) => {
-        const via = {
-                x: -1,
-                y: -1,
-                name: "",
-                description: "",
-                service: 0,
-                pickup: [1]
-            },
-            length = state.openRouteService.vias.length;
+    // removeJobFromStore: (state, value) => {
+    //     state.openRouteService.jobs = state.openRouteService.jobs.filter(function (elem, index) {
+    //         return index !== value;
+    //     });
+    // },
 
-        // fake values
-        if (length === 0) {
-            via.x = 11.65390;
-            via.y = 48.15772;
-            via.description = "Container 1";
-        }
-        if (length === 1) {
-            via.x = 11.64467;
-            via.y = 48.16070;
-            via.description = "Container 2";
-        }
-        if (length === 2) {
-            via.x = 11.65697;
-            via.y = 48.16435;
-            via.description = "Container 3";
-        }
-        if (length === 3) {
-            via.x = 11.65962;
-            via.y = 48.16734;
-            via.description = "Container 4";
-        }
-        if (length === 4) {
-            via.x = 11.64311;
-            via.y = 48.16928;
-            via.description = "Container 5";
-        }
-        state.openRouteService.vias.push(via);
+    // orso = openrouteservice optimization
+    orsoSetTabActive: (state, value) => {
+        state.activeTab = value;
     },
-    removeViaFromStore: (state, value) => {
-        state.openRouteService.vias = state.openRouteService.vias.filter(function (elem, index) {
-            return index !== value;
-        });
+    orsoCreatingVehicle: (state, value) => {
+        state.openRouteService.creatingVehicle = value;
+    },
+    orsoAddVehicle: (state, vehicle) => {
+        state.openRouteService.vehicles.push(vehicle);
+    },
+    orsoCreatingJob: (state, value) => {
+        state.openRouteService.creatingJob = value;
+    },
+    orsoAddJob: (state, job) => {
+        state.openRouteService.jobs.push(job);
     }
 
 };

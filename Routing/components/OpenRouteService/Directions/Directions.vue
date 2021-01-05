@@ -1,13 +1,13 @@
 <script>
 import {mapGetters, mapActions, mapMutations} from "vuex";
-import getters from "../../store/gettersRouting";
-import mutations from "../../store/mutationsRouting";
-import actions from "../../store/actionsRouting";
+import getters from "../../../store/gettersRouting";
+import mutations from "../../../store/mutationsRouting";
+import actions from "../../../store/actionsRouting";
 import axios from "axios";
-import getProxyUrl from "../../../../src/utils/getProxyUrl";
+import getProxyUrl from "../../../../../src/utils/getProxyUrl";
 
 export default {
-    name: "OpenRouteServiceDirections",
+    name: "Directions",
     computed: {
         ...mapGetters("Tools/Routing", Object.keys(getters))
     },

@@ -2,8 +2,8 @@
 import {mapGetters, mapMutations} from "vuex";
 import getters from "../../store/gettersRouting";
 import mutations from "../../store/mutationsRouting";
-import OpenRouteServiceDirections from "./OpenRouteServiceDirections.vue";
-import OpenRouteServiceOptimization from "./OpenRouteServiceOptimization.vue";
+import OpenRouteServiceDirections from "./Directions/Directions.vue";
+import OpenRouteServiceOptimization from "./Optimization/Optimization.vue";
 
 export default {
     name: "OpenRouteService",

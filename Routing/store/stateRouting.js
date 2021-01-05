@@ -28,6 +28,7 @@ const state = {
         visible: true,
         style: new Style()
     }),
+    activeTab: 1,
     openRouteService: {
         from: {
             x: -1,
@@ -39,7 +40,10 @@ const state = {
             y: -1,
             name: ""
         },
-        vias: []
+        vehicles: [],
+        creatingVehicle: false,
+        jobs: [],
+        creatingJob: false
     }
 };
 

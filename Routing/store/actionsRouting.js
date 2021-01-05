@@ -54,13 +54,6 @@ const actions = {
     },
     removeRoutingLayer ({state, commit}) {
         commit("Map/removeLayerFromMap", state.routingLayer, {root: true});
-    },
-
-    addViaToStore: function ({commit}) {
-        commit("addViaToStore");
-    },
-    removeViaFromStore: function ({commit}, index) {
-        commit("removeViaFromStore", index);
     }
 };
 
