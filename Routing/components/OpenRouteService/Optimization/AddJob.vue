@@ -21,12 +21,14 @@ export default {
                 location = document.getElementById("job-location").value.split(","),
                 service = document.getElementById("job-service").value,
                 pickup = document.getElementById("job-pickup").value,
+                styleId = document.getElementById("job-style-id").value,
                 job = {
                     id: parseInt(id, 10),
                     description: description,
                     location: [parseFloat(location[0]), parseFloat(location[1])],
                     service: parseInt(service, 10),
-                    pickup: [parseInt(pickup, 10)]
+                    pickup: [parseInt(pickup, 10)],
+                    styleId: styleId
                 };
 
             this.orsoAddJob(job);
@@ -94,6 +96,29 @@ export default {
                 placeholder="Bitte Anzahl wählen"
             />
         </div>
+        <!-- style-id -->
+        <div class="form-group form-group-sm">
+            <label for="job-style-id">StyleId</label>
+            <select
+                id="job-style-id"
+                class="float-right"
+            >
+                <option
+                    disabled
+                    selected
+                >
+                    Bitte StyleId wählen
+                </option>
+                <option
+                    v-for="style in styleId"
+                    :key="style"
+                    :value="style"
+                >
+                    {{ style }}
+                </option>
+            </select>
+        </div>
+
         <div class="form-group form-group-sm">
             <button
                 class="btn btn-sm btn-gsm float-left"

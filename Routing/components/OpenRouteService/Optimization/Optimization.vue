@@ -5,7 +5,7 @@ import mutations from "../../../store/mutationsRouting";
 import actions from "../../../store/actionsRouting";
 import axios from "axios";
 import getProxyUrl from "../../../../../src/utils/getProxyUrl";
-import {transformFromMapProjection, getMapProjection, transform} from "masterportalAPI/src/crs";
+import {getMapProjection, transform} from "masterportalAPI/src/crs";
 import AddVehicle from "./AddVehicle.vue";
 import AddJob from "./AddJob.vue";
 
@@ -113,7 +113,7 @@ export default {
             axios.get(query)
                 .then(response => {
                     console.log(response.data);
-                    this.addGeoJSONToRoutingLayer(response.data);
+                    this.addRouteGeoJSONToRoutingLayer(response.data);
                 })
                 .catch(error => {
                     console.log(error);
@@ -149,6 +149,11 @@ export default {
                     value="2"
                     @click="activateTab"
                 >Jobs</a>
+                <a
+                    :class="[activeTab === 3 ? 'active' : '']"
+                    value="3"
+                    @click="activateTab"
+                >Summary</a>
             </div>
 
             <div class="content">
@@ -171,6 +176,7 @@ export default {
                             <tr><td>Start</td><td>{{ vehicle.start }}</td></tr>
                             <tr><td>End</td><td>{{ vehicle.end }}</td></tr>
                             <tr><td>Kapazität</td><td>{{ vehicle.capacity }}</td></tr>
+                            <tr><td>StyleId</td><td>{{ vehicle.styleId }}</td></tr>
                             <tr>
                                 <td>
                                     <button
@@ -222,6 +228,7 @@ export default {
                             <tr><td>Koordinaten</td><td>{{ job.location }}</td></tr>
                             <tr><td>Dauer</td><td>{{ job.service }}</td></tr>
                             <tr><td>Menge</td><td>{{ job.pickup }}</td></tr>
+                            <tr><td>StyleId</td><td>{{ job.styleId }}</td></tr>
                             <tr>
                                 <td>
                                     <button
@@ -254,6 +261,12 @@ export default {
                     <AddJob
                         v-if="openRouteService.creatingJob === true"
                     />
+                </div>
+                <div
+                    v-if="activeTab === 3"
+                    class="tabcontent"
+                >
+                    Lorem ipsum dolor si amet
                 </div>
             </div>
         </div>

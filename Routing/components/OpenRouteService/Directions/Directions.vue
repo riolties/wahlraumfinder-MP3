@@ -51,7 +51,7 @@ export default {
                 .then(response => {
                     console.log(response.data);
                     this.clearSource();
-                    this.addGeoJSONToRoutingLayer(response.data);
+                    this.addRouteGeoJSONToRoutingLayer(response.data);
                 })
                 .catch(error => {
                     console.log(error);

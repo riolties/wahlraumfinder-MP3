@@ -21,16 +21,19 @@ export default {
                 start = document.getElementById("vehicle-start").value.split(","),
                 end = document.getElementById("vehicle-end").value.split(","),
                 capacity = document.getElementById("vehicle-capacity").value,
+                styleId = document.getElementById("vehicle-style-id").value,
                 vehicle = {
                     id: parseInt(id, 10),
                     profile: this.profile,
                     description: description,
                     start: [parseFloat(start[0]), parseFloat(start[1])],
                     end: [parseFloat(end[0]), parseFloat(end[1])],
-                    capacity: [parseInt(capacity, 10)]
+                    capacity: [parseInt(capacity, 10)],
+                    styleId: styleId
                 };
 
             this.orsoAddVehicle(vehicle);
+            this.orsoAddVehicleToRoutingLayer(vehicle);
             this.orsoCreatingVehicle(false);
         },
         cancelVehicle () {
@@ -106,6 +109,29 @@ export default {
                 placeholder="Bitte Kapazität wählen"
             />
         </div>
+        <!-- style-id -->
+        <div class="form-group form-group-sm">
+            <label for="vehicle-style-id">StyleId</label>
+            <select
+                id="vehicle-style-id"
+                class="float-right"
+            >
+                <option
+                    disabled
+                    selected
+                >
+                    Bitte StyleId wählen
+                </option>
+                <option
+                    v-for="style in styleId"
+                    :key="style"
+                    :value="style"
+                >
+                    {{ style }}
+                </option>
+            </select>
+        </div>
+
         <div class="form-group form-group-sm">
             <button
                 class="btn btn-sm btn-gsm float-left"

@@ -19,8 +19,8 @@ const actions = {
             commit("setORSDToY", value);
         }
     },
-    addGeoJSONToRoutingLayer ({state, commit, dispatch}, geojson) {
-        const styleListModel = Radio.request("StyleList", "returnModelById", state.styleId),
+    addRouteGeoJSONToRoutingLayer ({state, commit, dispatch}, geojson) {
+        const styleListModel = Radio.request("StyleList", "returnModelById", state.styleId[0]),
             layer = state.routingLayer;
 
         dispatch("removeRoutingLayer");
@@ -40,6 +40,9 @@ const actions = {
             commit("Map/addLayerToMap", state.routingLayer, {root: true});
         }
     },
+    orsoAddVehicleToRoutingLayer ({state, commit, dispatch}, vehicle) {
+        console.log(vehicle);
+    },
     addFeaturesToLayerSource ({state}, features) {
         const layer = state.routingLayer,
             source = layer.getSource();
@@ -54,10 +57,6 @@ const actions = {
     },
     removeRoutingLayer ({state, commit}) {
         commit("Map/removeLayerFromMap", state.routingLayer, {root: true});
-    },
-    createRandomId () {
-        console.log(":-D");
-        return 123;
     }
 };
 
