@@ -84,7 +84,6 @@ export default {
                 class="float-right"
                 type="text"
                 placeholder="Bitte Start wählen"
-                value="11.64891,48.16289"
             />
         </div>
         <!-- end -->
@@ -95,7 +94,6 @@ export default {
                 class="float-right"
                 type="text"
                 placeholder="Bitte Ziel wählen"
-                value="11.64891,48.16289"
             />
         </div>
         <!-- capacity -->
@@ -106,7 +104,6 @@ export default {
                 class="float-right"
                 type="number"
                 placeholder="Bitte Kapazität wählen"
-                value="80"
             />
         </div>
         <div class="form-group form-group-sm">

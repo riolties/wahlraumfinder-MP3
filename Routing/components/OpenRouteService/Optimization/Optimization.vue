@@ -5,6 +5,7 @@ import mutations from "../../../store/mutationsRouting";
 import actions from "../../../store/actionsRouting";
 import axios from "axios";
 import getProxyUrl from "../../../../../src/utils/getProxyUrl";
+import {transformFromMapProjection, getMapProjection, transform} from "masterportalAPI/src/crs";
 import AddVehicle from "./AddVehicle.vue";
 import AddJob from "./AddJob.vue";
 
@@ -15,12 +16,13 @@ export default {
         AddJob
     },
     computed: {
+        ...mapGetters("Map", ["map"]),
         ...mapGetters("Tools/Routing", Object.keys(getters))
     },
     methods: {
         ...mapActions("Tools/Routing", Object.keys(actions)),
         ...mapMutations("Tools/Routing", Object.keys(mutations)),
-        addVehicle () {
+        enableCreatingVehicle () {
             this.orsoCreatingVehicle(true);
         },
         removeVehicle (evt) {
@@ -28,7 +30,7 @@ export default {
 
             this.orsoRemoveVehicle(vehicleId);
         },
-        addJob () {
+        enableCreatingJob () {
             this.orsoCreatingJob(true);
         },
         removeJob (evt) {
@@ -43,13 +45,37 @@ export default {
             this.setORSDCoordinatePart({id, value});
 
         },
+        transformVehicleCoordinates () {
+            const vehicles = this.openRouteService.vehicles,
+                clonedVehicles = JSON.parse(JSON.stringify(vehicles)); // copy array
+
+            clonedVehicles.forEach(function (clonedVehicle) {
+                clonedVehicle.start = this.transformCoordinates(clonedVehicle.start);
+                clonedVehicle.end = this.transformCoordinates(clonedVehicle.end);
+            }, this);
+            return clonedVehicles;
+        },
+        transformJobCoordinates () {
+            const jobs = this.openRouteService.jobs,
+                clonedJobs = JSON.parse(JSON.stringify(jobs)); // copy array
+
+            clonedJobs.forEach(function (clonedJob) {
+                clonedJob.location = this.transformCoordinates(clonedJob.location);
+            }, this);
+            return clonedJobs;
+        },
+        transformCoordinates (coords) {
+            const mapProjection = getMapProjection(this.map);
+
+            return transform(mapProjection, "EPSG:4326", coords);
+        },
         startRouting () {
             const url = this.useProxy ? getProxyUrl(this.url) : this.url,
                 apiKey = "5b3ce3597851110001cf62489a7a04728b764689a1eaf55857e43cc2",
                 query = url + "/optimization",
                 payload = {
-                    vehicles: this.openRouteService.vehicles,
-                    jobs: this.openRouteService.jobs
+                    vehicles: this.transformVehicleCoordinates(),
+                    jobs: this.transformJobCoordinates()
                 };
 
             axios.post(query, payload, {
@@ -169,7 +195,7 @@ export default {
                     <button
                         v-if="openRouteService.creatingVehicle === false"
                         class="btn btn-sm btn-gsm"
-                        @click="addVehicle"
+                        @click="enableCreatingVehicle"
                     >
                         <span class="glyphicon glyphicon-plus" />
                         <span>Fahrzeug hinzufügen</span>
@@ -220,7 +246,7 @@ export default {
                     <button
                         v-if="openRouteService.creatingJob === false"
                         class="btn btn-sm btn-gsm"
-                        @click="addJob"
+                        @click="enableCreatingJob"
                     >
                         <span class="glyphicon glyphicon-plus" />
                         <span>Auftrag hinzufügen</span>
