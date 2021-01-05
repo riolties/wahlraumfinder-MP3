@@ -202,7 +202,6 @@ export default {
             color: #00aa9b
         }
         .btn-gsm:hover {
-            // border: 2px solid #00aa9b;
             font-weight: bold;
         }
         .vehicle,

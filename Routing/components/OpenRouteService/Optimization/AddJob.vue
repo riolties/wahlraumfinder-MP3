@@ -122,5 +122,8 @@ export default {
         label {
             padding: 5px;
         }
+        input[disabled] {
+            cursor: not-allowed;
+        }
     }
 </style>
