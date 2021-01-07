@@ -5,10 +5,15 @@ import mutations from "../../../store/mutationsRouting";
 import actions from "../../../store/actionsRouting";
 import axios from "axios";
 import getProxyUrl from "../../../../../src/utils/getProxyUrl";
+import {getMapProjection, transform} from "masterportalAPI/src/crs";
 
 export default {
     name: "Directions",
+    data: () => ({
+        timeout: null
+    }),
     computed: {
+        ...mapGetters("Map", ["map"]),
         ...mapGetters("Tools/Routing", Object.keys(getters))
     },
     watch: {
@@ -57,6 +62,51 @@ export default {
                     console.log(error);
 
                 });
+        },
+        startAddressChanged (evt) {
+            const value = evt.currentTarget.value,
+                that = this;
+
+            if (this.timeout) {
+                clearTimeout(this.timeout);
+            }
+            this.timeout = setTimeout(function () {
+                if (value.length > 0) {
+                    that.searchForAddress(value);
+                }
+            }, 500, this);
+        },
+        searchForAddress (searchString) {
+            const url = this.useProxy ? getProxyUrl(this.url) : this.url,
+                focusPoint = this.getFocusPointIn4326(),
+                focusPointParam = "&focus.point.lon=" + focusPoint[0] + "&focus.point.lat=" + focusPoint[1],
+                layers = "&layers=address",
+                country = "&country=Deutschland",
+                apiKey = "5b3ce3597851110001cf62489a7a04728b764689a1eaf55857e43cc2",
+                query = url + "/geocode/autocomplete?text=" + searchString + focusPointParam + layers + country + "&api_key=" + apiKey;
+
+            axios.get(query)
+                .then(response => {
+                    console.log(response.data);
+                })
+                .catch(error => {
+                    console.log(error);
+
+                });
+        },
+        getFocusPointIn4326 () {
+            const mapProjection = getMapProjection(this.map),
+                mapCenter = this.map.getView().getCenter();
+            let focusPoint = this.focusPoint;
+
+            if (this.focusPoint) {
+                focusPoint = transform(mapProjection, "EPSG:4326", focusPoint);
+            }
+            else {
+                focusPoint = transform(mapProjection, "EPSG:4326", mapCenter);
+            }
+            console.log(focusPoint);
+            return focusPoint;
         }
     }
 };
@@ -68,6 +118,16 @@ export default {
     >
         <!-- {{ $t("additional:modules.tools.mietspiegel.content") }} -->
         <!-- {{ routingType }}: {{ routingMode }} -->
+        <div
+            class="form-group form-group-sm"
+        >
+            <input
+                id="from_address"
+                type="text"
+                placeholder="Startadresse"
+                @keyup="startAddressChanged"
+            />
+        </div>
         <div
             class="form-group form-group-sm"
         >

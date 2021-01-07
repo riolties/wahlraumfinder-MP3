@@ -1,12 +1,16 @@
 import VectorLayer from "ol/layer/Vector.js";
 import VectorSource from "ol/source/Vector.js";
 import {Style} from "ol/style.js";
+// import Draw from "./draw/components/Draw.vue";
 
 /**
  * User type definition
  * @typedef {object} RoutingState
  */
 const state = {
+    componentMap: {
+        // draw: Draw
+    },
     active: false,
     id: "routing",
     // defaults for config.json parameters
@@ -29,6 +33,7 @@ const state = {
         style: new Style()
     }),
     activeTab: 1,
+    focusPoint: null,
     openRouteService: {
         from: {
             x: -1,
