@@ -2,8 +2,6 @@
 import Tool from "../../../src/modules/tools/Tool.vue";
 import {mapGetters, mapActions, mapMutations} from "vuex";
 import getters from "../store/gettersRouting";
-import actions from "../store/actionsRouting";
-import mutations from "../store/mutationsRouting";
 import OpenRouteService from "./OpenRouteService/OpenRouteService.vue";
 
 export default {
@@ -19,7 +17,7 @@ export default {
         active (active) {
             if (active) {
                 this.addRoutingLayer();
-                this.initiallyAddFeatures();
+                // this.initiallyAddFeatures();
             }
             else {
                 this.removeRoutingLayer();
@@ -37,8 +35,8 @@ export default {
         this.applyTranslationKey(this.name);
     },
     methods: {
-        ...mapActions("Tools/Routing", Object.keys(actions)),
-        ...mapMutations("Tools/Routing", Object.keys(mutations)),
+        ...mapActions("Tools/Routing", ["addRoutingLayer", "removeRoutingLayer", "initiallyAddFeatures"]),
+        ...mapMutations("Tools/Routing", ["applyTranslationKey"]),
 
         /**
          * Closes this tool window by setting active to false

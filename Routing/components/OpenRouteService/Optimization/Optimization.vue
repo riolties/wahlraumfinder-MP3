@@ -19,6 +19,14 @@ export default {
         ...mapGetters("Map", ["map"]),
         ...mapGetters("Tools/Routing", Object.keys(getters))
     },
+    watch: {
+        active (active) {
+            console.log(active);
+            if (active) {
+                this.initiallyAddFeatures();
+            }
+        }
+    },
     methods: {
         ...mapActions("Tools/Routing", Object.keys(actions)),
         ...mapMutations("Tools/Routing", Object.keys(mutations)),

@@ -1,8 +1,8 @@
 <script>
 import {mapGetters, mapActions, mapMutations} from "vuex";
-import getters from "../../../store/gettersRouting";
-import mutations from "../../../store/mutationsRouting";
-import actions from "../../../store/actionsRouting";
+import getters from "../../../store/OpenRouteService/Directions/gettersDirections";
+import mutations from "../../../store/OpenRouteService/Directions/mutationsDirections";
+import actions from "../../../store/OpenRouteService/Directions/actionsDirections";
 import axios from "axios";
 import getProxyUrl from "../../../../../src/utils/getProxyUrl";
 import {getMapProjection, transform} from "masterportalAPI/src/crs";
@@ -14,38 +14,33 @@ export default {
     }),
     computed: {
         ...mapGetters("Map", ["map"]),
-        ...mapGetters("Tools/Routing", Object.keys(getters))
-    },
-    watch: {
-        active (active) {
-            if (!active) {
-                this.removeRoutingLayer();
-            }
-        }
+        ...mapGetters("Tools/Routing", ["url", "profile", "removeFeaturesFromStore"]),
+        ...mapGetters("Tools/Routing/OpenRouteService/Directions", Object.keys(getters))
     },
 
     // fake from and to coordinates
     created () {
-        this.setORSDCoordinatePart({id: "from_x", value: "11.57085"});
-        this.setORSDCoordinatePart({id: "from_y", value: "48.13216"});
-        this.setORSDCoordinatePart({id: "to_x", value: "11.55627"});
-        this.setORSDCoordinatePart({id: "to_y", value: "48.14441"});
+        this.setCoordinatePart({id: "from_x", value: "11.57085"});
+        this.setCoordinatePart({id: "from_y", value: "48.13216"});
+        this.setCoordinatePart({id: "to_x", value: "11.55627"});
+        this.setCoordinatePart({id: "to_y", value: "48.14441"});
     },
     methods: {
-        ...mapActions("Tools/Routing", Object.keys(actions)),
-        ...mapMutations("Tools/Routing", Object.keys(mutations)),
+        ...mapActions("Tools/Routing", ["removeFeaturesFromSource", "addRouteGeoJSONToRoutingLayer"]),
+        ...mapActions("Tools/Routing/OpenRouteService/Directions", Object.keys(actions)),
+        ...mapMutations("Tools/Routing/OpenRouteService/Directions", Object.keys(mutations)),
         coordinatePartChanged (evt) {
             const id = evt.target.id,
                 value = parseFloat(evt.target.value);
 
-            this.setORSDCoordinatePart({id, value});
+            this.setCoordinatePart({id, value});
 
         },
         startRouting () {
-            const from_x = this.openRouteService.from.x,
-                from_y = this.openRouteService.from.y,
-                to_x = this.openRouteService.to.x,
-                to_y = this.openRouteService.to.y,
+            const from_x = this.from.x,
+                from_y = this.from.y,
+                to_x = this.to.x,
+                to_y = this.to.y,
                 coordFrom = from_x + "," + from_y,
                 coordTo = to_x + "," + to_y,
                 url = this.useProxy ? getProxyUrl(this.url) : this.url,
@@ -136,7 +131,7 @@ export default {
                 type="number"
                 step="0.00001"
                 placeholder="Start X"
-                :value="openRouteService.from.x"
+                :value="from.x"
                 @change="coordinatePartChanged"
             />
             <input
@@ -144,7 +139,7 @@ export default {
                 type="number"
                 step="0.00001"
                 placeholder="Start Y"
-                :value="openRouteService.from.y"
+                :value="from.y"
                 @change="coordinatePartChanged"
             />
         </div>
@@ -156,7 +151,7 @@ export default {
                 type="number"
                 step="0.00001"
                 placeholder="Ziel X"
-                :value="openRouteService.to.x"
+                :value="to.x"
                 @change="coordinatePartChanged"
             />
             <input
@@ -164,7 +159,7 @@ export default {
                 type="number"
                 step="0.00001"
                 placeholder="Ziel Y"
-                :value="openRouteService.to.y"
+                :value="to.y"
                 @change="coordinatePartChanged"
             />
         </div>

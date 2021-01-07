@@ -1,21 +1,16 @@
 <script>
-import {mapGetters, mapMutations} from "vuex";
-import getters from "../../store/gettersRouting";
-import mutations from "../../store/mutationsRouting";
-import OpenRouteServiceDirections from "./Directions/Directions.vue";
-import OpenRouteServiceOptimization from "./Optimization/Optimization.vue";
+import {mapGetters} from "vuex";
+import Directions from "./Directions/Directions.vue";
+import Optimization from "./Optimization/Optimization.vue";
 
 export default {
     name: "OpenRouteService",
     components: {
-        OpenRouteServiceDirections,
-        OpenRouteServiceOptimization
+        Directions,
+        Optimization
     },
     computed: {
-        ...mapGetters("Tools/Routing", Object.keys(getters))
-    },
-    methods: {
-        ...mapMutations("Tools/Routing", Object.keys(mutations))
+        ...mapGetters("Tools/Routing", ["routingMode"])
     }
 };
 </script>
@@ -28,12 +23,12 @@ export default {
         <div
             v-if="routingMode==='Directions'"
         >
-            <OpenRouteServiceDirections />
+            <Directions />
         </div>
         <div
             v-if="routingMode==='Optimization'"
         >
-            <OpenRouteServiceOptimization />
+            <Optimization />
         </div>
     </div>
 </template>
