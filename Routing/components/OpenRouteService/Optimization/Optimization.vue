@@ -1,13 +1,13 @@
 <script>
 import {mapGetters, mapActions, mapMutations} from "vuex";
-import getters from "../../../store/gettersRouting";
-import mutations from "../../../store/mutationsRouting";
-import actions from "../../../store/actionsRouting";
+import getters from "../../../store/OpenRouteService/Optimization/gettersOptimization";
+import mutations from "../../../store/OpenRouteService/Optimization/mutationsOptimization";
+import actions from "../../../store/OpenRouteService/Optimization/actionsOptimization";
 import axios from "axios";
 import getProxyUrl from "../../../../../src/utils/getProxyUrl";
-import {getMapProjection, transform} from "masterportalAPI/src/crs";
 import AddVehicle from "./AddVehicle.vue";
 import AddJob from "./AddJob.vue";
+import {getMapProjection, transform} from "masterportalAPI/src/crs";
 
 export default {
     name: "Optimization",
@@ -17,67 +17,65 @@ export default {
     },
     computed: {
         ...mapGetters("Map", ["map"]),
-        ...mapGetters("Tools/Routing", Object.keys(getters))
+        ...mapGetters("Tools/Routing", ["url", "profile"]),
+        ...mapGetters("Tools/Routing/OpenRouteService/Optimization", Object.keys(getters))
     },
-    watch: {
-        active (active) {
-            console.log(active);
-            if (active) {
-                this.initiallyAddFeatures();
-            }
-        }
-    },
+    // watch: {
+    //     active (active) {
+    //         console.log(active);
+    //         if (active) {
+    //             this.initiallyAddFeatures();
+    //         }
+    //     }
+    // },
     methods: {
-        ...mapActions("Tools/Routing", Object.keys(actions)),
-        ...mapMutations("Tools/Routing", Object.keys(mutations)),
+        ...mapActions("Tools/Routing", ["removeFeaturesFromSource", "addRouteGeoJSONToRoutingLayer", "transformCoordinatesFromMapProjection"]),
+        ...mapActions("Tools/Routing/OpenRouteService/Optimization", Object.keys(actions)),
+        ...mapMutations("Tools/Routing", ["generateFeature"]),
+        ...mapMutations("Tools/Routing/OpenRouteService/Optimization", Object.keys(mutations)),
         enableCreatingVehicle () {
-            this.orsoCreatingVehicle(true);
+            this.setCreatingVehicle(true);
         },
-        removeVehicle (evt) {
+        removeVehicleFromStore (evt) {
             const vehicleId = parseInt(evt.target.getAttribute("vehicle-id"), 10);
 
-            this.orsoRemoveVehicle(vehicleId);
+            this.removeVehicle(vehicleId);
             this.removeFeaturesFromSource({attribute: "id", value: vehicleId});
         },
         enableCreatingJob () {
-            this.orsoCreatingJob(true);
+            this.setCreatingJob(true);
         },
-        removeJob (evt) {
+        removeJobFromStore (evt) {
             const jobId = parseInt(evt.target.getAttribute("job-id"), 10);
 
-            this.orsoRemoveJob(jobId);
+            this.removeJob(jobId);
             this.removeFeaturesFromSource({attribute: "id", value: jobId});
         },
-        coordinatePartChanged (evt) {
-            const id = evt.target.id,
-                value = parseFloat(evt.target.value);
-
-            this.setORSDCoordinatePart({id, value});
-
-        },
         transformVehicleCoordinates () {
-            const vehicles = this.openRouteService.vehicles,
+            const vehicles = this.vehicles,
                 clonedVehicles = JSON.parse(JSON.stringify(vehicles)); // copy array
 
             clonedVehicles.forEach(function (clonedVehicle) {
-                clonedVehicle.start = this.transformCoordinates(clonedVehicle.start);
-                clonedVehicle.end = this.transformCoordinates(clonedVehicle.end);
+                clonedVehicle.start = this.transformCoordinatesFromMapProjection({coords: clonedVehicle.start, toEPSG: "EPSG:4326"});
+                clonedVehicle.end = this.transformCoordinatesFromMapProjection({coords: clonedVehicle.end, toEPSG: "EPSG:4326"});
             }, this);
             return clonedVehicles;
         },
         transformJobCoordinates () {
-            const jobs = this.openRouteService.jobs,
+            const jobs = this.jobs,
                 clonedJobs = JSON.parse(JSON.stringify(jobs)); // copy array
 
             clonedJobs.forEach(function (clonedJob) {
-                clonedJob.location = this.transformCoordinates(clonedJob.location);
+                clonedJob.location = this.transformCoordinatesFromMapProjection({coords: clonedJob.location, toEPSG: "EPSG:4326"});
             }, this);
             return clonedJobs;
         },
-        transformCoordinates (coords) {
-            const mapProjection = getMapProjection(this.map);
+        transformCoordinatesFromMapProjection (obj) {
+            const coords = obj.coords,
+                toEPSG = obj.toEPSG,
+                mapProjection = getMapProjection(this.map);
 
-            return transform(mapProjection, "EPSG:4326", coords);
+            return transform(mapProjection, toEPSG, coords);
         },
         startRouting () {
             const url = this.useProxy ? getProxyUrl(this.url) : this.url,
@@ -133,7 +131,7 @@ export default {
         activateTab (evt) {
             const value = parseInt(evt.target.getAttribute("value"), 10);
 
-            this.orsoSetTabActive(value);
+            this.setTabActive(value);
         }
     }
 };
@@ -172,10 +170,10 @@ export default {
                     class="tabcontent"
                 >
                     <div
-                        v-if="openRouteService.creatingVehicle === false"
+                        v-if="creatingVehicle === false"
                     >
                         <table
-                            v-for="vehicle in openRouteService.vehicles"
+                            v-for="vehicle in vehicles"
                             :id="'vehicle_'+ vehicle.id"
                             :key="vehicle.id"
                             class="vehicle"
@@ -190,10 +188,10 @@ export default {
                             <tr>
                                 <td>
                                     <button
-                                        v-if="openRouteService.creatingVehicle === false"
+                                        v-if="creatingVehicle === false"
                                         class="btn btn-sm btn-gsm"
                                         :vehicle-id="vehicle.id"
-                                        @click="removeVehicle"
+                                        @click="removeVehicleFromStore"
                                     >
                                         <span
                                             class="glyphicon glyphicon-minus"
@@ -209,7 +207,7 @@ export default {
                         </table>
                     </div>
                     <button
-                        v-if="openRouteService.creatingVehicle === false"
+                        v-if="creatingVehicle === false"
                         class="btn btn-sm btn-gsm"
                         @click="enableCreatingVehicle"
                     >
@@ -217,7 +215,7 @@ export default {
                         <span>Fahrzeug hinzufügen</span>
                     </button>
                     <AddVehicle
-                        v-if="openRouteService.creatingVehicle === true"
+                        v-if="creatingVehicle === true"
                     />
                 </div>
                 <div
@@ -225,10 +223,10 @@ export default {
                     class="tabcontent"
                 >
                     <div
-                        v-if="openRouteService.creatingJob === false"
+                        v-if="creatingJob === false"
                     >
                         <table
-                            v-for="job in openRouteService.jobs"
+                            v-for="job in jobs"
                             :id="'job_'+ job.id"
                             :key="job.id"
                             class="job"
@@ -242,10 +240,10 @@ export default {
                             <tr>
                                 <td>
                                     <button
-                                        v-if="openRouteService.creatingJob === false"
+                                        v-if="creatingJob === false"
                                         class="btn btn-sm btn-gsm"
                                         :job-id="job.id"
-                                        @click="removeJob"
+                                        @click="removeJobFromStore"
                                     >
                                         <span
                                             class="glyphicon glyphicon-minus"
@@ -261,7 +259,7 @@ export default {
                         </table>
                     </div>
                     <button
-                        v-if="openRouteService.creatingJob === false"
+                        v-if="creatingJob === false"
                         class="btn btn-sm btn-gsm"
                         @click="enableCreatingJob"
                     >
@@ -269,7 +267,7 @@ export default {
                         <span>Auftrag hinzufügen</span>
                     </button>
                     <AddJob
-                        v-if="openRouteService.creatingJob === true"
+                        v-if="creatingJob === true"
                     />
                 </div>
                 <div

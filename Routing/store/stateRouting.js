@@ -16,6 +16,7 @@ const state = {
     resizableWindow: true,
     isVisibleInMenu: true,
     deactivateGFI: true,
+
     routingType: "OpenRouteService",
     routingMode: "Directions",
     url: "",
@@ -27,25 +28,7 @@ const state = {
         source: new VectorSource(),
         visible: true,
         style: new Style()
-    }),
-    activeTab: 1,
-    focusPoint: null,
-    openRouteService: {
-        from: {
-            x: -1,
-            y: -1,
-            name: ""
-        },
-        to: {
-            x: -1,
-            y: -1,
-            name: ""
-        },
-        creatingVehicle: false,
-        vehicles: [],
-        creatingJob: false,
-        jobs: []
-    }
+    })
 };
 
 export default state;

@@ -4,15 +4,16 @@
  * @typedef {object} RoutingState
  */
 const state = {
-    from: {
-        x: -1,
-        y: -1,
-        name: ""
+    timeout: undefined,
+    from_address: {
+        coordinates: [],
+        allowSearchForAddress: true,
+        autocompleteFeatures: []
     },
-    to: {
-        x: -1,
-        y: -1,
-        name: ""
+    to_address: {
+        coordinates: [],
+        allowSearchForAddress: true,
+        autocompleteFeatures: []
     }
 };
 

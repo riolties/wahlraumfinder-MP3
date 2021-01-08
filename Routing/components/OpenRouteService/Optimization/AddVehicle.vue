@@ -1,20 +1,23 @@
 <script>
 import {mapGetters, mapActions, mapMutations} from "vuex";
-import getters from "../../../store/gettersRouting";
-import mutations from "../../../store/mutationsRouting";
-import actions from "../../../store/actionsRouting";
+import getters from "../../../store/OpenRouteService/Optimization/gettersOptimization";
+import mutations from "../../../store/OpenRouteService/Optimization/mutationsOptimization";
+import actions from "../../../store/OpenRouteService/Optimization/actionsOptimization";
+import Point from "ol/geom/Point.js";
 
 export default {
     name: "AddVehicle",
     computed: {
-        ...mapGetters("Tools/Routing", Object.keys(getters)),
+        ...mapGetters("Tools/Routing", ["profile", "styleId"]),
+        ...mapGetters("Tools/Routing/OpenRouteService/Optimization", Object.keys(getters)),
         id () {
             return Math.round(Math.random() * 1000);
         }
     },
     methods: {
-        ...mapActions("Tools/Routing", Object.keys(actions)),
-        ...mapMutations("Tools/Routing", Object.keys(mutations)),
+        ...mapActions("Tools/Routing", ["generateFeature"]),
+        ...mapActions("Tools/Routing/OpenRouteService/Optimization", Object.keys(actions)),
+        ...mapMutations("Tools/Routing/OpenRouteService/Optimization", Object.keys(mutations)),
         confirmVehicle () {
             const id = document.getElementById("vehicle-id").value,
                 description = document.getElementById("vehicle-description").value,
@@ -31,13 +34,25 @@ export default {
                     capacity: [parseInt(capacity, 10)],
                     styleId: styleId
                 };
+console.log(vehicle);
+            this.addVehicle(vehicle);
+            this.addVehicleToRoutingLayer(vehicle);
+            this.setCreatingVehicle(false);
+        },
+        addVehicleToRoutingLayer (vehicle) {
+            const start = vehicle.start,
+                end = vehicle.end;
 
-            this.orsoAddVehicle(vehicle);
-            this.orsoAddVehicleToRoutingLayer(vehicle);
-            this.orsoCreatingVehicle(false);
+            vehicle.geometry = new Point(start);
+            this.generateFeature(vehicle);
+            // if start or end coordinates are not the same, add a second feature for the end coordinates
+            if (start[0] !== end[0] || start[1] !== end[1]) {
+                vehicle.geometry = new Point(end);
+                this.generateFeature(vehicle);
+            }
         },
         cancelVehicle () {
-            this.orsoCreatingVehicle(false);
+            this.setCreatingVehicle(false);
         }
     }
 };

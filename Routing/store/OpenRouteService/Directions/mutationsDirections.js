@@ -21,19 +21,27 @@ const mutations = {
             state.name = payload.substr("translate#".length);
         }
     },
-    setFromX: (state, value) => {
-        state.from.x = value;
-    },
-    setFromY: (state, value) => {
-        state.from.y = value;
-    },
-    setToX: (state, value) => {
-        state.to.x = value;
-    },
-    setToY: (state, value) => {
-        state.to.y = value;
-    }
 
+    setAllowSearchForAddress: (state, obj) => {
+        const id = obj.id,
+            allowSearchForAddress = obj.value;
+
+        // id can only be "from_address" or "to_address"
+        state[id].allowSearchForAddress = allowSearchForAddress;
+    },
+    setCoordinatesFromAutocompleteFeature: (state, obj) => {
+        const id = obj.id,
+            label = obj.label,
+            foundFeature = state[id].autocompleteFeatures.filter(function (feature) {
+                return feature.properties.label === label;
+            })[0],
+            coordinates = foundFeature.geometry.coordinates;
+
+        state[id].coordinates = coordinates;
+    },
+    resetAutocompleteFeatures: (state, id) => {
+        state[id].autocompleteFeatures = [];
+    }
 };
 
 export default mutations;

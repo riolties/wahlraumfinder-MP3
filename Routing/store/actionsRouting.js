@@ -1,17 +1,8 @@
 import {GeoJSON} from "ol/format.js";
+import Feature from "ol/Feature.js";
+import {getMapProjection, transform} from "masterportalAPI/src/crs";
+
 const actions = {
-
-    initiallyAddFeatures ({state, dispatch}) {
-        const vehicles = state.openRouteService.vehicles,
-            jobs = state.openRouteService.jobs;
-
-        vehicles.forEach(function (vehicle) {
-            dispatch("orsoAddVehicleToRoutingLayer", vehicle);
-        });
-        jobs.forEach(function (job) {
-            dispatch("orsoAddJobToRoutingLayer", job);
-        });
-    },
     addRouteGeoJSONToRoutingLayer ({state, dispatch}, geojson) {
         const styleListModel = Radio.request("StyleList", "returnModelById", state.styleId[0]);
 
@@ -30,33 +21,16 @@ const actions = {
             dispatch("addFeaturesToLayerSource", features);
         }
     },
-    // orsoAddVehicleToRoutingLayer ({dispatch}, vehicle) {
-    //     const start = vehicle.start,
-    //         end = vehicle.end;
+    generateFeature ({dispatch}, props) {
+        const feature = new Feature(props),
+            styleId = props.styleId,
+            styleListModel = Radio.request("StyleList", "returnModelById", styleId);
 
-    //     vehicle.geometry = new Point(start);
-    //     dispatch("generateFeature", vehicle);
-
-    //     // if start or end coordinates are not the same, add a second feature for the end coordinates
-    //     if (start[0] !== end[0] || start[1] !== end[1]) {
-    //         vehicle.geometry = new Point(end);
-    //         dispatch("generateFeature", vehicle);
-    //     }
-    // },
-    // orsoAddJobToRoutingLayer ({dispatch}, job) {
-    //     job.geometry = new Point(job.location);
-    //     dispatch("generateFeature", job);
-    // },
-    // generateFeature ({dispatch}, props) {
-    //     const feature = new Feature(props),
-    //         styleId = props.styleId,
-    //         styleListModel = Radio.request("StyleList", "returnModelById", styleId);
-
-    //     feature.setStyle(function (feat) {
-    //         return styleListModel.createStyle(feat, false);
-    //     });
-    //     dispatch("addFeaturesToLayerSource", [feature]);
-    // },
+        feature.setStyle(function (feat) {
+            return styleListModel.createStyle(feat, false);
+        });
+        dispatch("addFeaturesToLayerSource", [feature]);
+    },
     addFeaturesToLayerSource ({state}, features) {
         const layer = state.routingLayer,
             source = layer.getSource();
@@ -86,6 +60,17 @@ const actions = {
             source.addFeatures(features);
         }
     },
+    // transformCoordinatesFromMapProjection ({state}, obj) {
+    //     const coords = obj.coords,
+    //         toEPSG = obj.toEPSG,
+    //         map = state.map;
+    //         // mapProjection = getMapProjection(map);
+
+    //     console.log(coords);
+    //     console.log(toEPSG);
+    //     console.log(map);
+    //     // return transform(mapProjection, toEPSG, coords);
+    // },
     addRoutingLayer ({state, commit}) {
         commit("Map/addLayerToMap", state.routingLayer, {root: true});
     },

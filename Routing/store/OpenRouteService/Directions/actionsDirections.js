@@ -1,20 +1,19 @@
 const actions = {
-    setCoordinatePart: function ({commit}, val) {
-        const id = val.id,
-            value = parseFloat(val.value);
+    addAutocompleteFeatures: ({state}, payload) => {
+        const features = payload.features,
+            target = payload.target,
+            map = ["id", "continent", "country", "region", "macrocounty", "county", "locality", "postalcode", "neighbourhood", "street", "housenumber", "distance"];
 
-        if (id === "from_x") {
-            commit("setFromX", value);
-        }
-        if (id === "from_y") {
-            commit("setFromY", value);
-        }
-        if (id === "to_x") {
-            commit("setToX", value);
-        }
-        if (id === "to_y") {
-            commit("setToY", value);
-        }
+        features.forEach(function (feature) {
+            feature.properties = Object.keys(feature.properties)
+                .filter(key => map.includes(key))
+                .reduce((obj, key) => {
+                    obj[key] = feature.properties[key];
+                    return obj;
+                }, {});
+            feature.properties.label = feature.properties.street + " " + feature.properties.housenumber + " " + feature.properties.postalcode + " " + feature.properties.locality;
+        });
+        state[target].autocompleteFeatures = features;
     }
 };
 

@@ -9,43 +9,23 @@ import {getMapProjection, transform} from "masterportalAPI/src/crs";
 
 export default {
     name: "Directions",
-    data: () => ({
-        timeout: null
-    }),
     computed: {
         ...mapGetters("Map", ["map"]),
         ...mapGetters("Tools/Routing", ["url", "profile", "removeFeaturesFromStore"]),
         ...mapGetters("Tools/Routing/OpenRouteService/Directions", Object.keys(getters))
     },
-
-    // fake from and to coordinates
-    created () {
-        this.setCoordinatePart({id: "from_x", value: "11.57085"});
-        this.setCoordinatePart({id: "from_y", value: "48.13216"});
-        this.setCoordinatePart({id: "to_x", value: "11.55627"});
-        this.setCoordinatePart({id: "to_y", value: "48.14441"});
-    },
     methods: {
         ...mapActions("Tools/Routing", ["removeFeaturesFromSource", "addRouteGeoJSONToRoutingLayer"]),
         ...mapActions("Tools/Routing/OpenRouteService/Directions", Object.keys(actions)),
         ...mapMutations("Tools/Routing/OpenRouteService/Directions", Object.keys(mutations)),
-        coordinatePartChanged (evt) {
-            const id = evt.target.id,
-                value = parseFloat(evt.target.value);
-
-            this.setCoordinatePart({id, value});
-
-        },
         startRouting () {
-            const from_x = this.from.x,
-                from_y = this.from.y,
-                to_x = this.to.x,
-                to_y = this.to.y,
-                coordFrom = from_x + "," + from_y,
-                coordTo = to_x + "," + to_y,
+            // const from_coordinates = this.transformCoordinatesFromMapProjection({coords: this.from_address.coordinates, toEPSG: "EPSG:4326"}).toString(),
+            //     to_coordinates = this.transformCoordinatesFromMapProjection({coords: this.to_address.coordinates, toEPSG: "EPSG:4326"}).toString(),
+            const from_coordinates = this.from_address.coordinates.toString(),
+                to_coordinates = this.to_address.coordinates.toString(),
                 url = this.useProxy ? getProxyUrl(this.url) : this.url,
                 apiKey = "5b3ce3597851110001cf62489a7a04728b764689a1eaf55857e43cc2",
-                query = url + "/v2/directions/" + this.profile + "?start=" + coordFrom + "&end=" + coordTo + "&api_key=" + apiKey;
+                query = url + "/v2/directions/" + this.profile + "?start=" + from_coordinates + "&end=" + to_coordinates + "&api_key=" + apiKey;
 
             axios.get(query)
                 .then(response => {
@@ -58,20 +38,44 @@ export default {
 
                 });
         },
-        startAddressChanged (evt) {
-            const value = evt.currentTarget.value,
+        transformCoordinatesFromMapProjection (obj) {
+            const coords = obj.coords,
+                toEPSG = obj.toEPSG,
+                mapProjection = getMapProjection(this.map);
+
+            return transform(mapProjection, toEPSG, coords);
+        },
+        addressChanged (evt) {
+            const searchString = evt.currentTarget.value,
+                id = evt.currentTarget.id,
+                allowSearchForAddress = this[id].allowSearchForAddress,
                 that = this;
 
-            if (this.timeout) {
-                clearTimeout(this.timeout);
-            }
-            this.timeout = setTimeout(function () {
-                if (value.length > 0) {
-                    that.searchForAddress(value);
+            if (searchString.length > 0 && allowSearchForAddress) {
+                if (this.timeout) {
+                    clearTimeout(this.timeout);
                 }
-            }, 500, this);
+                this.setTimeout(setTimeout(function () {
+                    that.searchForAddress(searchString, id);
+                }, 500));
+            }
         },
-        searchForAddress (searchString) {
+        optionSelected (evt) {
+            const label = evt.currentTarget.value,
+                id = evt.currentTarget.id;
+
+            this.setAllowSearchForAddress({id, value: false});
+            this.setCoordinatesFromAutocompleteFeature({id, label});
+            this.resetAutocompleteFeatures(id);
+        },
+        resetSearchString (evt) {
+            const addressInputId = evt.currentTarget.value;
+
+            document.getElementById(addressInputId).value = "";
+            this.resetAutocompleteFeatures(addressInputId);
+            this.setAllowSearchForAddress({id: addressInputId, value: true});
+        },
+        searchForAddress (searchString, target) {
             const url = this.useProxy ? getProxyUrl(this.url) : this.url,
                 focusPoint = this.getFocusPointIn4326(),
                 focusPointParam = "&focus.point.lon=" + focusPoint[0] + "&focus.point.lat=" + focusPoint[1],
@@ -83,6 +87,7 @@ export default {
             axios.get(query)
                 .then(response => {
                     console.log(response.data);
+                    this.addAutocompleteFeatures({features: response.data.features, target: target});
                 })
                 .catch(error => {
                     console.log(error);
@@ -90,17 +95,15 @@ export default {
                 });
         },
         getFocusPointIn4326 () {
-            const mapProjection = getMapProjection(this.map),
-                mapCenter = this.map.getView().getCenter();
+            const mapCenter = this.map.getView().getCenter();
             let focusPoint = this.focusPoint;
 
             if (this.focusPoint) {
-                focusPoint = transform(mapProjection, "EPSG:4326", focusPoint);
+                focusPoint = this.transformCoordinatesFromMapProjection({coords: focusPoint, toEPSG: "EPSG:4326"});
             }
             else {
-                focusPoint = transform(mapProjection, "EPSG:4326", mapCenter);
+                focusPoint = this.transformCoordinatesFromMapProjection({coords: mapCenter, toEPSG: "EPSG:4326"});
             }
-            console.log(focusPoint);
             return focusPoint;
         }
     }
@@ -120,48 +123,54 @@ export default {
                 id="from_address"
                 type="text"
                 placeholder="Startadresse"
-                @keyup="startAddressChanged"
+                list="from_address_autocomplete"
+                @keyup="addressChanged"
+                @change="optionSelected"
             />
+            <datalist id="from_address_autocomplete">
+                <option
+                    v-for="feature in from_address.autocompleteFeatures"
+                    :key="feature.properties.id"
+                >
+                    {{ feature.properties.label }}
+                </option>
+            </datalist>
+            <button
+                id="from_address_reset"
+                class="btn btn-sm btn-gsm"
+                value="from_address"
+                @click="resetSearchString"
+            >
+                <span class="glyphicon glyphicon-remove" />
+            </button>
         </div>
         <div
             class="form-group form-group-sm"
         >
             <input
-                id="from_x"
-                type="number"
-                step="0.00001"
-                placeholder="Start X"
-                :value="from.x"
-                @change="coordinatePartChanged"
+                id="to_address"
+                type="text"
+                placeholder="Zieladresse"
+                list="to_address_autocomplete"
+                @keyup="addressChanged"
+                @change="optionSelected"
             />
-            <input
-                id="from_y"
-                type="number"
-                step="0.00001"
-                placeholder="Start Y"
-                :value="from.y"
-                @change="coordinatePartChanged"
-            />
-        </div>
-        <div
-            class="form-group form-group-sm"
-        >
-            <input
-                id="to_x"
-                type="number"
-                step="0.00001"
-                placeholder="Ziel X"
-                :value="to.x"
-                @change="coordinatePartChanged"
-            />
-            <input
-                id="to_y"
-                type="number"
-                step="0.00001"
-                placeholder="Ziel Y"
-                :value="to.y"
-                @change="coordinatePartChanged"
-            />
+            <datalist id="to_address_autocomplete">
+                <option
+                    v-for="feature in to_address.autocompleteFeatures"
+                    :key="feature.properties.id"
+                >
+                    {{ feature.properties.label }}
+                </option>
+            </datalist>
+            <button
+                id="to_address_reset"
+                class="btn btn-sm btn-gsm"
+                value="to_address"
+                @click="resetSearchString"
+            >
+                <span class="glyphicon glyphicon-remove" />
+            </button>
         </div>
         <button
             class="btn btn-sm btn-block btn-gsm"

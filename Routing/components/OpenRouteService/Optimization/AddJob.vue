@@ -1,20 +1,23 @@
 <script>
 import {mapGetters, mapActions, mapMutations} from "vuex";
-import getters from "../../../store/gettersRouting";
-import mutations from "../../../store/mutationsRouting";
-import actions from "../../../store/actionsRouting";
+import getters from "../../../store/OpenRouteService/Optimization/gettersOptimization";
+import mutations from "../../../store/OpenRouteService/Optimization/mutationsOptimization";
+import actions from "../../../store/OpenRouteService/Optimization/actionsOptimization";
+import Point from "ol/geom/Point.js";
 
 export default {
     name: "AddJob",
     computed: {
-        ...mapGetters("Tools/Routing", Object.keys(getters)),
+        ...mapGetters("Tools/Routing", ["styleId"]),
+        ...mapGetters("Tools/Routing/OpenRouteService/Optimization", Object.keys(getters)),
         id () {
             return Math.round(Math.random() * 1000);
         }
     },
     methods: {
-        ...mapActions("Tools/Routing", Object.keys(actions)),
-        ...mapMutations("Tools/Routing", Object.keys(mutations)),
+        ...mapActions("Tools/Routing", ["generateFeature"]),
+        ...mapActions("Tools/Routing/OpenRouteService/Optimization", Object.keys(actions)),
+        ...mapMutations("Tools/Routing/OpenRouteService/Optimization", Object.keys(mutations)),
         confirmJob () {
             const id = document.getElementById("job-id").value,
                 description = document.getElementById("job-description").value,
@@ -31,12 +34,16 @@ export default {
                     styleId: styleId
                 };
 
-            this.orsoAddJob(job);
-            this.orsoAddJobToRoutingLayer(job);
-            this.orsoCreatingJob(false);
+            this.addJob(job);
+            this.addJobToRoutingLayer(job);
+            this.setCreatingJob(false);
         },
         cancelJob () {
-            this.orsoCreatingJob(false);
+            this.setCeatingJob(false);
+        },
+        addJobToRoutingLayer (job) {
+            job.geometry = new Point(job.location);
+            this.generateFeature(job);
         }
     }
 };
