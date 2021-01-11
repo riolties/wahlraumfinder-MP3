@@ -4,8 +4,8 @@ const actions = {
     addVehicleToRoutingLayer ({state}, obj) {
         const cbFunction = obj.cbFunction,
             vehicle = obj.vehicle,
-            start = vehicle.start,
-            end = vehicle.end;
+            start = vehicle.start.coordinates,
+            end = vehicle.end.coordinates;
 
         vehicle.geometry = new Point(start);
         cbFunction(vehicle);

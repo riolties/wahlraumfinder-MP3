@@ -58,17 +58,19 @@ export default {
             this.removeJob(jobId);
             this.removeFeaturesFromSource({attribute: "id", value: jobId});
         },
-        transformVehicleCoordinates () {
+        prepareVehicles () {
             const vehicles = this.vehicles,
                 clonedVehicles = JSON.parse(JSON.stringify(vehicles)); // copy array
 
             clonedVehicles.forEach(function (clonedVehicle) {
-                clonedVehicle.start = this.transformCoordinatesFromMapProjection({coords: clonedVehicle.start, toEPSG: "EPSG:4326"});
-                clonedVehicle.end = this.transformCoordinatesFromMapProjection({coords: clonedVehicle.end, toEPSG: "EPSG:4326"});
+                console.log(clonedVehicle);
+                clonedVehicle.start = this.transformCoordinatesFromMapProjection({coords: clonedVehicle.start.coordinates, toEPSG: "EPSG:4326"});
+                clonedVehicle.end = this.transformCoordinatesFromMapProjection({coords: clonedVehicle.end.coordinates, toEPSG: "EPSG:4326"});
+
             }, this);
             return clonedVehicles;
         },
-        transformJobCoordinates () {
+        prepareJobs () {
             const jobs = this.jobs,
                 clonedJobs = JSON.parse(JSON.stringify(jobs)); // copy array
 
@@ -89,8 +91,8 @@ export default {
                 apiKey = "5b3ce3597851110001cf62489a7a04728b764689a1eaf55857e43cc2",
                 query = url + "/optimization",
                 payload = {
-                    vehicles: this.transformVehicleCoordinates(),
-                    jobs: this.transformJobCoordinates()
+                    vehicles: this.prepareVehicles(),
+                    jobs: this.prepareJobs()
                 };
 
             axios.post(query, payload, {
@@ -188,8 +190,8 @@ export default {
                             <tr><td>Id</td><td>{{ vehicle.id }}</td></tr>
                             <tr><td>Profil</td><td>{{ vehicle.profile }}</td></tr>
                             <tr><td>Beschreibung</td><td>{{ vehicle.description }}</td></tr>
-                            <tr><td>Start</td><td>{{ vehicle.start }}</td></tr>
-                            <tr><td>End</td><td>{{ vehicle.end }}</td></tr>
+                            <tr><td>Start</td><td>{{ vehicle.start.address }}</td></tr>
+                            <tr><td>End</td><td>{{ vehicle.end.address }}</td></tr>
                             <tr><td>Kapazität</td><td>{{ vehicle.capacity }}</td></tr>
                             <tr><td>StyleId</td><td>{{ vehicle.styleId }}</td></tr>
                             <tr>

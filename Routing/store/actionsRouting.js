@@ -3,7 +3,7 @@ import Feature from "ol/Feature.js";
 
 const actions = {
     addRouteGeoJSONToRoutingLayer ({state, dispatch}, geojson) {
-        const styleListModel = Radio.request("StyleList", "returnModelById", state.styleId[0]);
+        const styleListModel = Radio.request("StyleList", "returnModelById", state.styleIdForRoute);
 
         if (styleListModel) {
             const format = new GeoJSON({
@@ -59,17 +59,6 @@ const actions = {
             source.addFeatures(features);
         }
     },
-    // transformCoordinatesFromMapProjection ({state}, obj) {
-    //     const coords = obj.coords,
-    //         toEPSG = obj.toEPSG,
-    //         map = state.map;
-    //         // mapProjection = getMapProjection(map);
-
-    //     console.log(coords);
-    //     console.log(toEPSG);
-    //     console.log(map);
-    //     // return transform(mapProjection, toEPSG, coords);
-    // },
     addRoutingLayer ({state, commit}) {
         commit("Map/addLayerToMap", state.routingLayer, {root: true});
     },

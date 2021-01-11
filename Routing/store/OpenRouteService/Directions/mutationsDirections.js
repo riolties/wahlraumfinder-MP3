@@ -20,27 +20,6 @@ const mutations = {
         if (payload && payload.indexOf("translate#") > -1) {
             state.name = payload.substr("translate#".length);
         }
-    },
-
-    setAllowSearchForAddress: (state, obj) => {
-        const id = obj.id,
-            allowSearchForAddress = obj.value;
-
-        // id can only be "from_address" or "to_address"
-        state[id].allowSearchForAddress = allowSearchForAddress;
-    },
-    setCoordinatesFromAutocompleteFeature: (state, obj) => {
-        const id = obj.id,
-            label = obj.label,
-            foundFeature = state[id].autocompleteFeatures.filter(function (feature) {
-                return feature.properties.label === label;
-            })[0],
-            coordinates = foundFeature.geometry.coordinates;
-
-        state[id].coordinates = coordinates;
-    },
-    resetAutocompleteFeatures: (state, id) => {
-        state[id].autocompleteFeatures = [];
     }
 };
 

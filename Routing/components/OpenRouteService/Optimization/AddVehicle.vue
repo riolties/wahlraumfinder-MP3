@@ -7,7 +7,7 @@ import actions from "../../../store/OpenRouteService/Optimization/actionsOptimiz
 export default {
     name: "AddVehicle",
     computed: {
-        ...mapGetters("Tools/Routing", ["profile", "styleId"]),
+        ...mapGetters("Tools/Routing", ["url", "profile", "styleId"]),
         ...mapGetters("Tools/Routing/OpenRouteService/Optimization", Object.keys(getters)),
         id () {
             return Math.round(Math.random() * 1000);
@@ -28,8 +28,12 @@ export default {
                     id: parseInt(id, 10),
                     profile: this.profile,
                     description: description,
-                    start: [parseFloat(start[0]), parseFloat(start[1])],
-                    end: [parseFloat(end[0]), parseFloat(end[1])],
+                    start: {
+                        coordinates: [parseFloat(start[0]), parseFloat(start[1])]
+                    },
+                    end: {
+                        coordinates: [parseFloat(end[0]), parseFloat(end[1])]
+                    },
                     capacity: [parseInt(capacity, 10)],
                     styleId: styleId
                 };
