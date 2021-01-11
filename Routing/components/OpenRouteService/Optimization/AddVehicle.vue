@@ -3,7 +3,6 @@ import {mapGetters, mapActions, mapMutations} from "vuex";
 import getters from "../../../store/OpenRouteService/Optimization/gettersOptimization";
 import mutations from "../../../store/OpenRouteService/Optimization/mutationsOptimization";
 import actions from "../../../store/OpenRouteService/Optimization/actionsOptimization";
-import Point from "ol/geom/Point.js";
 
 export default {
     name: "AddVehicle",
@@ -34,22 +33,10 @@ export default {
                     capacity: [parseInt(capacity, 10)],
                     styleId: styleId
                 };
-console.log(vehicle);
-            this.addVehicle(vehicle);
-            this.addVehicleToRoutingLayer(vehicle);
-            this.setCreatingVehicle(false);
-        },
-        addVehicleToRoutingLayer (vehicle) {
-            const start = vehicle.start,
-                end = vehicle.end;
 
-            vehicle.geometry = new Point(start);
-            this.generateFeature(vehicle);
-            // if start or end coordinates are not the same, add a second feature for the end coordinates
-            if (start[0] !== end[0] || start[1] !== end[1]) {
-                vehicle.geometry = new Point(end);
-                this.generateFeature(vehicle);
-            }
+            this.addVehicle(vehicle);
+            this.addVehicleToRoutingLayer({vehicle, cbFunction: this.generateFeature});
+            this.setCreatingVehicle(false);
         },
         cancelVehicle () {
             this.setCreatingVehicle(false);

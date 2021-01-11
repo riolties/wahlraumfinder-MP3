@@ -3,7 +3,6 @@ import {mapGetters, mapActions, mapMutations} from "vuex";
 import getters from "../../../store/OpenRouteService/Optimization/gettersOptimization";
 import mutations from "../../../store/OpenRouteService/Optimization/mutationsOptimization";
 import actions from "../../../store/OpenRouteService/Optimization/actionsOptimization";
-import Point from "ol/geom/Point.js";
 
 export default {
     name: "AddJob",
@@ -35,15 +34,11 @@ export default {
                 };
 
             this.addJob(job);
-            this.addJobToRoutingLayer(job);
+            this.addJobToRoutingLayer({job, cbFunction: this.generateFeature});
             this.setCreatingJob(false);
         },
         cancelJob () {
             this.setCeatingJob(false);
-        },
-        addJobToRoutingLayer (job) {
-            job.geometry = new Point(job.location);
-            this.generateFeature(job);
         }
     }
 };

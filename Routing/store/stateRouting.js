@@ -28,7 +28,9 @@ const state = {
         source: new VectorSource(),
         visible: true,
         style: new Style()
-    })
+    }),
+    vehicles: [],
+    jobs: []
 };
 
 export default state;

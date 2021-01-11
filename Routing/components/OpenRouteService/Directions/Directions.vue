@@ -11,7 +11,7 @@ export default {
     name: "Directions",
     computed: {
         ...mapGetters("Map", ["map"]),
-        ...mapGetters("Tools/Routing", ["url", "profile", "removeFeaturesFromStore"]),
+        ...mapGetters("Tools/Routing", ["active", "url", "profile", "removeFeaturesFromStore"]),
         ...mapGetters("Tools/Routing/OpenRouteService/Directions", Object.keys(getters))
     },
     methods: {
@@ -19,8 +19,6 @@ export default {
         ...mapActions("Tools/Routing/OpenRouteService/Directions", Object.keys(actions)),
         ...mapMutations("Tools/Routing/OpenRouteService/Directions", Object.keys(mutations)),
         startRouting () {
-            // const from_coordinates = this.transformCoordinatesFromMapProjection({coords: this.from_address.coordinates, toEPSG: "EPSG:4326"}).toString(),
-            //     to_coordinates = this.transformCoordinatesFromMapProjection({coords: this.to_address.coordinates, toEPSG: "EPSG:4326"}).toString(),
             const from_coordinates = this.from_address.coordinates.toString(),
                 to_coordinates = this.to_address.coordinates.toString(),
                 url = this.useProxy ? getProxyUrl(this.url) : this.url,

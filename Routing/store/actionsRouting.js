@@ -1,6 +1,5 @@
 import {GeoJSON} from "ol/format.js";
 import Feature from "ol/Feature.js";
-import {getMapProjection, transform} from "masterportalAPI/src/crs";
 
 const actions = {
     addRouteGeoJSONToRoutingLayer ({state, dispatch}, geojson) {

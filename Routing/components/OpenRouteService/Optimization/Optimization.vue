@@ -17,22 +17,29 @@ export default {
     },
     computed: {
         ...mapGetters("Map", ["map"]),
-        ...mapGetters("Tools/Routing", ["url", "profile"]),
+        ...mapGetters("Tools/Routing", ["active", "url", "profile"]),
         ...mapGetters("Tools/Routing/OpenRouteService/Optimization", Object.keys(getters))
     },
-    // watch: {
-    //     active (active) {
-    //         console.log(active);
-    //         if (active) {
-    //             this.initiallyAddFeatures();
-    //         }
-    //     }
-    // },
+    created () {
+        this.initiallyAddFeatures();
+    },
     methods: {
-        ...mapActions("Tools/Routing", ["removeFeaturesFromSource", "addRouteGeoJSONToRoutingLayer", "transformCoordinatesFromMapProjection"]),
+        ...mapActions("Tools/Routing", ["removeFeaturesFromSource", "addRouteGeoJSONToRoutingLayer", "transformCoordinatesFromMapProjection", "generateFeature"]),
         ...mapActions("Tools/Routing/OpenRouteService/Optimization", Object.keys(actions)),
-        ...mapMutations("Tools/Routing", ["generateFeature"]),
         ...mapMutations("Tools/Routing/OpenRouteService/Optimization", Object.keys(mutations)),
+        initiallyAddFeatures () {
+            const jobs = this.$store.state.Tools.Routing.jobs,
+                vehicles = this.$store.state.Tools.Routing.vehicles;
+
+            vehicles.forEach(function (vehicle) {
+                this.addVehicle(vehicle);
+                this.addVehicleToRoutingLayer({vehicle, cbFunction: this.generateFeature});
+            }, this);
+            jobs.forEach(function (job) {
+                this.addJob(job);
+                this.addJobToRoutingLayer({job, cbFunction: this.generateFeature});
+            }, this);
+        },
         enableCreatingVehicle () {
             this.setCreatingVehicle(true);
         },
