@@ -3,9 +3,13 @@ import {mapGetters, mapActions, mapMutations} from "vuex";
 import getters from "../../../store/OpenRouteService/Optimization/gettersOptimization";
 import mutations from "../../../store/OpenRouteService/Optimization/mutationsOptimization";
 import actions from "../../../store/OpenRouteService/Optimization/actionsOptimization";
+import Geocoder from "../Geocoder.vue";
 
 export default {
     name: "AddVehicle",
+    components: {
+        Geocoder
+    },
     computed: {
         ...mapGetters("Tools/Routing", ["url", "profile", "styleId"]),
         ...mapGetters("Tools/Routing/OpenRouteService/Optimization", Object.keys(getters)),
@@ -86,7 +90,7 @@ export default {
             />
         </div>
         <!-- start -->
-        <div class="form-group form-group-sm">
+        <!-- <div class="form-group form-group-sm">
             <label for="vehicle-start">Start</label>
             <input
                 id="vehicle-start"
@@ -95,9 +99,17 @@ export default {
                 placeholder="Bitte Start wählen"
                 value="696966.29,5337798.43"
             />
-        </div>
+        </div> -->
+        <label for="vehicle-start">Start</label>
+        <Geocoder
+            id="vehicle-start"
+            from="Optimization"
+            placeholder="Startadresse"
+            layers="address"
+            country="Deutschland"
+        />
         <!-- end -->
-        <div class="form-group form-group-sm">
+        <!-- <div class="form-group form-group-sm">
             <label for="vehicle-end">Ende</label>
             <input
                 id="vehicle-end"
@@ -106,7 +118,15 @@ export default {
                 placeholder="Bitte Ziel wählen"
                 value="696966.29,5337798.43"
             />
-        </div>
+        </div> -->
+        <label for="vehicle-end">Ende</label>
+        <Geocoder
+            id="vehicle-end"
+            from="Optimization"
+            placeholder="Zieladresse"
+            layers="address"
+            country="Deutschland"
+        />
         <!-- capacity -->
         <div class="form-group form-group-sm">
             <label for="vehicle-capacity">Capacity</label>

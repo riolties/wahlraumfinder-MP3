@@ -1,0 +1,171 @@
+<script>
+import {mapGetters, mapActions} from "vuex";
+import axios from "axios";
+import getProxyUrl from "../../../../src/utils/getProxyUrl";
+import {getMapProjection, transform} from "masterportalAPI/src/crs";
+
+export default {
+    name: "Geocoder",
+    props: {
+        id: {
+            type: String,
+            required: true
+        },
+        from: {
+            type: String,
+            required: true
+        },
+        placeholder: {
+            type: String,
+            required: true
+        },
+        styleId: {
+            type: String,
+            required: true
+        }
+    },
+    data () {
+        return {
+            autocompleteFeatures: [],
+            allowSearchForAddress: true,
+            timeout: undefined,
+            feature: {}
+        };
+    },
+    computed: {
+        ...mapGetters("Tools/Routing", ["url", "layers", "country", "apiKey"]),
+        ...mapGetters("Map", ["map"])
+    },
+    methods: {
+        ...mapActions("Tools/Routing", ["addFeatureToRoutingLayer", "removeFeaturesFromSource"]),
+        ...mapActions("Tools/Routing/OpenRouteService", ["setFeatureCoordinatesFromGeocoder", "removeFeatureCoordinatesFromGeocoder"]),
+        addressChanged (evt) {
+            const searchString = evt.currentTarget.value,
+                allowSearchForAddress = this.allowSearchForAddress,
+                that = this;
+
+            if (searchString.length > 0 && allowSearchForAddress) {
+                if (this.timeout) {
+                    clearTimeout(this.timeout);
+                }
+                this.timeout = setTimeout(function () {
+                    that.searchForAddress(searchString);
+                }, 500);
+            }
+        },
+        optionSelected (evt) {
+            const label = evt.currentTarget.value;
+
+            this.allowSearchForAddress = false;
+            this.setFeature(label);
+            this.resetAutocompleteFeatures();
+        },
+        resetGeocoder () {
+            document.getElementById(this.id).value = "";
+            this.resetAutocompleteFeatures();
+            this.feature = {};
+            this.removeFeatureCoordinatesFromGeocoder({from: this.from, id: this.id});
+            this.removeFeaturesFromSource({attribute: "styleId", value: this.styleId});
+            this.allowSearchForAddress = true;
+        },
+        searchForAddress (searchString) {
+            const url = this.useProxy ? getProxyUrl(this.url) : this.url,
+                mapCenter = this.getMapCenterIn4326(),
+                focusPoint = "&focus.point.lon=" + mapCenter[0] + "&focus.point.lat=" + mapCenter[1],
+                layers = this.layers !== "" ? "&layers=" + this.layers : "",
+                country = this.country !== "" ? "&country=" + this.country : "",
+                apiKey = this.apiKey !== "" ? "&api_key=" + this.apiKey : "",
+                query = url + "/geocode/autocomplete?text=" + searchString + focusPoint + layers + country + apiKey;
+
+            if (apiKey !== "") {
+                axios.get(query)
+                    .then(response => {
+                        console.log(response.data);
+                        this.setAutocompleteFeatures(response.data.features);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            }
+            else {
+                console.log("API KEY NOT configured");
+            }
+        },
+        setAutocompleteFeatures (features) {
+            const map = ["id", "continent", "country", "region", "macrocounty", "county", "locality", "postalcode", "neighbourhood", "street", "housenumber", "distance"];
+
+            features.forEach(function (feature) {
+                feature.properties = Object.keys(feature.properties)
+                    .filter(key => map.includes(key))
+                    .reduce((obj, key) => {
+                        obj[key] = feature.properties[key];
+                        return obj;
+                    }, {});
+                feature.properties.label = feature.properties.street + " " + feature.properties.housenumber + " " + feature.properties.postalcode + " " + feature.properties.locality;
+            });
+            this.autocompleteFeatures = features;
+        },
+        resetAutocompleteFeatures () {
+            this.autocompleteFeatures = [];
+        },
+        setFeature (label) {
+            const foundFeature = this.autocompleteFeatures.filter(function (feature) {
+                    return feature.properties.label === label;
+                })[0],
+                mapProjection = getMapProjection(this.map),
+                coords = this.transformCoordinates("EPSG:4326", mapProjection, foundFeature.geometry.coordinates),
+                properties = foundFeature.properties;
+
+            properties.coordinates = coords;
+            properties.styleId = this.styleId;
+            this.feature = properties;
+            this.setFeatureCoordinatesFromGeocoder({from: this.from, id: this.id, properties: properties});
+            this.addFeatureToRoutingLayer(properties);
+        },
+        getMapCenterIn4326 () {
+            const mapCenter = this.map.getView().getCenter(),
+                mapProjection = getMapProjection(this.map),
+                mapCenter4326 = this.transformCoordinates(mapProjection, "EPSG:4326", mapCenter);
+
+            return mapCenter4326;
+        },
+        transformCoordinates (fromEPSG, toEPSG, coords) {
+            return transform(fromEPSG, toEPSG, coords);
+        }
+    }
+};
+</script>
+
+<template lang="html">
+    <div
+        class="form-group form-group-sm geocoder"
+    >
+        <input
+            :id="id"
+            type="text"
+            :placeholder="placeholder"
+            :list="id + '_autocomplete'"
+            @keyup="addressChanged"
+            @change="optionSelected"
+        />
+        <datalist :id="id + '_autocomplete'">
+            <option
+                v-for="autocompleteFeature in autocompleteFeatures"
+                :key="autocompleteFeature.properties.id"
+            >
+                {{ autocompleteFeature.properties.label }}
+            </option>
+        </datalist>
+        <button
+            :id="id + '_reset'"
+            class="btn btn-sm btn-gsm"
+            @click="resetGeocoder"
+        >
+            <span class="glyphicon glyphicon-remove" />
+        </button>
+    </div>
+</template>
+
+<style lang="less" scoped>
+    #geocoder {}
+</style>

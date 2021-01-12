@@ -104,7 +104,7 @@ export default {
                     const routes = response.data.routes;
 
                     console.log(response.data);
-                    this.removeFeaturesFromSource({geometry: "LineString"});
+                    this.removeFeaturesFromSource({geometryType: "LineString"});
                     routes.forEach(route => {
                         const steps = route.steps;
 

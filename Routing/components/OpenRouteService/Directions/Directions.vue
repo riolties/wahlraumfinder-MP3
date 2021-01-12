@@ -15,7 +15,7 @@ export default {
     },
     computed: {
         ...mapGetters("Map", ["map"]),
-        ...mapGetters("Tools/Routing", ["active", "url", "profile", "removeFeaturesFromStore"]),
+        ...mapGetters("Tools/Routing", ["active", "url", "apiKey", "profile", "removeFeaturesFromStore", "styleIdForStartAddress", "styleIdForEndAddress"]),
         ...mapGetters("Tools/Routing/OpenRouteService/Directions", Object.keys(getters))
     },
     methods: {
@@ -26,15 +26,20 @@ export default {
             const from_coordinates = this.transformCoordinatesFromMapProjection(this.from_address.coordinates, "EPSG:4326"),
                 to_coordinates = this.transformCoordinatesFromMapProjection(this.to_address.coordinates, "EPSG:4326"),
                 url = this.useProxy ? getProxyUrl(this.url) : this.url,
-                apiKey = "5b3ce3597851110001cf62489a7a04728b764689a1eaf55857e43cc2";
-            let query = url + "/v2/directions/" + this.profile;
+                apiKey = this.apiKey !== "" ? "&api_key=" + this.apiKey : "",
+                query = url + "/v2/directions/" + this.profile + "?start=" + from_coordinates.toString() + "&end=" + to_coordinates.toString() + apiKey;
 
-            if (from_coordinates.length === 2 && to_coordinates.length === 2) {
-                query += "?start=" + from_coordinates.toString() + "&end=" + to_coordinates.toString() + "&api_key=" + apiKey;
+            if (apiKey === "") {
+                console.log("API Key missing");
+            }
+            else if (from_coordinates.length !== 2 || to_coordinates.length !== 2) {
+                console.log("Need start and destination");
+            }
+            else {
                 axios.get(query)
                     .then(response => {
                         console.log(response.data);
-                        this.removeFeaturesFromSource();
+                        this.removeFeaturesFromSource({geometryType: "LineString"});
                         this.addRouteGeoJSONToRoutingLayer(response.data);
                     })
                     .catch(error => {
@@ -61,15 +66,13 @@ export default {
             id="from_address"
             from="Directions"
             placeholder="Startadresse"
-            layers="address"
-            country="Deutschland"
+            :styleId="styleIdForStartAddress"
         />
         <Geocoder
             id="to_address"
             from="Directions"
             placeholder="Zieladresse"
-            layers="address"
-            country="Deutschland"
+            :styleId="styleIdForEndAddress"
         />
         <button
             class="btn btn-sm btn-block btn-gsm"

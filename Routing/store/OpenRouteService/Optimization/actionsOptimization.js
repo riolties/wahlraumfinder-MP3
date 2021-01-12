@@ -21,7 +21,7 @@ const actions = {
 
         job.geometry = new Point(job.location);
         cbFunction(job);
-    },
+    }
 };
 
 export default actions;

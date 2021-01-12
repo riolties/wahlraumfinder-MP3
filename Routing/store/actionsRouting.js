@@ -1,5 +1,6 @@
 import {GeoJSON} from "ol/format.js";
 import Feature from "ol/Feature.js";
+import Point from "ol/geom/Point.js";
 
 const actions = {
     addRouteGeoJSONToRoutingLayer ({state, dispatch}, geojson) {
@@ -20,10 +21,16 @@ const actions = {
             dispatch("addFeaturesToLayerSource", features);
         }
     },
+    addFeatureToRoutingLayer ({dispatch}, properties) {
+        const props = properties;
+
+        props.geometry = new Point(props.coordinates);
+        dispatch("generateFeature", props);
+    },
     generateFeature ({dispatch}, props) {
         const feature = new Feature(props),
             styleId = props.styleId,
-            styleListModel = Radio.request("StyleList", "returnModelById", styleId);
+            styleListModel = styleId ? Radio.request("StyleList", "returnModelById", styleId) : undefined;
 
         feature.setStyle(function (feat) {
             return styleListModel.createStyle(feat, false);
@@ -40,15 +47,15 @@ const actions = {
     removeFeaturesFromSource ({state}, obj) {
         const layer = state.routingLayer,
             source = layer.getSource(),
-            geometry = obj ? obj.geometry : undefined,
+            geometryType = obj ? obj.geometryType : undefined,
             attribute = obj ? obj.attribute : undefined,
             value = obj ? obj.value : undefined;
         let features = source.getFeatures();
 
         source.clear();
-        if (geometry) {
+        if (geometryType) {
             features = features.filter((feature) => {
-                return feature.getGeometry().getType() !== geometry;
+                return feature.getGeometry().getType() !== geometryType;
             });
             source.addFeatures(features);
         }
