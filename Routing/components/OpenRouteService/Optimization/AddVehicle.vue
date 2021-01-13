@@ -10,20 +10,21 @@ export default {
     computed: {
         ...mapGetters("Tools/Routing", ["profile", "styleIdForStartAddress", "styleIdForEndAddress"]),
         id () {
-            return Math.round(Math.random() * 100000);
+            return Math.round(Math.random() * 100000).toString();
         }
     },
     methods: {
         ...mapActions("Tools/Routing", ["getFeatureFromRoutingLayer", "removeFeatureFromRoutingLayer"]),
         ...mapMutations("Tools/Routing/OpenRouteService/Optimization", ["addVehicle", "setCreatingVehicle"]),
         async confirmVehicle () {
-            const id = document.getElementById("vehicle-id").value,
+            // const id = document.getElementById("vehicle-id").value,
+            const id = this.id,
                 description = document.getElementById("vehicle-description").value,
                 startFeature = await this.getFeatureFromRoutingLayer(id + "_vehicle-start"),
                 endFeature = await this.getFeatureFromRoutingLayer(id + "_vehicle-end"),
                 capacity = document.getElementById("vehicle-capacity").value,
                 vehicle = {
-                    id: parseInt(id, 10),
+                    id: id,
                     profile: this.profile,
                     description: description,
                     capacity: [parseInt(capacity, 10)]
