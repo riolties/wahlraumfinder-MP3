@@ -17,13 +17,13 @@ export default {
         ...mapActions("Tools/Routing", ["getFeatureFromRoutingLayer", "removeFeatureFromRoutingLayer"]),
         ...mapMutations("Tools/Routing/OpenRouteService/Optimization", ["addJob", "setCreatingJob"]),
         async confirmJob () {
-            const id = document.getElementById("job-id").value,
+            const id = this.id,
                 description = document.getElementById("job-description").value,
                 feature = await this.getFeatureFromRoutingLayer(id),
                 service = document.getElementById("job-service").value,
                 pickup = document.getElementById("job-pickup").value,
                 job = {
-                    id: parseInt(id, 10),
+                    id: id,
                     description: description,
                     service: parseInt(service, 10),
                     pickup: [parseInt(pickup, 10)]
