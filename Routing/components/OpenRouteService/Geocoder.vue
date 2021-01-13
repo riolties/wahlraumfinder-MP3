@@ -31,7 +31,6 @@ export default {
     data () {
         return {
             autocompleteFeatures: [],
-            allowSearchForAddress: true,
             timeout: undefined,
             feature: {}
         };
@@ -45,10 +44,9 @@ export default {
         ...mapActions("Tools/Routing/OpenRouteService", ["setFeatureCoordinatesFromGeocoder", "removeFeatureCoordinatesFromGeocoder"]),
         addressChanged (evt) {
             const searchString = evt.currentTarget.value,
-                allowSearchForAddress = this.allowSearchForAddress,
                 that = this;
 
-            if (searchString.length > 0 && allowSearchForAddress) {
+            if (searchString.length > 0) {
                 if (this.timeout) {
                     clearTimeout(this.timeout);
                 }
@@ -60,7 +58,7 @@ export default {
         optionSelected (evt) {
             const address = evt.currentTarget.value;
 
-            this.allowSearchForAddress = false;
+            document.getElementById(this.id).value = address;
             this.setFeature(address);
             this.resetAutocompleteFeatures();
         },
@@ -73,7 +71,6 @@ export default {
             if (this.deleteRouteOnClose) {
                 this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
             }
-            this.allowSearchForAddress = true;
         },
         searchForAddress (searchString) {
             const url = this.useProxy ? getProxyUrl(this.url) : this.url,
@@ -152,18 +149,30 @@ export default {
             :id="id"
             type="text"
             :placeholder="placeholder"
-            :list="id + '_autocomplete'"
             @keyup="addressChanged"
-            @change="optionSelected"
         />
-        <datalist :id="id + '_autocomplete'">
+        <!-- <datalist :id="id + '_autocomplete'">
             <option
                 v-for="autocompleteFeature in autocompleteFeatures"
                 :key="autocompleteFeature.properties.id"
             >
                 {{ autocompleteFeature.properties.address }}
             </option>
-        </datalist>
+        </datalist> -->
+        <div
+            v-if="autocompleteFeatures.length > 0"
+            class="autocomplete-features"
+        >
+            <option
+                v-for="autocompleteFeature in autocompleteFeatures"
+                :key="autocompleteFeature.properties.id"
+                class="autocomplete-feature"
+                :value="autocompleteFeature.properties.address"
+                @click="optionSelected"
+            >
+                {{ autocompleteFeature.properties.address }}
+            </option>
+        </div>
         <button
             :id="id + '_reset'"
             class="btn btn-sm btn-gsm"
@@ -175,5 +184,20 @@ export default {
 </template>
 
 <style lang="less" scoped>
-    #geocoder {}
+    .geocoder {
+        .autocomplete-features {
+            position: absolute;
+            background-color: #ffffff;
+            border: 1px solid #000000;
+            .autocomplete-feature {
+                display: inline-block;
+                background-color: #ffffff;
+            }
+            .autocomplete-feature:hover {
+                font-weight: bold;
+                color: #00aa9b;
+                background-color: lightgray;
+            }
+        }
+    }
 </style>
