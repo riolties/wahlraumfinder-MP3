@@ -80,6 +80,7 @@ export default {
             from="Optimization"
             placeholder="Adresse"
             :styleId="styleIdForJob"
+            :deleteRouteOnClose="false"
         />
         <!-- service -->
         <div class="form-group form-group-sm">

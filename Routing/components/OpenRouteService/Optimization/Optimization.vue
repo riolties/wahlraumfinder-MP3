@@ -50,7 +50,7 @@ export default {
             const vehicleId = parseInt(evt.target.getAttribute("vehicle-id"), 10);
 
             this.removeVehicle(vehicleId);
-            // this.removeRoute();
+            this.removeRoute();
             this.removeFeatureFromRoutingLayer({attribute: "id", value: vehicleId + "_vehicle-start"});
             this.removeFeatureFromRoutingLayer({attribute: "id", value: vehicleId + "_vehicle-end"});
         },
@@ -61,7 +61,7 @@ export default {
             const jobId = parseInt(evt.target.getAttribute("job-id"), 10);
 
             this.removeJob(jobId);
-            // this.removeRoute();
+            this.removeRoute();
             this.removeFeatureFromRoutingLayer({attribute: "id", value: jobId});
         },
         removeRoute () {

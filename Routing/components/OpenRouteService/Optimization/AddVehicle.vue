@@ -108,6 +108,7 @@ export default {
             from="Optimization"
             placeholder="Startadresse"
             :styleId="styleIdForStartAddress"
+            :deleteRouteOnClose="false"
         />
         <!-- end -->
         <!-- <div class="form-group form-group-sm">
@@ -126,6 +127,7 @@ export default {
             from="Optimization"
             placeholder="Zieladresse"
             :styleId="styleIdForEndAddress"
+            :deleteRouteOnClose="false"
         />
         <!-- capacity -->
         <div class="form-group form-group-sm">

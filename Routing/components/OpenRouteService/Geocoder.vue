@@ -22,6 +22,10 @@ export default {
         styleId: {
             type: String,
             required: true
+        },
+        deleteRouteOnClose: {
+            type: Boolean,
+            required: true
         }
     },
     data () {
@@ -66,6 +70,9 @@ export default {
             this.feature = {};
             this.removeFeatureCoordinatesFromGeocoder({from: this.from, id: this.id});
             this.removeFeatureFromRoutingLayer({attribute: "id", value: this.id});
+            if (this.deleteRouteOnClose) {
+                this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
+            }
             this.allowSearchForAddress = true;
         },
         searchForAddress (searchString) {
