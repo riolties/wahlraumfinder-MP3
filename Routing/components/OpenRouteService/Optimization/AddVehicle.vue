@@ -10,7 +10,7 @@ export default {
     computed: {
         ...mapGetters("Tools/Routing", ["profile", "styleIdForStartAddress", "styleIdForEndAddress"]),
         id () {
-            return Math.round(Math.random() * 1000);
+            return Math.round(Math.random() * 100000);
         }
     },
     methods: {

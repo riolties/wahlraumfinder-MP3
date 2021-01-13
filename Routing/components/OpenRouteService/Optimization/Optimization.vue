@@ -1,7 +1,6 @@
 <script>
 import {mapGetters, mapActions, mapMutations} from "vuex";
 import getters from "../../../store/OpenRouteService/Optimization/gettersOptimization";
-import mutations from "../../../store/OpenRouteService/Optimization/mutationsOptimization";
 import axios from "axios";
 import getProxyUrl from "../../../../../src/utils/getProxyUrl";
 import AddVehicle from "./AddVehicle.vue";
@@ -47,7 +46,7 @@ export default {
             this.setCreatingVehicle(true);
         },
         removeVehicleFromStore (evt) {
-            const vehicleId = parseInt(evt.target.getAttribute("vehicle-id"), 10);
+            const vehicleId = evt.target.getAttribute("vehicle-id");
 
             this.removeVehicle(vehicleId);
             this.removeRoute();
@@ -58,7 +57,7 @@ export default {
             this.setCreatingJob(true);
         },
         removeJobFromStore (evt) {
-            const jobId = parseInt(evt.target.getAttribute("job-id"), 10);
+            const jobId = evt.target.getAttribute("job-id");
 
             this.removeJob(jobId);
             this.removeRoute();
@@ -72,6 +71,7 @@ export default {
                 clonedVehicles = JSON.parse(JSON.stringify(vehicles)); // deep copy array
 
             clonedVehicles.forEach(function (clonedVehicle) {
+                clonedVehicle.id = parseInt(clonedVehicle.id, 10);
                 clonedVehicle.start = this.transformCoordinatesFromMapProjection({coords: clonedVehicle.start.coordinates, toEPSG: "EPSG:4326"});
                 clonedVehicle.end = this.transformCoordinatesFromMapProjection({coords: clonedVehicle.end.coordinates, toEPSG: "EPSG:4326"});
 
@@ -83,6 +83,7 @@ export default {
                 clonedJobs = JSON.parse(JSON.stringify(jobs)); // deep copy array
 
             clonedJobs.forEach(function (clonedJob) {
+                clonedJob.id = parseInt(clonedJob.id, 10);
                 clonedJob.location = this.transformCoordinatesFromMapProjection({coords: clonedJob.coordinates, toEPSG: "EPSG:4326"});
             }, this);
             return clonedJobs;

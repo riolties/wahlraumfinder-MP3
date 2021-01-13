@@ -10,7 +10,7 @@ export default {
     computed: {
         ...mapGetters("Tools/Routing", ["styleIdForJob"]),
         id () {
-            return Math.round(Math.random() * 1000).toString();
+            return Math.round(Math.random() * 100000).toString();
         }
     },
     methods: {
