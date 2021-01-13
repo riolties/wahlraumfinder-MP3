@@ -1,50 +1,36 @@
-import {GeoJSON} from "ol/format.js";
 import Feature from "ol/Feature.js";
 import Point from "ol/geom/Point.js";
 
 const actions = {
-    addRouteGeoJSONToRoutingLayer ({state, dispatch}, geojson) {
-        const styleListModel = Radio.request("StyleList", "returnModelById", state.styleIdForRoute);
-
-        if (styleListModel) {
-            const format = new GeoJSON({
-                    dataProjection: "EPSG:4326",
-                    featureProjection: "EPSG:25832"
-                }),
-                features = format.readFeatures(geojson);
-
-            features.forEach(function (feature) {
-                feature.setStyle(function (feat) {
-                    return styleListModel.createStyle(feat, false);
-                });
-            });
-            dispatch("addFeaturesToLayerSource", features);
-        }
-    },
-    addFeatureToRoutingLayer ({dispatch}, properties) {
+    generateFeatureAndAddToRoutingLayer ({dispatch}, properties) {
         const props = properties;
 
         props.geometry = new Point(props.coordinates);
         dispatch("generateFeature", props);
     },
     generateFeature ({dispatch}, props) {
-        const feature = new Feature(props),
-            styleId = props.styleId,
-            styleListModel = styleId ? Radio.request("StyleList", "returnModelById", styleId) : undefined;
+        const feature = new Feature(props);
 
-        feature.setStyle(function (feat) {
-            return styleListModel.createStyle(feat, false);
-        });
-        dispatch("addFeaturesToLayerSource", [feature]);
+        dispatch("addFeaturesToRoutingLayer", [feature]);
     },
-    addFeaturesToLayerSource ({state}, features) {
+    addFeaturesToRoutingLayer ({state, dispatch}, features) {
         const layer = state.routingLayer,
             source = layer.getSource();
 
+        features.forEach(function (feature) {
+            dispatch("setFeatureStyle", feature);
+        });
         source.addFeatures(features);
 
     },
-    removeFeaturesFromSource ({state}, obj) {
+    setFeatureStyle ({state}, feature) {
+        const styleId = feature.get("styleId"),
+            styleListModel = Radio.request("StyleList", "returnModelById", styleId),
+            style = styleListModel.createStyle(feature, false);
+
+        feature.setStyle(style);
+    },
+    removeFeatureFromRoutingLayer ({state}, obj) {
         const layer = state.routingLayer,
             source = layer.getSource(),
             geometryType = obj ? obj.geometryType : undefined,
@@ -66,6 +52,17 @@ const actions = {
             source.addFeatures(features);
         }
     },
+    getFeatureFromRoutingLayer ({state}, id) {
+        const layer = state.routingLayer,
+            source = layer.getSource(),
+            features = source.getFeatures(),
+            foundFeature = features.filter((feature)=> {
+                return feature.get("id") === id;
+            })[0];
+
+        return foundFeature;
+    },
+
     addRoutingLayer ({state, commit}) {
         commit("Map/addLayerToMap", state.routingLayer, {root: true});
     },

@@ -6,17 +6,17 @@ const actions = {
             properties = obj.properties,
             coords = properties.coordinates;
 
-        console.log(from);
-        console.log(id);
-        state[from][id].coordinates = coords;
+        if (from === "Directions") {
+            state[from][id].coordinates = coords;
+        }
     },
     removeFeatureCoordinatesFromGeocoder ({state}, obj) {
         const from = obj.from,
             id = obj.id;
 
-        console.log(from);
-        console.log(id);
-        state[from][id].coordinates = [];
+        if (from === "Directions") {
+            state[from][id].coordinates = [];
+        }
     }
 };
 

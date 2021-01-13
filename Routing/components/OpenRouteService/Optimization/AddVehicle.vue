@@ -1,8 +1,5 @@
 <script>
 import {mapGetters, mapActions, mapMutations} from "vuex";
-import getters from "../../../store/OpenRouteService/Optimization/gettersOptimization";
-import mutations from "../../../store/OpenRouteService/Optimization/mutationsOptimization";
-import actions from "../../../store/OpenRouteService/Optimization/actionsOptimization";
 import Geocoder from "../Geocoder.vue";
 
 export default {
@@ -11,42 +8,47 @@ export default {
         Geocoder
     },
     computed: {
-        ...mapGetters("Tools/Routing", ["url", "profile", "styleId"]),
-        ...mapGetters("Tools/Routing/OpenRouteService/Optimization", Object.keys(getters)),
+        ...mapGetters("Tools/Routing", ["profile", "styleIdForStartAddress", "styleIdForEndAddress"]),
         id () {
             return Math.round(Math.random() * 1000);
         }
     },
     methods: {
-        ...mapActions("Tools/Routing", ["generateFeature"]),
-        ...mapActions("Tools/Routing/OpenRouteService/Optimization", Object.keys(actions)),
-        ...mapMutations("Tools/Routing/OpenRouteService/Optimization", Object.keys(mutations)),
-        confirmVehicle () {
+        ...mapActions("Tools/Routing", ["getFeatureFromRoutingLayer", "removeFeatureFromRoutingLayer"]),
+        ...mapMutations("Tools/Routing/OpenRouteService/Optimization", ["addVehicle", "setCreatingVehicle"]),
+        async confirmVehicle () {
             const id = document.getElementById("vehicle-id").value,
                 description = document.getElementById("vehicle-description").value,
-                start = document.getElementById("vehicle-start").value.split(","),
-                end = document.getElementById("vehicle-end").value.split(","),
+                startFeature = await this.getFeatureFromRoutingLayer(id + "_vehicle-start"),
+                endFeature = await this.getFeatureFromRoutingLayer(id + "_vehicle-end"),
                 capacity = document.getElementById("vehicle-capacity").value,
-                styleId = document.getElementById("vehicle-style-id").value,
                 vehicle = {
                     id: parseInt(id, 10),
                     profile: this.profile,
                     description: description,
-                    start: {
-                        coordinates: [parseFloat(start[0]), parseFloat(start[1])]
-                    },
-                    end: {
-                        coordinates: [parseFloat(end[0]), parseFloat(end[1])]
-                    },
-                    capacity: [parseInt(capacity, 10)],
-                    styleId: styleId
+                    capacity: [parseInt(capacity, 10)]
                 };
 
-            this.addVehicle(vehicle);
-            this.addVehicleToRoutingLayer({vehicle, cbFunction: this.generateFeature});
-            this.setCreatingVehicle(false);
+            if (startFeature && endFeature) {
+                vehicle.start = {
+                    address: startFeature.get("address"),
+                    coordinates: startFeature.get("coordinates")
+                };
+                vehicle.end = {
+                    address: endFeature.get("address"),
+                    coordinates: endFeature.get("coordinates")
+                };
+                this.addVehicle(vehicle);
+                this.setCreatingVehicle(false);
+            }
+            else {
+                console.log("NEED START AND END OF VEHICLE");
+            }
+
         },
         cancelVehicle () {
+            this.removeFeatureFromRoutingLayer({attribute: "id", value: this.id + "_vehicle-start"});
+            this.removeFeatureFromRoutingLayer({attribute: "id", value: this.id + "_vehicle-end"});
             this.setCreatingVehicle(false);
         }
     }
@@ -102,11 +104,10 @@ export default {
         </div> -->
         <label for="vehicle-start">Start</label>
         <Geocoder
-            id="vehicle-start"
+            :id="id + '_vehicle-start'"
             from="Optimization"
             placeholder="Startadresse"
-            layers="address"
-            country="Deutschland"
+            :styleId="styleIdForStartAddress"
         />
         <!-- end -->
         <!-- <div class="form-group form-group-sm">
@@ -121,11 +122,10 @@ export default {
         </div> -->
         <label for="vehicle-end">Ende</label>
         <Geocoder
-            id="vehicle-end"
+            :id="id + '_vehicle-end'"
             from="Optimization"
             placeholder="Zieladresse"
-            layers="address"
-            country="Deutschland"
+            :styleId="styleIdForEndAddress"
         />
         <!-- capacity -->
         <div class="form-group form-group-sm">
@@ -139,7 +139,7 @@ export default {
             />
         </div>
         <!-- style-id -->
-        <div class="form-group form-group-sm">
+        <!-- <div class="form-group form-group-sm">
             <label for="vehicle-style-id">StyleId</label>
             <select
                 id="vehicle-style-id"
@@ -153,7 +153,7 @@ export default {
                     {{ style }}
                 </option>
             </select>
-        </div>
+        </div> -->
 
         <div class="form-group form-group-sm">
             <button

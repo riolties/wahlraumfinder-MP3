@@ -37,7 +37,7 @@ export default {
         ...mapGetters("Map", ["map"])
     },
     methods: {
-        ...mapActions("Tools/Routing", ["addFeatureToRoutingLayer", "removeFeaturesFromSource"]),
+        ...mapActions("Tools/Routing", ["generateFeatureAndAddToRoutingLayer", "removeFeatureFromRoutingLayer"]),
         ...mapActions("Tools/Routing/OpenRouteService", ["setFeatureCoordinatesFromGeocoder", "removeFeatureCoordinatesFromGeocoder"]),
         addressChanged (evt) {
             const searchString = evt.currentTarget.value,
@@ -54,10 +54,10 @@ export default {
             }
         },
         optionSelected (evt) {
-            const label = evt.currentTarget.value;
+            const address = evt.currentTarget.value;
 
             this.allowSearchForAddress = false;
-            this.setFeature(label);
+            this.setFeature(address);
             this.resetAutocompleteFeatures();
         },
         resetGeocoder () {
@@ -65,7 +65,7 @@ export default {
             this.resetAutocompleteFeatures();
             this.feature = {};
             this.removeFeatureCoordinatesFromGeocoder({from: this.from, id: this.id});
-            this.removeFeaturesFromSource({attribute: "styleId", value: this.styleId});
+            this.removeFeatureFromRoutingLayer({attribute: "id", value: this.id});
             this.allowSearchForAddress = true;
         },
         searchForAddress (searchString) {
@@ -101,16 +101,16 @@ export default {
                         obj[key] = feature.properties[key];
                         return obj;
                     }, {});
-                feature.properties.label = feature.properties.street + " " + feature.properties.housenumber + " " + feature.properties.postalcode + " " + feature.properties.locality;
+                feature.properties.address = feature.properties.street + " " + feature.properties.housenumber + " " + feature.properties.postalcode + " " + feature.properties.locality;
             });
             this.autocompleteFeatures = features;
         },
         resetAutocompleteFeatures () {
             this.autocompleteFeatures = [];
         },
-        setFeature (label) {
+        setFeature (address) {
             const foundFeature = this.autocompleteFeatures.filter(function (feature) {
-                    return feature.properties.label === label;
+                    return feature.properties.address === address;
                 })[0],
                 mapProjection = getMapProjection(this.map),
                 coords = this.transformCoordinates("EPSG:4326", mapProjection, foundFeature.geometry.coordinates),
@@ -118,9 +118,10 @@ export default {
 
             properties.coordinates = coords;
             properties.styleId = this.styleId;
+            properties.id = this.id;
             this.feature = properties;
             this.setFeatureCoordinatesFromGeocoder({from: this.from, id: this.id, properties: properties});
-            this.addFeatureToRoutingLayer(properties);
+            this.generateFeatureAndAddToRoutingLayer(properties);
         },
         getMapCenterIn4326 () {
             const mapCenter = this.map.getView().getCenter(),
@@ -153,7 +154,7 @@ export default {
                 v-for="autocompleteFeature in autocompleteFeatures"
                 :key="autocompleteFeature.properties.id"
             >
-                {{ autocompleteFeature.properties.label }}
+                {{ autocompleteFeature.properties.address }}
             </option>
         </datalist>
         <button

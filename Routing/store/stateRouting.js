@@ -29,6 +29,7 @@ const state = {
     styleIdForRoute: "",
     styleIdForStartAddress: "",
     styleIdForEndAddress: "",
+    styleIdForJob: "",
     routingLayer: new VectorLayer({
         name: "routingLayer",
         source: new VectorSource(),

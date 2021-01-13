@@ -1,12 +1,10 @@
 <script>
-import {mapGetters, mapActions, mapMutations} from "vuex";
-import getters from "../../../store/OpenRouteService/Directions/gettersDirections";
-import mutations from "../../../store/OpenRouteService/Directions/mutationsDirections";
-import actions from "../../../store/OpenRouteService/Directions/actionsDirections";
+import {mapGetters, mapActions} from "vuex";
 import axios from "axios";
 import getProxyUrl from "../../../../../src/utils/getProxyUrl";
 import {getMapProjection, transform} from "masterportalAPI/src/crs";
 import Geocoder from "../Geocoder.vue";
+import {GeoJSON} from "ol/format.js";
 
 export default {
     name: "Directions",
@@ -15,16 +13,16 @@ export default {
     },
     computed: {
         ...mapGetters("Map", ["map"]),
-        ...mapGetters("Tools/Routing", ["active", "url", "apiKey", "profile", "removeFeaturesFromStore", "styleIdForStartAddress", "styleIdForEndAddress"]),
-        ...mapGetters("Tools/Routing/OpenRouteService/Directions", Object.keys(getters))
+        ...mapGetters("Tools/Routing", ["url", "apiKey", "profile", "styleIdForStartAddress", "styleIdForEndAddress", "styleIdForRoute"]),
+        ...mapGetters("Tools/Routing/OpenRouteService/Directions", ["from_address", "to_address"])
     },
     methods: {
-        ...mapActions("Tools/Routing", ["removeFeaturesFromSource", "addRouteGeoJSONToRoutingLayer"]),
-        ...mapActions("Tools/Routing/OpenRouteService/Directions", Object.keys(actions)),
-        ...mapMutations("Tools/Routing/OpenRouteService/Directions", Object.keys(mutations)),
-        startRouting () {
-            const from_coordinates = this.transformCoordinatesFromMapProjection(this.from_address.coordinates, "EPSG:4326"),
-                to_coordinates = this.transformCoordinatesFromMapProjection(this.to_address.coordinates, "EPSG:4326"),
+        ...mapActions("Tools/Routing", ["getFeatureFromRoutingLayer", "removeFeatureFromRoutingLayer", "addFeaturesToRoutingLayer"]),
+        async startRouting () {
+            const fromFeature = await this.getFeatureFromRoutingLayer("from_address"),
+                toFeature = await this.getFeatureFromRoutingLayer("to_address"),
+                from_coordinates = fromFeature ? this.transformCoordinatesFromMapProjection(fromFeature.get("coordinates"), "EPSG:4326") : [],
+                to_coordinates = toFeature ? this.transformCoordinatesFromMapProjection(toFeature.get("coordinates"), "EPSG:4326") : [],
                 url = this.useProxy ? getProxyUrl(this.url) : this.url,
                 apiKey = this.apiKey !== "" ? "&api_key=" + this.apiKey : "",
                 query = url + "/v2/directions/" + this.profile + "?start=" + from_coordinates.toString() + "&end=" + to_coordinates.toString() + apiKey;
@@ -39,13 +37,26 @@ export default {
                 axios.get(query)
                     .then(response => {
                         console.log(response.data);
-                        this.removeFeaturesFromSource({geometryType: "LineString"});
-                        this.addRouteGeoJSONToRoutingLayer(response.data);
+                        this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
+                        this.addRouteToRoutingLayer(response.data);
                     })
                     .catch(error => {
                         console.log(error);
                     });
             }
+        },
+        addRouteToRoutingLayer (geojson) {
+            const mapProjection = getMapProjection(this.map),
+                format = new GeoJSON({
+                    dataProjection: "EPSG:4326",
+                    featureProjection: mapProjection
+                }),
+                features = format.readFeatures(geojson);
+
+            features.forEach(function (feature) {
+                feature.set("styleId", this.styleIdForRoute);
+            }, this);
+            this.addFeaturesToRoutingLayer(features);
         },
         transformCoordinatesFromMapProjection (coords, toEPSG) {
             const mapProjection = getMapProjection(this.map),

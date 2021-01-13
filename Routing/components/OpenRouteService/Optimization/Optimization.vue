@@ -2,12 +2,12 @@
 import {mapGetters, mapActions, mapMutations} from "vuex";
 import getters from "../../../store/OpenRouteService/Optimization/gettersOptimization";
 import mutations from "../../../store/OpenRouteService/Optimization/mutationsOptimization";
-import actions from "../../../store/OpenRouteService/Optimization/actionsOptimization";
 import axios from "axios";
 import getProxyUrl from "../../../../../src/utils/getProxyUrl";
 import AddVehicle from "./AddVehicle.vue";
 import AddJob from "./AddJob.vue";
 import {getMapProjection, transform} from "masterportalAPI/src/crs";
+import {GeoJSON} from "ol/format.js";
 
 export default {
     name: "Optimization",
@@ -17,27 +17,30 @@ export default {
     },
     computed: {
         ...mapGetters("Map", ["map"]),
-        ...mapGetters("Tools/Routing", ["active", "url", "profile"]),
+        ...mapGetters("Tools/Routing", ["url", "profile", "styleIdForRoute", "apiKey"]),
         ...mapGetters("Tools/Routing/OpenRouteService/Optimization", Object.keys(getters))
     },
     created () {
         this.initiallyAddFeatures();
     },
     methods: {
-        ...mapActions("Tools/Routing", ["removeFeaturesFromSource", "addRouteGeoJSONToRoutingLayer", "transformCoordinatesFromMapProjection", "generateFeature"]),
-        ...mapActions("Tools/Routing/OpenRouteService/Optimization", Object.keys(actions)),
-        ...mapMutations("Tools/Routing/OpenRouteService/Optimization", Object.keys(mutations)),
+        ...mapActions("Tools/Routing", ["removeFeatureFromRoutingLayer", "addFeaturesToRoutingLayer", "generateFeatureAndAddToRoutingLayer", "transformCoordinatesFromMapProjection"]),
+        ...mapMutations("Tools/Routing/OpenRouteService/Optimization", ["setCreatingVehicle", "addVehicle", "removeVehicle", "setCreatingJob", "addJob", "removeJob", "setTabActive"]),
         initiallyAddFeatures () {
             const jobs = this.$store.state.Tools.Routing.jobs,
                 vehicles = this.$store.state.Tools.Routing.vehicles;
 
             vehicles.forEach(function (vehicle) {
+                const propsStart = Object.assign({}, vehicle.start, {id: vehicle.id + "_vehicle-start"}),
+                    propsEnd = Object.assign({}, vehicle.start, {id: vehicle.id + "_vehicle-end"});
+
                 this.addVehicle(vehicle);
-                this.addVehicleToRoutingLayer({vehicle, cbFunction: this.generateFeature});
+                this.generateFeatureAndAddToRoutingLayer(propsStart);
+                this.generateFeatureAndAddToRoutingLayer(propsEnd);
             }, this);
             jobs.forEach(function (job) {
                 this.addJob(job);
-                this.addJobToRoutingLayer({job, cbFunction: this.generateFeature});
+                this.generateFeatureAndAddToRoutingLayer(job);
             }, this);
         },
         enableCreatingVehicle () {
@@ -47,7 +50,9 @@ export default {
             const vehicleId = parseInt(evt.target.getAttribute("vehicle-id"), 10);
 
             this.removeVehicle(vehicleId);
-            this.removeFeaturesFromSource({attribute: "id", value: vehicleId});
+            // this.removeRoute();
+            this.removeFeatureFromRoutingLayer({attribute: "id", value: vehicleId + "_vehicle-start"});
+            this.removeFeatureFromRoutingLayer({attribute: "id", value: vehicleId + "_vehicle-end"});
         },
         enableCreatingJob () {
             this.setCreatingJob(true);
@@ -56,14 +61,17 @@ export default {
             const jobId = parseInt(evt.target.getAttribute("job-id"), 10);
 
             this.removeJob(jobId);
-            this.removeFeaturesFromSource({attribute: "id", value: jobId});
+            // this.removeRoute();
+            this.removeFeatureFromRoutingLayer({attribute: "id", value: jobId});
+        },
+        removeRoute () {
+            this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
         },
         prepareVehicles () {
             const vehicles = this.vehicles,
-                clonedVehicles = JSON.parse(JSON.stringify(vehicles)); // copy array
+                clonedVehicles = JSON.parse(JSON.stringify(vehicles)); // deep copy array
 
             clonedVehicles.forEach(function (clonedVehicle) {
-                console.log(clonedVehicle);
                 clonedVehicle.start = this.transformCoordinatesFromMapProjection({coords: clonedVehicle.start.coordinates, toEPSG: "EPSG:4326"});
                 clonedVehicle.end = this.transformCoordinatesFromMapProjection({coords: clonedVehicle.end.coordinates, toEPSG: "EPSG:4326"});
 
@@ -72,10 +80,10 @@ export default {
         },
         prepareJobs () {
             const jobs = this.jobs,
-                clonedJobs = JSON.parse(JSON.stringify(jobs)); // copy array
+                clonedJobs = JSON.parse(JSON.stringify(jobs)); // deep copy array
 
             clonedJobs.forEach(function (clonedJob) {
-                clonedJob.location = this.transformCoordinatesFromMapProjection({coords: clonedJob.location, toEPSG: "EPSG:4326"});
+                clonedJob.location = this.transformCoordinatesFromMapProjection({coords: clonedJob.coordinates, toEPSG: "EPSG:4326"});
             }, this);
             return clonedJobs;
         },
@@ -88,7 +96,7 @@ export default {
         },
         startRouting () {
             const url = this.useProxy ? getProxyUrl(this.url) : this.url,
-                apiKey = "5b3ce3597851110001cf62489a7a04728b764689a1eaf55857e43cc2",
+                apiKey = this.apiKey,
                 query = url + "/optimization",
                 payload = {
                     vehicles: this.prepareVehicles(),
@@ -104,7 +112,7 @@ export default {
                     const routes = response.data.routes;
 
                     console.log(response.data);
-                    this.removeFeaturesFromSource({geometryType: "LineString"});
+                    this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
                     routes.forEach(route => {
                         const steps = route.steps;
 
@@ -130,12 +138,25 @@ export default {
             axios.get(query)
                 .then(response => {
                     console.log(response.data);
-                    this.addRouteGeoJSONToRoutingLayer(response.data);
+                    this.addRouteToRoutingLayer(response.data);
                 })
                 .catch(error => {
                     console.log(error);
 
                 });
+        },
+        addRouteToRoutingLayer (geojson) {
+            const mapProjection = getMapProjection(this.map),
+                format = new GeoJSON({
+                    dataProjection: "EPSG:4326",
+                    featureProjection: mapProjection
+                }),
+                features = format.readFeatures(geojson);
+
+            features.forEach(function (feature) {
+                feature.set("styleId", this.styleIdForRoute);
+            }, this);
+            this.addFeaturesToRoutingLayer(features);
         },
         activateTab (evt) {
             const value = parseInt(evt.target.getAttribute("value"), 10);
@@ -193,7 +214,6 @@ export default {
                             <tr><td>Start</td><td>{{ vehicle.start.address }}</td></tr>
                             <tr><td>End</td><td>{{ vehicle.end.address }}</td></tr>
                             <tr><td>Kapazität</td><td>{{ vehicle.capacity }}</td></tr>
-                            <tr><td>StyleId</td><td>{{ vehicle.styleId }}</td></tr>
                             <tr>
                                 <td>
                                     <button
@@ -242,10 +262,9 @@ export default {
                         >
                             <tr><td>Id</td><td>{{ job.id }}</td></tr>
                             <tr><td>Beschreibung</td><td>{{ job.description }}</td></tr>
-                            <tr><td>Koordinaten</td><td>{{ job.location }}</td></tr>
+                            <tr><td>Addresse</td><td>{{ job.address }}</td></tr>
                             <tr><td>Dauer</td><td>{{ job.service }}</td></tr>
                             <tr><td>Menge</td><td>{{ job.pickup }}</td></tr>
-                            <tr><td>StyleId</td><td>{{ job.styleId }}</td></tr>
                             <tr>
                                 <td>
                                     <button
