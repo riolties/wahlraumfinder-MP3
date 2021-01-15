@@ -36,11 +36,10 @@ export default {
                 this.setCreatingJob(false);
             }
             else {
-                console.log("NEED address for JOB");
+                this.createErrorMessage("NEED address for JOB");
             }
         },
         cancelJob () {
-            console.log(this.id);
             this.removeFeatureFromRoutingLayer({attribute: "id", value: this.id});
             this.setCreatingJob(false);
         }

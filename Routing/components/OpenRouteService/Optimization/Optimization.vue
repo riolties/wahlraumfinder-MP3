@@ -23,7 +23,7 @@ export default {
         this.initiallyAddFeatures();
     },
     methods: {
-        ...mapActions("Tools/Routing", ["removeFeatureFromRoutingLayer", "addFeaturesToRoutingLayer", "generateFeatureAndAddToRoutingLayer", "transformCoordinatesFromMapProjection"]),
+        ...mapActions("Tools/Routing", ["removeFeatureFromRoutingLayer", "addFeaturesToRoutingLayer", "generateFeatureAndAddToRoutingLayer", "transformCoordinatesFromMapProjection", "createErrorMessage"]),
         ...mapMutations("Tools/Routing/OpenRouteService/Optimization", ["setCreatingVehicle", "addVehicle", "removeVehicle", "setCreatingJob", "addJob", "removeJob", "setTabActive"]),
         initiallyAddFeatures () {
             const jobs = this.$store.state.Tools.Routing.jobs,
@@ -104,32 +104,38 @@ export default {
                     jobs: this.prepareJobs()
                 };
 
-            axios.post(query, payload, {
-                headers: {
-                    Authorization: apiKey
-                }
-            })
-                .then(response => {
-                    const routes = response.data.routes;
+            if (apiKey === "") {
+                this.createErrorMessage("API KEY MISSING");
+            }
+            else {
+                axios.post(query, payload, {
+                    headers: {
+                        Authorization: apiKey
+                    }
+                })
+                    .then(response => {
+                        const routes = response.data.routes;
 
-                    console.log(response.data);
-                    this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
-                    routes.forEach(route => {
-                        const steps = route.steps;
+                        console.log(response.data);
+                        this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
+                        routes.forEach(route => {
+                            const steps = route.steps;
 
-                        for (let i = 0; i < steps.length - 1; i++) {
-                            const currentStep = i,
-                                nextStep = i + 1,
-                                fromLocation = steps[currentStep].location,
-                                toLocation = steps[nextStep].location;
+                            for (let i = 0; i < steps.length - 1; i++) {
+                                const currentStep = i,
+                                    nextStep = i + 1,
+                                    fromLocation = steps[currentStep].location,
+                                    toLocation = steps[nextStep].location;
 
-                            this.startRoutingBetweenSingleSteps(url, apiKey, fromLocation, toLocation);
-                        }
+                                this.startRoutingBetweenSingleSteps(url, apiKey, fromLocation, toLocation);
+                            }
+                        });
+
+                    })
+                    .catch(error => {
+                        this.createErrorMessage(error);
                     });
-
-                }).catch(error => {
-                    console.log(error);
-                });
+            }
         },
         startRoutingBetweenSingleSteps (url, apiKey, fromLocation, toLocation) {
             const coordFrom = fromLocation.toString(),
@@ -142,8 +148,7 @@ export default {
                     this.addRouteToRoutingLayer(response.data);
                 })
                 .catch(error => {
-                    console.log(error);
-
+                    this.createErrorMessage(error);
                 });
         },
         addRouteToRoutingLayer (geojson) {

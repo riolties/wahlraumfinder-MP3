@@ -17,7 +17,7 @@ export default {
         ...mapGetters("Tools/Routing/OpenRouteService/Directions", ["from_address", "to_address"])
     },
     methods: {
-        ...mapActions("Tools/Routing", ["getFeatureFromRoutingLayer", "removeFeatureFromRoutingLayer", "addFeaturesToRoutingLayer"]),
+        ...mapActions("Tools/Routing", ["getFeatureFromRoutingLayer", "removeFeatureFromRoutingLayer", "addFeaturesToRoutingLayer", "createErrorMessage"]),
         async startRouting () {
             const fromFeature = await this.getFeatureFromRoutingLayer("from_address"),
                 toFeature = await this.getFeatureFromRoutingLayer("to_address"),
@@ -28,10 +28,10 @@ export default {
                 query = url + "/v2/directions/" + this.profile + "?start=" + from_coordinates.toString() + "&end=" + to_coordinates.toString() + apiKey;
 
             if (apiKey === "") {
-                console.log("API Key missing");
+                this.createErrorMessage("API Key missing");
             }
             else if (from_coordinates.length !== 2 || to_coordinates.length !== 2) {
-                console.log("Need start and destination");
+                this.createErrorMessage("Need start and destination");
             }
             else {
                 axios.get(query)
@@ -41,7 +41,7 @@ export default {
                         this.addRouteToRoutingLayer(response.data);
                     })
                     .catch(error => {
-                        console.log(error);
+                        this.createErrorMessage(error);
                     });
             }
         },

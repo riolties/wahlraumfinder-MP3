@@ -23,7 +23,7 @@ const actions = {
         source.addFeatures(features);
 
     },
-    setFeatureStyle ({state}, feature) {
+    setFeatureStyle ({}, feature) {
         const styleId = feature.get("styleId"),
             styleListModel = Radio.request("StyleList", "returnModelById", styleId),
             style = styleListModel.createStyle(feature, false);
@@ -68,6 +68,15 @@ const actions = {
     },
     removeRoutingLayer ({state, commit}) {
         commit("Map/removeLayerFromMap", state.routingLayer, {root: true});
+    },
+    createErrorMessage ({dispatch}, msg) {
+        dispatch("Alerting/addSingleAlert", {
+            category: "Warnung",
+            displayClass: "warning",
+            content: msg,
+            mustBeConfirmed: false
+        }, {root: true});
+
     }
 };
 

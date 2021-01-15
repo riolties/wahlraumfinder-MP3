@@ -40,7 +40,7 @@ export default {
         ...mapGetters("Map", ["map"])
     },
     methods: {
-        ...mapActions("Tools/Routing", ["generateFeatureAndAddToRoutingLayer", "removeFeatureFromRoutingLayer"]),
+        ...mapActions("Tools/Routing", ["generateFeatureAndAddToRoutingLayer", "removeFeatureFromRoutingLayer", "createErrorMessage"]),
         ...mapActions("Tools/Routing/OpenRouteService", ["setFeatureCoordinatesFromGeocoder", "removeFeatureCoordinatesFromGeocoder"]),
         addressChanged (evt) {
             const searchString = evt.currentTarget.value,
@@ -81,18 +81,18 @@ export default {
                 apiKey = this.apiKey !== "" ? "&api_key=" + this.apiKey : "",
                 query = url + "/geocode/autocomplete?text=" + searchString + focusPoint + layers + country + apiKey;
 
-            if (apiKey !== "") {
+            if (apiKey === "") {
+                this.createErrorMessage("API Key missing");
+            }
+            else {
                 axios.get(query)
                     .then(response => {
                         console.log(response.data);
                         this.setAutocompleteFeatures(response.data.features);
                     })
                     .catch(error => {
-                        console.log(error);
+                        this.createErrorMessage(error);
                     });
-            }
-            else {
-                console.log("API KEY NOT configured");
             }
         },
         setAutocompleteFeatures (features) {
