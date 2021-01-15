@@ -69,11 +69,36 @@ const actions = {
     removeRoutingLayer ({state, commit}) {
         commit("Map/removeLayerFromMap", state.routingLayer, {root: true});
     },
-    createErrorMessage ({dispatch}, msg) {
+    createErrorMessage ({dispatch}, error) {
+        let errorHTML = "";
+
+        // if (typeof error === "object") {
+        if (error.response) {
+            /*
+            * The request was made and the server responded with a
+            * status code that falls out of the range of 2xx
+            */
+            errorHTML += error.response.status + "<br>";
+            errorHTML += JSON.stringify(error.response.data) + "<br><br>";
+        }
+        else if (error.request) {
+            /*
+            * The request was made but no response was received, `error.request`
+            * is an instance of XMLHttpRequest in the browser and an instance
+            * of http.ClientRequest in Node.js
+            */
+            // console.log(error.request);
+            errorHTML += error.request;
+        }
+        else {
+            // Something happened in setting up the request and triggered an Error
+            // console.log(error);
+            errorHTML = error;
+        }
         dispatch("Alerting/addSingleAlert", {
             category: "Warnung",
             displayClass: "warning",
-            content: msg,
+            content: errorHTML,
             mustBeConfirmed: false
         }, {root: true});
 

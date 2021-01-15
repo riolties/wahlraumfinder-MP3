@@ -102,45 +102,44 @@ export default {
                 payload = {
                     vehicles: this.prepareVehicles(),
                     jobs: this.prepareJobs()
-                };
+                },
+                headers = {};
 
-            if (apiKey === "") {
-                this.createErrorMessage("API KEY MISSING");
+            if (apiKey !== "") {
+                headers.Authorization = apiKey;
             }
-            else {
-                axios.post(query, payload, {
-                    headers: {
-                        Authorization: apiKey
-                    }
-                })
-                    .then(response => {
-                        const routes = response.data.routes;
 
-                        console.log(response.data);
-                        this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
-                        routes.forEach(route => {
-                            const steps = route.steps;
+            axios.post(query, payload, {
+                headers: headers
+            })
+                .then(response => {
+                    const routes = response.data.routes;
 
-                            for (let i = 0; i < steps.length - 1; i++) {
-                                const currentStep = i,
-                                    nextStep = i + 1,
-                                    fromLocation = steps[currentStep].location,
-                                    toLocation = steps[nextStep].location;
+                    console.log(response.data);
+                    this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
+                    routes.forEach(route => {
+                        const steps = route.steps;
 
-                                this.startRoutingBetweenSingleSteps(url, apiKey, fromLocation, toLocation);
-                            }
-                        });
+                        for (let i = 0; i < steps.length - 1; i++) {
+                            const currentStep = i,
+                                nextStep = i + 1,
+                                fromLocation = steps[currentStep].location,
+                                toLocation = steps[nextStep].location;
 
-                    })
-                    .catch(error => {
-                        this.createErrorMessage(error);
+                            this.startRoutingBetweenSingleSteps(url, fromLocation, toLocation);
+                        }
                     });
-            }
+
+                })
+                .catch(error => {
+                    this.createErrorMessage(error);
+                });
         },
-        startRoutingBetweenSingleSteps (url, apiKey, fromLocation, toLocation) {
+        startRoutingBetweenSingleSteps (url, fromLocation, toLocation) {
             const coordFrom = fromLocation.toString(),
                 coordTo = toLocation.toString(),
-                query = url + "/v2/directions/" + this.profile + "?start=" + coordFrom + "&end=" + coordTo + "&api_key=" + apiKey;
+                apiKey = this.apiKey !== "" ? "&api_key=" + this.apiKey : "",
+                query = url + "/v2/directions/" + this.profile + "?start=" + coordFrom + "&end=" + coordTo + apiKey;
 
             axios.get(query)
                 .then(response => {
