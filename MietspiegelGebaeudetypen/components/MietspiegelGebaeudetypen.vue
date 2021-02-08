@@ -32,11 +32,10 @@ export default {
          */
         close () {
             this.setActive(false);
-
             // TODO replace trigger when Menu is migrated
             // set the backbone model to active false for changing css class in menu (menu/desktop/tool/view.toggleIsActiveClass)
             // else the menu-entry for this tool is always highlighted
-            const model = Radio.request("ModelList", "getModelByAttributes", {id: this.$store.state.Tools.Mietspiegel.id});
+            const model = Radio.request("ModelList", "getModelByAttributes", {id: this.$store.state.Tools.MietspiegelGebaeudetypen.id});
 
             if (model) {
                 model.set("isActive", false);
