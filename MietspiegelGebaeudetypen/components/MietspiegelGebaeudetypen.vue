@@ -10,7 +10,10 @@ export default {
         Tool
     },
     computed: {
-        ...mapGetters("Tools/MietspiegelGebaeudetypen", Object.keys(getters))
+        ...mapGetters("Tools/MietspiegelGebaeudetypen", Object.keys(getters)),
+        ...mapGetters({
+            isMobile: "mobile"
+        })
     },
     created () {
         this.listenToSearchResults();
@@ -114,17 +117,46 @@ export default {
                     Eine Anleitung finden Sie im Menü unter "Hilfe".
                 </p>
                 <div
-                    v-for="value in values"
-                    :key="value.name"
-                    class="form-group form-group-sm"
+                    v-if="isMobile === false"
                 >
-                    <div class="col-xs-12">
+                    <div
+                        v-for="value in values"
+                        :key="value.name"
+                        class="form-group form-group-xs"
+                    >
                         <button
                             :valueToPost="value.valueToPost"
                             class="btn btn-sm btn-block"
                             @click="pushValuesBack"
                         >
-                            {{ value.name }}
+                            <span
+                                :valueToPost="value.valueToPost"
+                                @click="pushValuesBack"
+                            >
+                                {{ value.name }}
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div
+                    v-if="isMobile === true"
+                >
+                    <div
+                        v-for="value in values"
+                        :key="value.name"
+                        class="form-group form-group-xs col-xs-6 form-group-mobile"
+                    >
+                        <button
+                            :valueToPost="value.valueToPost"
+                            class="btn btn-sm btn-block"
+                            @click="pushValuesBack"
+                        >
+                            <span
+                                :valueToPost="value.valueToPost"
+                                @click="pushValuesBack"
+                            >
+                                {{ value.name_mobile }}
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -144,6 +176,11 @@ export default {
         button:hover {
             border: 2px solid #00aa9b;
             font-weight: bold;
+        }
+        .form-group-mobile {
+            padding-left: 5px;
+            padding-right: 5px;
+            margin-bottom: 5px;
         }
     }
 </style>

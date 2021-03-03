@@ -10,7 +10,10 @@ export default {
         Tool
     },
     computed: {
-        ...mapGetters("Tools/MietspiegelWohnlage", Object.keys(getters))
+        ...mapGetters("Tools/MietspiegelWohnlage", Object.keys(getters)),
+        ...mapGetters({
+            isMobile: "mobile"
+        })
     },
     created () {
         this.listenToSearchResults();
@@ -115,11 +118,13 @@ export default {
                     Eine Anleitung finden Sie im Menü unter "Hilfe".
                 </p>
                 <div
-                    v-for="value in values"
-                    :key="value.name"
-                    class="form-group form-group-sm"
+                    v-if="isMobile === false"
                 >
-                    <div class="col-xs-12">
+                    <div
+                        v-for="value in values"
+                        :key="value.name"
+                        class="form-group form-group-xs"
+                    >
                         <button
                             :valueToPost="value.valueToPost"
                             class="btn btn-sm btn-block"
@@ -131,7 +136,40 @@ export default {
                                 :style="{'background-color': value.color}"
                                 @click="pushValuesBack"
                             />
-                            {{ value.name }}
+                            <span
+                                :valueToPost="value.valueToPost"
+                                @click="pushValuesBack"
+                            >
+                                {{ value.name }}
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div
+                    v-if="isMobile === true"
+                >
+                    <div
+                        v-for="value in values"
+                        :key="value.name"
+                        class="form-group form-group-xs col-xs-6 form-group-mobile"
+                    >
+                        <button
+                            :valueToPost="value.valueToPost"
+                            class="btn btn-xs btn-block"
+                            @click="pushValuesBack"
+                        >
+                            <div
+                                class="color"
+                                :valueToPost="value.valueToPost"
+                                :style="{'background-color': value.color}"
+                                @click="pushValuesBack"
+                            />
+                            <span
+                                :valueToPost="value.valueToPost"
+                                @click="pushValuesBack"
+                            >
+                                {{ value.name_mobile }}
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -152,11 +190,16 @@ export default {
             margin-top: 5px;
             margin-bottom: 5px;
             background-color:#e7e7e7;
-            color: #00aa9b
+            color: #00aa9b;
         }
         button:hover {
             border: 2px solid #00aa9b;
             font-weight: bold;
+        }
+        .form-group-mobile {
+            padding-left: 5px;
+            padding-right: 5px;
+            margin-bottom: 5px;
         }
     }
 </style>
