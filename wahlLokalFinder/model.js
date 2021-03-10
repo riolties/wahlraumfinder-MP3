@@ -3,6 +3,7 @@ import {equalTo} from "ol/format/filter";
 import Feature from "ol/Feature";
 import {Point, LineString} from "ol/geom";
 import {Circle, Fill, Stroke, Text, Style} from "ol/style.js";
+import getProxyUrl from "../../src/utils/getProxyUrl";
 
 /**
  * @returns {void}
@@ -518,7 +519,8 @@ function initializeWahllokalFinderModel () {
             const layer = Radio.request("ModelList", "getModelByAttributes", {id: addressLayerId}),
                 resolution = Radio.request("MapView", "getOptions").resolution,
                 projection = Radio.request("MapView", "getProjection"),
-                gfiUrl = layer.get("layerSource").getGetFeatureInfoUrl(coord, resolution, projection, {INFO_FORMAT: layer.get("infoFormat"), FEATURE_COUNT: layer.get("featureCount")});
+                // gfiUrl = layer.get("layerSource").getGetFeatureInfoUrl(coord, resolution, projection, {INFO_FORMAT: layer.get("infoFormat"), FEATURE_COUNT: layer.get("featureCount")});
+                gfiUrl = layer.get("layerSource").getFeatureInfoUrl(coord, resolution, projection, {INFO_FORMAT: layer.get("infoFormat"), FEATURE_COUNT: layer.get("featureCount")});
 
             return gfiUrl;
         },
@@ -530,7 +532,7 @@ function initializeWahllokalFinderModel () {
          * @returns {String} - polling station id.
          */
         derivePollingStationFromAddress: function (url) {
-            const proxyUrl = Radio.request("Util", "getProxyURL", url),
+            const proxyUrl = getProxyUrl(url),
                 xhr = new XMLHttpRequest(),
                 that = this;
             let pollingStationId;
