@@ -528,7 +528,6 @@ function initializeWahllokalFinderModel () {
         /**
          * derives the pollingStation id from gfiUrl.
          * @param {String} url GfiUrl to be sent.
-         * @fires Core#RadioRequestUtilGetProxyURL
          * @returns {String} - polling station id.
          */
         derivePollingStationFromAddress: function (url) {
@@ -604,7 +603,7 @@ function initializeWahllokalFinderModel () {
                 }),
                 that = this,
                 xhr = new XMLHttpRequest(),
-                url = Radio.request("Util", "getProxyURL", layer.get("url"));
+                url = getProxyUrl(layer.get("url"));
             let wahllokalFeature;
 
             xhr.open("POST", url, false);
