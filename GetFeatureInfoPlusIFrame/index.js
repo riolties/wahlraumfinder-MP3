@@ -1,4 +1,4 @@
-import component from "./components/GetFeatureInfoPlusKibana.vue";
+import component from "./components/GetFeatureInfoPlusIFrame.vue";
 // import deLocale from "./locales/de/additional.json";
 // import enLocale from "./locales/en/additional.json";
 

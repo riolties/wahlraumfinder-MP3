@@ -1,6 +1,6 @@
 <script>
 export default {
-    name: "GetFeatureInfoPlusKibana",
+    name: "GetFeatureInfoPlusIFrame",
     props: {
         feature: {
             type: Object,
@@ -9,27 +9,25 @@ export default {
     },
     data: () => {
         return {
-            kibanaUrls: []
+            iFrameUrls: []
         };
     },
     created () {
         console.log(this.feature);
-        this.addKibanaUrls();
-        console.log(this.kibanaUrls);
+        this.addIFrameUrls();
+        console.log(this.iFrameUrls);
     },
     methods: {
-        addKibanaUrls: function () {
+        addIFrameUrls: function () {
             const props = this.feature.getProperties(),
                 theme = this.feature.getTheme(),
                 startsWith = typeof theme === "object" && theme.params.startsWith ? theme.params.startsWith : undefined;
 
-            // create fake data
-            Object.assign(props, {kibana_url_temp: "https://foobar", kibana_url_luftfeuchte: "https:/barfoo"});
 
             if (startsWith) {
                 Object.keys(props).forEach(key => {
                     if (key.startsWith(startsWith)) {
-                        this.kibanaUrls.push(props[key]);
+                        this.iFrameUrls.push(props[key]);
                     }
                 });
             }

@@ -15,8 +15,8 @@
   "Routing": {
     "type": "tool"
   },
-  "GetFeatureInfoPlusKibana": {
-    "path": "GetFeatureInfoPlusKibana",
+  "GetFeatureInfoPlusIFrame": {
+    "path": "GetFeatureInfoPlusIFrame",
     "type": "gfiTheme"
   }
 }
