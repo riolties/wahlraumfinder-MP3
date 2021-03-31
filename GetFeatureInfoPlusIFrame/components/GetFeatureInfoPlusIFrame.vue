@@ -9,7 +9,12 @@ export default {
     },
     data: () => {
         return {
-            iFrameUrls: []
+            iFrameUrls: [],
+            dataTab: {
+                key: "data",
+                name: "Daten",
+                isActive: true
+            }
         };
     },
     created () {
@@ -21,15 +26,37 @@ export default {
         addIFrameUrls: function () {
             const props = this.feature.getProperties(),
                 theme = this.feature.getTheme(),
-                startsWith = typeof theme === "object" && theme.params.startsWith ? theme.params.startsWith : undefined;
+                themeParams = typeof theme === "object" && theme.params ? theme.params : undefined;
 
 
-            if (startsWith) {
-                Object.keys(props).forEach(key => {
-                    if (key.startsWith(startsWith)) {
-                        this.iFrameUrls.push(props[key]);
+            if (themeParams) {
+                Object.keys(themeParams).forEach(key => {
+                    const value = props[key],
+                        name = themeParams[key],
+                        isActive = false;
+
+                    if (value) {
+                        this.iFrameUrls.push({key: key, value, name, isActive});
                     }
                 });
+            }
+        },
+        activateTab: function (evt) {
+            const key = evt.currentTarget.value;
+
+            this.iFrameUrls.forEach(iFrameObj => {
+                if (iFrameObj.key === key) {
+                    iFrameObj.isActive = true;
+                }
+                else {
+                    iFrameObj.isActive = false;
+                }
+            });
+            if (key === this.dataTab.key) {
+                this.dataTab.isActive = true;
+            }
+            else {
+                this.dataTab.isActive = false;
             }
         }
     }
@@ -38,23 +65,67 @@ export default {
 
 <template>
     <div>
-        <table
-            class="table table-hover"
+        <div
+            id="tabs"
         >
-            <tbody>
-                <tr
-                    v-for="(value, key) in feature.getMappedProperties()"
-                    :key="key"
+            <div class="tabs btn-group btn-group-sm">
+                <button
+                    :value="dataTab.key"
+                    class="btn btn-default"
+                    :class="[dataTab.isActive === true ? 'active' : '']"
+                    @click="activateTab"
                 >
-                    <td class="bold">
-                        {{ ($t(key)) }}
-                    </td>
-                    <td>
-                        {{ value }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                    Daten
+                </button>
+                <button
+                    v-for="iFrameObj in iFrameUrls"
+                    :key="iFrameObj.key"
+                    :value="iFrameObj.key"
+                    class="btn btn-default"
+                    :class="[iFrameObj.isActive === true ? 'active' : '']"
+                    @click="activateTab"
+                >
+                    {{ iFrameObj.name }}
+                </button>
+            </div>
+
+            <div class="content">
+                <div
+                    class="tabcontent"
+                    :class="[dataTab.isActive === true ? '' : 'inactive']"
+                >
+                    <table
+                        class="table table-hover"
+                    >
+                        <tbody>
+                            <tr
+                                v-for="(value, key) in feature.getMappedProperties()"
+                                :key="key"
+                            >
+                                <td class="bold">
+                                    {{ key }}
+                                </td>
+                                <td>
+                                    {{ value }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div
+                    v-for="iFrameObj in iFrameUrls"
+                    :key="iFrameObj.key"
+                    class="tabcontent"
+                    :class="[iFrameObj.isActive === true ? '' : 'inactive']"
+                >
+                    <iframe
+                        :src="iFrameObj.value"
+                        width="100%"
+                        height="100%"
+                    />
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -68,5 +139,8 @@ export default {
     &.bold{
         font-family: @font_family_accent;
     }
+}
+.tabcontent.inactive {
+    display: none;
 }
 </style>
