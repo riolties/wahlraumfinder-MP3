@@ -9,13 +9,11 @@ export default {
     },
     data: () => {
         return {
-            kibanaUrls: [],
-            mappedProps: {}
+            kibanaUrls: []
         };
     },
     created () {
         console.log(this.feature);
-        this.mappedProps = this.feature.getMappedProperties();
         this.addKibanaUrls();
         console.log(this.kibanaUrls);
     },
@@ -25,12 +23,10 @@ export default {
                 theme = this.feature.getTheme(),
                 startsWith = typeof theme === "object" && theme.params.startsWith ? theme.params.startsWith : undefined;
 
-            // fake data
+            // create fake data
             Object.assign(props, {kibana_url_temp: "https://foobar", kibana_url_luftfeuchte: "https:/barfoo"});
-            console.log(props);
 
             if (startsWith) {
-                console.log(startsWith);
                 Object.keys(props).forEach(key => {
                     if (key.startsWith(startsWith)) {
                         this.kibanaUrls.push(props[key]);
@@ -44,6 +40,35 @@ export default {
 
 <template>
     <div>
-        foobar
+        <table
+            class="table table-hover"
+        >
+            <tbody>
+                <tr
+                    v-for="(value, key) in feature.getMappedProperties()"
+                    :key="key"
+                >
+                    <td class="bold">
+                        {{ ($t(key)) }}
+                    </td>
+                    <td>
+                        {{ value }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </template>
+
+
+<style lang="less" scoped>
+@import "~variables";
+
+.table > tbody > tr > td {
+    padding: 5px 8px;
+    font-size: 12px;
+    &.bold{
+        font-family: @font_family_accent;
+    }
+}
+</style>
