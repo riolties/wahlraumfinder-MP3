@@ -36,7 +36,7 @@ export default {
             else {
                 axios.get(query)
                     .then(response => {
-                        console.log(response.data);
+                        // console.log(response.data);
                         this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
                         this.addRouteToRoutingLayer(response.data);
                     })

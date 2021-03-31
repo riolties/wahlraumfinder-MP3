@@ -23,11 +23,12 @@ const actions = {
         source.addFeatures(features);
 
     },
-    setFeatureStyle ({}, feature) {
+    setFeatureStyle ({state}, feature) {
         const styleId = feature.get("styleId"),
             styleListModel = Radio.request("StyleList", "returnModelById", styleId),
             style = styleListModel.createStyle(feature, false);
 
+        console.error(state);
         feature.setStyle(style);
     },
     removeFeatureFromRoutingLayer ({state}, obj) {

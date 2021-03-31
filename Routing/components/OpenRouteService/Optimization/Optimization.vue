@@ -115,7 +115,7 @@ export default {
                 .then(response => {
                     const routes = response.data.routes;
 
-                    console.log(response.data);
+                    // console.log(response.data);
                     this.removeFeatureFromRoutingLayer({geometryType: "LineString"});
                     routes.forEach(route => {
                         const steps = route.steps;
@@ -143,7 +143,7 @@ export default {
 
             axios.get(query)
                 .then(response => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     this.addRouteToRoutingLayer(response.data);
                 })
                 .catch(error => {
