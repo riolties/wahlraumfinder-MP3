@@ -18,9 +18,9 @@ export default {
         };
     },
     created () {
-        console.log(this.feature);
+        // console.log(this.feature);
         this.addIFrameUrls();
-        console.log(this.iFrameUrls);
+        // console.log(this.iFrameUrls);
     },
     methods: {
         addIFrameUrls: function () {
