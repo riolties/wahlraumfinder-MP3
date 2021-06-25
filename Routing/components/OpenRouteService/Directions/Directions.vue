@@ -77,15 +77,15 @@ export default {
             id="from_address"
             from="Directions"
             placeholder="Startadresse"
-            :styleId="styleIdForStartAddress"
-            :deleteRouteOnClose="true"
+            :style-id="styleIdForStartAddress"
+            :delete-route-on-close="true"
         />
         <Geocoder
             id="to_address"
             from="Directions"
             placeholder="Zieladresse"
-            :styleId="styleIdForEndAddress"
-            :deleteRouteOnClose="true"
+            :style-id="styleIdForEndAddress"
+            :delete-route-on-close="true"
         />
         <button
             class="btn btn-sm btn-block btn-gsm"

@@ -80,8 +80,8 @@ function initializeWahllokalFinderModel () {
          */
         checkForNeccessaryAttributes: function () {
             const errorText = "<strong>Fehler in der Konfiguration des Wahllokalfinders</strong><br>",
-                neccessaryAttributes = ["addressLayerId", "pollingStationLayerId", "addressLayerPollingStationAttribute"],
-                tempArray = [];
+                neccessaryAttributes = ["addressLayerId", "pollingStationLayerId", "addressLayerPollingStationAttribute"];
+            let tempArray = [];
 
             neccessaryAttributes.forEach(attr => {
                 if (this.get(attr) === "") {

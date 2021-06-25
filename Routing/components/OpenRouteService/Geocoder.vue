@@ -150,7 +150,7 @@ export default {
             type="text"
             :placeholder="placeholder"
             @keyup="addressChanged"
-        />
+        >
         <!-- <datalist :id="id + '_autocomplete'">
             <option
                 v-for="autocompleteFeature in autocompleteFeatures"

@@ -68,7 +68,7 @@ export default {
                 type="number"
                 :value="id"
                 disabled
-            />
+            >
         </div>
         <!-- profile -->
         <div class="form-group form-group-sm">
@@ -79,7 +79,7 @@ export default {
                 type="text"
                 :value="profile"
                 disabled
-            />
+            >
         </div>
         <!-- description -->
         <div class="form-group form-group-sm">
@@ -89,7 +89,7 @@ export default {
                 class="float-right"
                 type="text"
                 placeholder="Bitte Beschreibung eingeben"
-            />
+            >
         </div>
         <!-- start -->
         <label for="vehicle-start">Start</label>
@@ -97,8 +97,8 @@ export default {
             :id="id + '_vehicle-start'"
             from="Optimization"
             placeholder="Startadresse"
-            :styleId="styleIdForStartAddress"
-            :deleteRouteOnClose="false"
+            :style-id="styleIdForStartAddress"
+            :delete-route-on-close="false"
         />
         <!-- end -->
         <label for="vehicle-end">Ende</label>
@@ -106,8 +106,8 @@ export default {
             :id="id + '_vehicle-end'"
             from="Optimization"
             placeholder="Zieladresse"
-            :styleId="styleIdForEndAddress"
-            :deleteRouteOnClose="false"
+            :style-id="styleIdForEndAddress"
+            :delete-route-on-close="false"
         />
         <!-- capacity -->
         <div class="form-group form-group-sm">
@@ -118,7 +118,7 @@ export default {
                 type="number"
                 placeholder="Bitte Kapazität wählen"
                 value="10"
-            />
+            >
         </div>
 
         <div class="form-group form-group-sm">

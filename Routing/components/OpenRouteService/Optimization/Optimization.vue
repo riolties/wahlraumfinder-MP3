@@ -236,7 +236,6 @@ export default {
                                         >Fahrzeug entfernen</span>
                                     </button>
                                 </td>
-                                <td></td>
                             </tr>
                         </table>
                     </div>
@@ -287,7 +286,7 @@ export default {
                                         >Auftrag entfernen</span>
                                     </button>
                                 </td>
-                                <td></td>
+                                <td />
                             </tr>
                         </table>
                     </div>

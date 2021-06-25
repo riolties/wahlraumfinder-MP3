@@ -60,7 +60,7 @@ export default {
                 type="number"
                 :value="id"
                 disabled
-            />
+            >
         </div>
         <!-- description -->
         <div class="form-group form-group-sm">
@@ -70,7 +70,7 @@ export default {
                 class="float-right"
                 type="text"
                 placeholder="Bitte Beschreibung eingeben"
-            />
+            >
         </div>
         <!-- address -->
         <label for="job-description">Adresse</label>
@@ -78,8 +78,8 @@ export default {
             :id="id"
             from="Optimization"
             placeholder="Adresse"
-            :styleId="styleIdForJob"
-            :deleteRouteOnClose="false"
+            :style-id="styleIdForJob"
+            :delete-route-on-close="false"
         />
         <!-- service -->
         <div class="form-group form-group-sm">
@@ -90,7 +90,7 @@ export default {
                 type="number"
                 placeholder="Bitte Dauer wählen"
                 value="0"
-            />
+            >
         </div>
         <!-- pickup -->
         <div class="form-group form-group-sm">
@@ -101,7 +101,7 @@ export default {
                 type="number"
                 placeholder="Bitte Anzahl wählen"
                 value="1"
-            />
+            >
         </div>
 
         <div class="form-group form-group-sm">
