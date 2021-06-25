@@ -14,7 +14,6 @@ export default {
     },
     created () {
         this.$on("close", this.close);
-        console.log("FOOBAR created");
     },
     /**
      * Put initialize here if mounting occurs after config parsing
@@ -22,7 +21,6 @@ export default {
      */
     mounted () {
         this.applyTranslationKey(this.name);
-        console.log("FOOBAR mounted");
     },
     methods: {
         ...mapMutations("Tools/WahlRaumFinder", Object.keys(mutations)),
@@ -54,14 +52,15 @@ export default {
         :active="active"
         :render-to-window="renderToWindow"
         :resizable-window="resizableWindow"
-        :deactivateGFI="deactivateGFI"
+        :deactivate-gfi="deactivateGFI"
     >
-        <template v-slot:toolBody>
+        <template #toolBody>
             <div
                 v-if="active"
                 id="vue-addon"
             >
-                {{ $t("additional:modules.tools.WahlRaumFinder.content") }}
+                <!-- {{ $t("additional:modules.tools.WahlRaumFinder.content") }} -->
+                Hello World!
             </div>
         </template>
     </Tool>
