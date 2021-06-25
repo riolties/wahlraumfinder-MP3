@@ -6,6 +6,9 @@
   "VueAddon": {
     "type": "tool"
   },
+  "WahlRaumFinder": {
+    "type": "tool"
+  },
   "MietspiegelWohnlage": {
     "type": "tool"
   },
