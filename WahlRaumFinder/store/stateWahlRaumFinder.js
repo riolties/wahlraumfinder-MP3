@@ -16,10 +16,13 @@ const state = {
     // defaults for config.json parameters
     name: "WahlRaumFinder",
     glyphicon: "glyphicon-screenshot",
-    renderToWindow: true,
+    renderToWindow: false,
     resizableWindow: true,
     isVisibleInMenu: true,
-    deactivateGFI: true
+    deactivateGFI: true,
+    addressLayerId: "",
+    addressLayerPollingStationAttribute: "",
+    mailTo: ""
 };
 
 export default state;
