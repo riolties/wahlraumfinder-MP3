@@ -22,7 +22,12 @@ const state = {
     deactivateGFI: true,
     addressLayerId: "",
     addressLayerPollingStationAttribute: "",
-    mailTo: ""
+    pollingStationLayerId: "",
+    mailTo: "",
+    featureAttributes: {},
+    addressString: "",
+    featureValues: {},
+    distanceString: ""
 };
 
 export default state;

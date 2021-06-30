@@ -2,9 +2,13 @@
 import Tool from "../../../src/modules/tools/Tool.vue";
 import {mapGetters, mapMutations} from "vuex";
 import getters from "../store/gettersWahlRaumFinder";
-import mutations from "../store/mutationsWahlRaumFinder";
+import mutations from "../store/mutationsWahlRaumFinder"
 import getProxyUrl from "../../../src/utils/getProxyUrl";
 import {WFS} from "ol/format.js";
+import {equalTo} from "ol/format/filter";
+import Feature from "ol/Feature";
+import {Point, LineString} from "ol/geom";
+import {Circle, Fill, Stroke, Text, Style} from "ol/style.js";
 
 export default {
     name: "WahlRaumFinder",
@@ -12,19 +16,15 @@ export default {
         Tool
     },
     computed: {
-        ...mapGetters("Tools/WahlRaumFinder", Object.keys(getters))
+        ...mapGetters("Tools/WahlRaumFinder", Object.keys(getters)),
+        ...mapGetters({
+            isMobile: "mobile"
+        })
     },
     created () {
+        this.showWelcomeAlert();
         this.listenToSearchResults();
         this.$on("close", this.close);
-
-        // fake search result
-        setTimeout(function () {
-            Backbone.Radio.trigger("Searchbar", "hit", {
-                name: "FakeAddresse",
-                coordinate: [5334186, 691340]
-            });
-        }, 2000);
     },
     /**
      * Put initialize here if mounting occurs after config parsing
@@ -36,11 +36,7 @@ export default {
     methods: {
         ...mapMutations("Tools/WahlRaumFinder", Object.keys(mutations)),
 
-        /**
-         * Closes this tool window by setting active to false
-         * @returns {void}
-         */
-        close () {
+        close (reset) {
             this.setActive(false);
 
             // TODO replace trigger when Menu is migrated
@@ -51,6 +47,16 @@ export default {
             if (model) {
                 model.set("isActive", false);
             }
+            if (reset !== false) {
+                this.reset();
+            }
+        },
+        showWelcomeAlert () {
+            Radio.trigger("Alert", "alert", {
+                content: "<b>Willkommen beim Wahlraumfinder!</b><br>" +
+                "Bitte geben Sie in der Suchfunktion eine Adresse an um Ihren zuständigen Wahlraum zu finden.<br><br>",
+                _confirmable: true
+            });
         },
         listenToSearchResults () {
             Backbone.Events.listenTo(Radio.channel("Searchbar"), {
@@ -60,15 +66,179 @@ export default {
             });
         },
         mainProcess (hit) {
-            console.log(hit);
             const addressString = hit.name,
                 addressCoord = hit.coordinate,
                 gfiUrl = addressCoord ? this.getGfiUrl(addressCoord, this.addressLayerId) : undefined,
-                pollingStationId = gfiUrl ? this.derivePollingStationFromAddress(gfiUrl) : undefined;
-                
-                console.log(pollingStationId);
+                pollingStationId = gfiUrl ? this.derivePollingStationFromAddress(gfiUrl) : undefined,
+                pollingStationFeature = pollingStationId ? this.derivePollingStationFromWfs(pollingStationId) : undefined;
+            let featureCoord = [],
+                extent = [],
+                featureValues,
+                distanceString;
+
+            if (pollingStationFeature) {
+                this.placeMarker(addressCoord);
+                featureCoord = pollingStationFeature.getGeometry().getCoordinates();
+                extent = this.createExtent(addressCoord, featureCoord, 100);
+                distanceString = this.calculateDistanceString(addressCoord, featureCoord);
+                this.addLayerOnMap(addressCoord, featureCoord, distanceString);
+                this.setExtentToMap(extent);
+                featureValues = this.prepareFeature(pollingStationFeature);
+                this.setAddressString(addressString);
+                this.setFeatureValues(featureValues);
+                this.setDistanceString(distanceString);
+                this.setActive(true);
+            }
+            else {
+                this.close();
+            }
         },
-        getGfiUrl: function (coord, addressLayerId) {
+        placeMarker (coord) {
+            Radio.trigger("MapMarker", "showMarker", coord);
+        },
+        createExtent (addressCoord, featureCoord, offset) {
+            let xMin = 0,
+                yMin = 0,
+                xMax = 0,
+                yMax = 0,
+                extent = [xMin, yMin, xMax, yMax];
+            const isValidAddressCoord = this.isValidCoord(addressCoord),
+                isValidFeatureCoord = this.isValidCoord(featureCoord),
+                offsetForExtent = offset ? offset : 0;
+
+            if (isValidAddressCoord && isValidFeatureCoord) {
+                xMin = Math.min(addressCoord[0], featureCoord[0]) - offsetForExtent;
+                yMin = Math.min(addressCoord[1], featureCoord[1]) - offsetForExtent;
+                xMax = Math.max(addressCoord[0], featureCoord[0]) + offsetForExtent;
+                yMax = Math.max(addressCoord[1], featureCoord[1]) + offsetForExtent;
+                extent = [xMin, yMin, xMax, yMax];
+            }
+
+            return extent;
+        },
+        isValidCoord (coord) {
+            const isArray = Array.isArray(coord),
+                isLength = isArray && (coord.length === 2 || coord.length === 3) || false,
+                isNumber = isArray ? coord.every(function (element) {
+                    return typeof element === "number";
+                }) : false;
+
+            return isArray && isLength && isNumber;
+        },
+        setExtentToMap (extent) {
+            Radio.trigger("Map", "zoomToExtent", extent);
+        },
+        calculateDistanceString (addressCoord, featureCoord) {
+            const deltaX = addressCoord[0] - featureCoord[0],
+                deltaY = addressCoord[1] - featureCoord[1];
+            let distance = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+
+            distance = "ca." + Math.round(distance) + "m (Luftlinie)";
+            return distance;
+        },
+        addLayerOnMap (addressCoord, featureCoord, distanceString) {
+            const layer = Radio.request("Map", "createLayerIfNotExists", "pollingStationMarker"),
+                source = layer.getSource(),
+                addressFeature = this.createPointFeatureAndSetStyle(addressCoord, "addressFeature", 50, "#ff0000", "Adresse"),
+                pollingStationFeature = this.createPointFeatureAndSetStyle(featureCoord, "pollingStationFeature", 50, "#0000ff", "Wahlraum"),
+                distanceFeature = this.createLineFeatureAndSetStyle(addressCoord, featureCoord, "distanceFeature", "#000000", distanceString);
+
+            source.clear();
+            source.addFeature(addressFeature);
+            source.addFeature(pollingStationFeature);
+            source.addFeature(distanceFeature);
+        },
+        createPointFeatureAndSetStyle (coord, id, radius, color, text) {
+            const feature = new Feature({
+                    geometry: new Point(coord),
+                    id: id
+                }),
+                textStyle = new Text({
+                    text: text,
+                    scale: 2,
+                    offsetY: -(radius + 10),
+                    fill: new Fill({
+                        color: color
+                    }),
+                    stroke: new Stroke({
+                        color: "#ffffff",
+                        width: 2
+                    })
+                }),
+                style = new Style({
+                    image: new Circle({
+                        radius: radius,
+                        stroke: new Stroke({
+                            color: color,
+                            width: 5
+                        })
+                    }),
+                    text: textStyle
+                });
+
+            feature.setStyle(style);
+            return feature;
+        },
+
+        createLineFeatureAndSetStyle (coord1, coord2, id, color, distanceString) {
+            const feature = new Feature({
+                    geometry: new LineString([coord1, coord2]),
+                    id: id
+                }),
+                textStyle = new Text({
+                    text: distanceString,
+                    scale: 2,
+                    textAlign: "left",
+                    offsetX: 10,
+                    fill: new Fill({
+                        color: color
+                    }),
+                    stroke: new Stroke({
+                        color: "#ffffff",
+                        width: 2
+                    })
+                }),
+                style = new Style({
+                    stroke: new Stroke({
+                        color: color,
+                        width: 5,
+                        lineDash: [5, 10]
+                    }),
+                    text: textStyle
+                });
+
+            feature.setStyle(style);
+            return feature;
+        },
+        prepareFeature (feature) {
+            let obj = {};
+
+            feature.getKeys().forEach(key => {
+                obj[key] = feature.get(key);
+            });
+            obj = this.mapFeatureAttributes(obj, this.featureAttributes);
+
+            return obj;
+        },
+
+        mapFeatureAttributes (obj, featureAttributes) {
+            const mappedObj = {};
+
+            Object.keys(featureAttributes).forEach(attr => {
+                if (obj[attr] === undefined) {
+                    mappedObj[featureAttributes[attr]] = "Nein";
+                }
+                else if (obj[attr] === "1") {
+                    mappedObj[featureAttributes[attr]] = "Ja";
+                }
+                else {
+                    mappedObj[featureAttributes[attr]] = isNaN(parseInt(obj[attr], 10)) === false ? parseInt(obj[attr], 10) : obj[attr];
+                }
+            });
+
+            return mappedObj;
+        },
+        getGfiUrl (coord, addressLayerId) {
             const layer = Radio.request("ModelList", "getModelByAttributes", {id: addressLayerId}),
                 resolution = Radio.request("MapView", "getOptions").resolution,
                 projection = Radio.request("MapView", "getProjection"),
@@ -76,36 +246,30 @@ export default {
 
             return gfiUrl;
         },
-        derivePollingStationFromAddress: function (url) {
+        derivePollingStationFromAddress (url) {
             const proxyUrl = getProxyUrl(url),
                 xhr = new XMLHttpRequest(),
                 that = this;
             let pollingStationId;
-    console.log(proxyUrl);
+
             xhr.open("GET", proxyUrl, false);
             xhr.onload = function (event) {
                 pollingStationId = that.parseAddressResponse(event);
             };
             xhr.onerror = function () {
-                Radio.trigger("Alert", "alert", {
-                    text: "<b>Entschuldigung</b><br>" +
-                    "Bei der Abfrage ist etwas schiefgelaufen.<br>" +
-                    "Das Portal konnte das zur Adresse zugehörige Wahllokal nicht ermitteln.<br>" +
-                    "Versuchen Sie bitte die Website neu zu starten.<br>" +
-                    "Falls der Fehler immer noch auftritt, wenden Sie sich bitte an:<br>" +
-                    "<a href='mailto:" + this.get("mailTo") + "'>" + this.get("mailTo") + "</a>",
-                    confirmable: true
-                });
+                that.showError();
             };
+            // store.dispatch("Alerting/addSingleAlert", i18next.t("common:modules.core.parametricURL.alertZoomToGeometry"));
             xhr.send();
             return pollingStationId;
         },
-        parseAddressResponse: function (event) {
+        parseAddressResponse (event) {
             const currentTarget = event.currentTarget,
                 status = currentTarget.status,
                 response = currentTarget.response,
                 wfsReader = new WFS(),
-                addressLayerPollingStationAttribute = this.addressLayerPollingStationAttribute;
+                addressLayerPollingStationAttribute = this.addressLayerPollingStationAttribute,
+                that = this;
             let feature,
                 pollingStationId;
 
@@ -114,17 +278,74 @@ export default {
                 pollingStationId = feature.get(addressLayerPollingStationAttribute);
             }
             else {
-                Radio.trigger("Alert", "alert", {
-                    text: "<b>Entschuldigung</b><br>" +
-                    "Bei der Abfrage ist etwas schiefgelaufen.<br>" +
-                    "Das Portal konnte das zur Adresse zugehörige Wahllokal nicht ermitteln.<br>" +
-                    "Versuchen Sie bitte die Website neu zu starten.<br>" +
-                    "Falls der Fehler immer noch auftritt, wenden Sie sich bitte an:<br>" +
-                    "<a href='mailto:" + this.mailTo + "'>" + this.mailTo + "</a>",
-                    confirmable: true
-                });
+                that.showError();
             }
             return pollingStationId;
+        },
+        derivePollingStationFromWfs (pollingStationId) {
+            const layer = Radio.request("ModelList", "getModelByAttributes", {id: this.pollingStationLayerId}),
+                WfsGetFeature = new WFS().writeGetFeature({
+                    featureNS: layer.get("featureNS"),
+                    featureTypes: [layer.get("featureType")],
+                    srsName: "EPSG:25832",
+                    filter: equalTo("wbz", pollingStationId)
+                }),
+                that = this,
+                xhr = new XMLHttpRequest(),
+                url = getProxyUrl(layer.get("url"));
+            let wahllokalFeature;
+
+            xhr.open("POST", url, false);
+            xhr.onload = function (event) {
+                wahllokalFeature = that.parseWfsResponse(event);
+            };
+            xhr.onerror = function () {
+                that.showError();
+            };
+            xhr.send(new XMLSerializer().serializeToString(WfsGetFeature));
+
+            return wahllokalFeature;
+        },
+        parseWfsResponse (event) {
+            const currentTarget = event.currentTarget,
+                status = currentTarget.status,
+                response = currentTarget.response,
+                wfsReader = new WFS();
+            let wahllokalFeature;
+
+            if (status === 200) {
+                wahllokalFeature = wfsReader.readFeature(response);
+            }
+            else {
+                Radio.trigger("Alert", "alert", {
+                    content: "<strong>Entschuldigung!</strong>" +
+                    "<br> Der Dienst um den Wahlraum zur eingegebenen Adresse zu finden, reagiert leider nicht.<br>" +
+                    "Bitte versuchen Sie es erneut!<br>" +
+                    "<small>Status: " + status + "</small><br>" +
+                    "<small>Response: " + response + "</small><br>"
+                });
+            }
+            return wahllokalFeature;
+        },
+        showError () {
+            Radio.trigger("Alert", "alert", {
+                content: "<b>Entschuldigung</b><br>" +
+                "Bei der Abfrage ist etwas schiefgelaufen.<br>" +
+                "Das Portal konnte den zur Adresse zugehörigen Wahlraum nicht ermitteln.<br>" +
+                "Versuchen Sie bitte die Website neu zu starten.<br>" +
+                "Falls der Fehler immer noch auftritt, wenden Sie sich bitte an:<br>" +
+                "<a href='mailto:" + this.mailTo + "'>" + this.mailTo + "</a>",
+                confirmable: true
+            });
+        },
+        reset () {
+            const layer = Radio.request("Map", "createLayerIfNotExists", "pollingStationMarker"),
+                source = layer.getSource();
+
+            source.clear();
+        },
+        closeMobileOverlay () {
+            this.close(false);
         }
     }
 };
@@ -142,11 +363,57 @@ export default {
         <template #toolBody>
             <div
                 v-if="active"
-                id="vue-addon"
+                id="wahllokalfinder"
             >
                 <!-- {{ $t("additional:modules.tools.WahlRaumFinder.content") }} -->
-                Hello World!
+                <div class="block">
+                    <span class="title bold">Adresse: </span>
+                    <span class="title">{{ addressString }}</span>
+                </div>
+                <div class="block">
+                    <span class="title bold">Informationen zum Wahlraum:</span>
+                    <table class="table text">
+                        <tr
+                            v-for="(value, key) in featureValues"
+                            :key="key"
+                        >
+                            <td class="bold">
+                                {{ key }}
+                            </td>
+                            <td>{{ value }}</td>
+                        </tr>
+                        <tr>
+                            <td class="bold">
+                                Distanz
+                            </td>
+                            <td>{{ distanceString }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <button
+                    v-if="isMobile"
+                    class="btn btn-primary block mobile-btn-map"
+                    @click="closeMobileOverlay"
+                >
+                    Zurück zur Karte
+                </button>
             </div>
         </template>
     </Tool>
 </template>
+
+<style lang="less" scoped>
+    #wahllokalfinder {
+        .block {
+            padding: 10px;
+        }
+        .mobile-btn-map {
+            position: absolute;
+            width: 80%;
+            left: 10%;
+            bottom: 20px;
+            background-color: #00aa9b;
+            border-color: #00aa9b;
+        }
+    }
+</style>

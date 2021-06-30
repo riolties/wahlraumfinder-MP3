@@ -20,6 +20,15 @@ const mutations = {
         if (payload && payload.indexOf("translate#") > -1) {
             state.name = payload.substr("translate#".length);
         }
+    },
+    setAddressString: (state, addressString) => {
+        state.addressString = addressString;
+    },
+    setFeatureValues: (state, featureValues) => {
+        state.featureValues = featureValues;
+    },
+    setDistanceString: (state, distanceString) => {
+        state.distanceString = distanceString;
     }
 };
 
