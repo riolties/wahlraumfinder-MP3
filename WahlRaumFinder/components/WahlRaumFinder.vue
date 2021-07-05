@@ -61,6 +61,7 @@ export default {
         listenToSearchResults () {
             Backbone.Events.listenTo(Radio.channel("Searchbar"), {
                 "hit": (hit) => {
+                    Radio.trigger("Util", "showLoader");
                     this.mainProcess(hit);
                 }
             });
@@ -87,6 +88,7 @@ export default {
                 this.setFeatureValues(featureValues);
                 this.setDistanceString(distanceString);
                 this.setActive(true);
+                Radio.trigger("Util", "hideLoader");
             }
             else {
                 this.close();
@@ -306,10 +308,10 @@ export default {
                 status = currentTarget.status,
                 response = currentTarget.response,
                 wfsReader = new WFS();
-            let wahllokalFeature;
+            let pollingStationFeature;
 
             if (status === 200) {
-                wahllokalFeature = wfsReader.readFeature(response);
+                pollingStationFeature = wfsReader.readFeature(response);
             }
             else {
                 this.$store.dispatch("Alerting/addSingleAlert", {
@@ -320,7 +322,7 @@ export default {
                     "<small>Response: " + response + "</small><br>"
                 });
             }
-            return wahllokalFeature;
+            return pollingStationFeature;
         },
         showError () {
             this.$store.dispatch("Alerting/addSingleAlert", {content: "<b>Entschuldigung</b><br>" +
@@ -330,6 +332,7 @@ export default {
                 "Falls der Fehler immer noch auftritt, wenden Sie sich bitte an:<br>" +
                 "<a href='mailto:" + this.mailTo + "'>" + this.mailTo + "</a>"
             });
+            Radio.trigger("Util", "hideLoader");
         },
         reset () {
             const layer = Radio.request("Map", "createLayerIfNotExists", "pollingStationMarker"),
