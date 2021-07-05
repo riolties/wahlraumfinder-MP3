@@ -25,6 +25,10 @@ const state = {
     pollingStationLayerId: "",
     mailTo: "",
     featureAttributes: {},
+    styleId_circle_wahlraum: "",
+    styleId_circle_address: "",
+    styleId_distance: "",
+    // internal attributes
     addressString: "",
     featureValues: {},
     distanceString: ""

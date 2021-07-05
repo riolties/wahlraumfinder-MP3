@@ -137,75 +137,40 @@ export default {
         addLayerOnMap (addressCoord, featureCoord, distanceString) {
             const layer = Radio.request("Map", "createLayerIfNotExists", "pollingStationMarker"),
                 source = layer.getSource(),
-                addressFeature = this.createPointFeatureAndSetStyle(addressCoord, "addressFeature", 50, "#ff0000", "Adresse"),
-                pollingStationFeature = this.createPointFeatureAndSetStyle(featureCoord, "pollingStationFeature", 50, "#0000ff", "Wahlraum"),
-                distanceFeature = this.createLineFeatureAndSetStyle(addressCoord, featureCoord, "distanceFeature", "#000000", distanceString);
+                addressFeature = this.createPointFeatureAndSetStyle(addressCoord, "addressFeature", this.styleId_circle_address, "Adresse"),
+                pollingStationFeature = this.createPointFeatureAndSetStyle(featureCoord, "pollingStationFeature", this.styleId_circle_wahlraum, "Wahlraum"),
+                distanceFeature = this.createLineFeatureAndSetStyle(addressCoord, featureCoord, "distanceFeature", this.styleId_distance, distanceString);
 
             source.clear();
             source.addFeature(addressFeature);
             source.addFeature(pollingStationFeature);
             source.addFeature(distanceFeature);
         },
-        createPointFeatureAndSetStyle (coord, id, radius, color, text) {
+        createPointFeatureAndSetStyle (coord, id, styleId, text) {
             const feature = new Feature({
                     geometry: new Point(coord),
-                    id: id
+                    id: id,
+                    text: text
                 }),
-                textStyle = new Text({
-                    text: text,
-                    scale: 2,
-                    offsetY: -(radius + 10),
-                    fill: new Fill({
-                        color: color
-                    }),
-                    stroke: new Stroke({
-                        color: "#ffffff",
-                        width: 2
-                    })
-                }),
-                style = new Style({
-                    image: new Circle({
-                        radius: radius,
-                        stroke: new Stroke({
-                            color: color,
-                            width: 5
-                        })
-                    }),
-                    text: textStyle
-                });
+                style = Radio.request("StyleList", "returnModelById", styleId);
 
-            feature.setStyle(style);
+            if (style) {
+                feature.setStyle(style.createStyle(feature, false));
+            }
             return feature;
         },
 
-        createLineFeatureAndSetStyle (coord1, coord2, id, color, distanceString) {
+        createLineFeatureAndSetStyle (coord1, coord2, id, styleId, text) {
             const feature = new Feature({
                     geometry: new LineString([coord1, coord2]),
-                    id: id
+                    id: id,
+                    text: text
                 }),
-                textStyle = new Text({
-                    text: distanceString,
-                    scale: 2,
-                    textAlign: "left",
-                    offsetX: 10,
-                    fill: new Fill({
-                        color: color
-                    }),
-                    stroke: new Stroke({
-                        color: "#ffffff",
-                        width: 2
-                    })
-                }),
-                style = new Style({
-                    stroke: new Stroke({
-                        color: color,
-                        width: 5,
-                        lineDash: [5, 10]
-                    }),
-                    text: textStyle
-                });
+                style = Radio.request("StyleList", "returnModelById", styleId);
 
-            feature.setStyle(style);
+            if (style) {
+                feature.setStyle(style.createStyle(feature, false));
+            }
             return feature;
         },
         prepareFeature (feature) {
