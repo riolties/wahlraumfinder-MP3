@@ -50,12 +50,12 @@ export default {
             if (reset !== false) {
                 this.reset();
             }
+            this.$store.dispatch("MapMarker/removePointMarker");
         },
         showWelcomeAlert () {
-            Radio.trigger("Alert", "alert", {
+            this.$store.dispatch("Alerting/addSingleAlert", {
                 content: "<b>Willkommen beim Wahlraumfinder!</b><br>" +
-                "Bitte geben Sie in der Suchfunktion eine Adresse an um Ihren zuständigen Wahlraum zu finden.<br><br>",
-                _confirmable: true
+                "Bitte geben Sie in der Suchfunktion eine Adresse an um Ihren zuständigen Wahlraum zu finden.<br><br>"
             });
         },
         listenToSearchResults () {
@@ -69,7 +69,7 @@ export default {
             const addressString = hit.name,
                 addressCoord = hit.coordinate,
                 gfiUrl = addressCoord ? this.getGfiUrl(addressCoord, this.addressLayerId) : undefined,
-                pollingStationId = gfiUrl ? this.derivePollingStationFromAddress(gfiUrl) : undefined,
+                pollingStationId = gfiUrl ? this.derivePollingStationIdFromAddress(gfiUrl) : undefined,
                 pollingStationFeature = pollingStationId ? this.derivePollingStationFromWfs(pollingStationId) : undefined;
             let featureCoord = [],
                 extent = [],
@@ -77,7 +77,6 @@ export default {
                 distanceString;
 
             if (pollingStationFeature) {
-                this.placeMarker(addressCoord);
                 featureCoord = pollingStationFeature.getGeometry().getCoordinates();
                 extent = this.createExtent(addressCoord, featureCoord, 100);
                 distanceString = this.calculateDistanceString(addressCoord, featureCoord);
@@ -92,9 +91,6 @@ export default {
             else {
                 this.close();
             }
-        },
-        placeMarker (coord) {
-            Radio.trigger("MapMarker", "showMarker", coord);
         },
         createExtent (addressCoord, featureCoord, offset) {
             let xMin = 0,
@@ -246,7 +242,7 @@ export default {
 
             return gfiUrl;
         },
-        derivePollingStationFromAddress (url) {
+        derivePollingStationIdFromAddress (url) {
             const proxyUrl = getProxyUrl(url),
                 xhr = new XMLHttpRequest(),
                 that = this;
@@ -259,7 +255,6 @@ export default {
             xhr.onerror = function () {
                 that.showError();
             };
-            // store.dispatch("Alerting/addSingleAlert", i18next.t("common:modules.core.parametricURL.alertZoomToGeometry"));
             xhr.send();
             return pollingStationId;
         },
@@ -293,18 +288,18 @@ export default {
                 that = this,
                 xhr = new XMLHttpRequest(),
                 url = getProxyUrl(layer.get("url"));
-            let wahllokalFeature;
+            let pollingStationFeature;
 
             xhr.open("POST", url, false);
             xhr.onload = function (event) {
-                wahllokalFeature = that.parseWfsResponse(event);
+                pollingStationFeature = that.parseWfsResponse(event);
             };
             xhr.onerror = function () {
                 that.showError();
             };
             xhr.send(new XMLSerializer().serializeToString(WfsGetFeature));
 
-            return wahllokalFeature;
+            return pollingStationFeature;
         },
         parseWfsResponse (event) {
             const currentTarget = event.currentTarget,
@@ -317,7 +312,7 @@ export default {
                 wahllokalFeature = wfsReader.readFeature(response);
             }
             else {
-                Radio.trigger("Alert", "alert", {
+                this.$store.dispatch("Alerting/addSingleAlert", {
                     content: "<strong>Entschuldigung!</strong>" +
                     "<br> Der Dienst um den Wahlraum zur eingegebenen Adresse zu finden, reagiert leider nicht.<br>" +
                     "Bitte versuchen Sie es erneut!<br>" +
@@ -328,14 +323,12 @@ export default {
             return wahllokalFeature;
         },
         showError () {
-            Radio.trigger("Alert", "alert", {
-                content: "<b>Entschuldigung</b><br>" +
+            this.$store.dispatch("Alerting/addSingleAlert", {content: "<b>Entschuldigung</b><br>" +
                 "Bei der Abfrage ist etwas schiefgelaufen.<br>" +
                 "Das Portal konnte den zur Adresse zugehörigen Wahlraum nicht ermitteln.<br>" +
                 "Versuchen Sie bitte die Website neu zu starten.<br>" +
                 "Falls der Fehler immer noch auftritt, wenden Sie sich bitte an:<br>" +
-                "<a href='mailto:" + this.mailTo + "'>" + this.mailTo + "</a>",
-                confirmable: true
+                "<a href='mailto:" + this.mailTo + "'>" + this.mailTo + "</a>"
             });
         },
         reset () {
