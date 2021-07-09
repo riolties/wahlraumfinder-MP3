@@ -5,10 +5,8 @@ import getters from "../store/gettersWahlRaumFinder";
 import mutations from "../store/mutationsWahlRaumFinder"
 import getProxyUrl from "../../../src/utils/getProxyUrl";
 import {WFS} from "ol/format.js";
-import {equalTo} from "ol/format/filter";
 import Feature from "ol/Feature";
 import {Point, LineString} from "ol/geom";
-import {Circle, Fill, Stroke, Text, Style} from "ol/style.js";
 
 export default {
     name: "WahlRaumFinder",
@@ -188,17 +186,8 @@ export default {
             const mappedObj = {};
 
             Object.keys(featureAttributes).forEach(attr => {
-                if (obj[attr] === undefined) {
-                    mappedObj[featureAttributes[attr]] = "Nein";
-                }
-                else if (obj[attr] === "1") {
-                    mappedObj[featureAttributes[attr]] = "Ja";
-                }
-                else {
-                    mappedObj[featureAttributes[attr]] = isNaN(parseInt(obj[attr], 10)) === false ? parseInt(obj[attr], 10) : obj[attr];
-                }
+                mappedObj[featureAttributes[attr]] = obj[attr];
             });
-
             return mappedObj;
         },
         getGfiUrl (coord, addressLayerId) {
@@ -246,46 +235,16 @@ export default {
         },
         derivePollingStationFromWfs (pollingStationId) {
             const layer = Radio.request("ModelList", "getModelByAttributes", {id: this.pollingStationLayerId}),
-                WfsGetFeature = new WFS().writeGetFeature({
-                    featureNS: layer.get("featureNS"),
-                    featureTypes: [layer.get("featureType")],
-                    srsName: "EPSG:25832",
-                    filter: equalTo("wbz", pollingStationId)
-                }),
-                that = this,
-                xhr = new XMLHttpRequest(),
-                url = getProxyUrl(layer.get("url"));
-            let pollingStationFeature;
+                features = layer.get("layer").getSource().getFeatures(),
+                pollingStationFeature = features.filter(feature => {
+                    const attribute = feature.get(this.pollingStationAttribute),
+                        attributeArray = attribute.split(this.pollingStationAttributeSeparator);
 
-            xhr.open("POST", url, false);
-            xhr.onload = function (event) {
-                pollingStationFeature = that.parseWfsResponse(event);
-            };
-            xhr.onerror = function () {
-                that.showError();
-            };
-            xhr.send(new XMLSerializer().serializeToString(WfsGetFeature));
+                    return attributeArray.includes(pollingStationId);
+                })[0];
 
-            return pollingStationFeature;
-        },
-        parseWfsResponse (event) {
-            const currentTarget = event.currentTarget,
-                status = currentTarget.status,
-                response = currentTarget.response,
-                wfsReader = new WFS();
-            let pollingStationFeature;
-
-            if (status === 200) {
-                pollingStationFeature = wfsReader.readFeature(response);
-            }
-            else {
-                this.$store.dispatch("Alerting/addSingleAlert", {
-                    content: "<strong>Entschuldigung!</strong>" +
-                    "<br> Der Dienst um den Wahlraum zur eingegebenen Adresse zu finden, reagiert leider nicht.<br>" +
-                    "Bitte versuchen Sie es erneut!<br>" +
-                    "<small>Status: " + status + "</small><br>" +
-                    "<small>Response: " + response + "</small><br>"
-                });
+            if (!pollingStationFeature) {
+                this.showError();
             }
             return pollingStationFeature;
         },
