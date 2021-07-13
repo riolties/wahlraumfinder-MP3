@@ -1,5 +1,5 @@
 {
-  "strassenBefahrung": "view.js",
+  "alt_strassenBefahrung_alt": "view.js",
   "performanceTester": "view.js",
   "animation": "view.js",
   "VueAddon": {
@@ -15,6 +15,9 @@
     "type": "tool"
   },
   "Routing": {
+    "type": "tool"
+  },
+  "strassenBefahrung": {
     "type": "tool"
   },
   "GetFeatureInfoPlusIFrame": {
