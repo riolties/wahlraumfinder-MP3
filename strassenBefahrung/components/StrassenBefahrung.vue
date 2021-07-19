@@ -58,6 +58,7 @@ export default {
             if (model) {
                 model.set("isActive", false);
             }
+            this.hideMarker();
         },
         initialize () {
             this.createEnnLayer();
@@ -102,11 +103,6 @@ export default {
 
             this.setMarkerLayer(layer);
         },
-        hideMarker () {
-            if (this.markerLayer) {
-                this.markerLayer.setVisible(false);
-            }
-        },
         styleFeature (styleId) {
             const layer = this.markerLayer,
                 feature = layer ? layer.getSource().getFeatures()[0] : undefined,
@@ -133,7 +129,6 @@ export default {
                 url = "https://client-v3.infra3d.ch",
                 coord = this.coords,
                 options = {
-                    loginurl: "https://auth.infra3d.ch/api/v1/login",
                     easting: coord[0],
                     northing: coord[1],
                     epsg: this.epsg,
@@ -141,7 +136,8 @@ export default {
                     map: false,
                     buttons: [],
                     layer: false,
-                    navigation: false
+                    navigation: false,
+                    loginurl: "https://auth.infra3d.ch/api/v1/login"
                 };
 
             if (infra3d) {
@@ -217,6 +213,11 @@ export default {
                 image.setRotation(rotationInRad);
             }
             this.setCoords(coord);
+        },
+        hideMarker () {
+            if (this.markerLayer) {
+                this.markerLayer.setVisible(false);
+            }
         }
     }
 };
