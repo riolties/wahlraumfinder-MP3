@@ -1,0 +1,9 @@
+{
+    "modules": {
+        "tools": {
+            "potree": {
+                "title": "Potree"
+            }
+        }
+    }
+}
