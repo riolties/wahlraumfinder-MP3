@@ -2,7 +2,7 @@
 import Tool from "../../../src/modules/tools/Tool.vue";
 import {mapGetters, mapMutations} from "vuex";
 import getters from "../store/gettersWahlRaumFinder";
-import mutations from "../store/mutationsWahlRaumFinder"
+import mutations from "../store/mutationsWahlRaumFinder";
 import getProxyUrl from "../../../src/utils/getProxyUrl";
 import {WFS} from "ol/format.js";
 import Feature from "ol/Feature";
