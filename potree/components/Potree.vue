@@ -3,6 +3,7 @@ import Tool from "../../../src/modules/tools/Tool.vue";
 import {mapGetters, mapMutations} from "vuex";
 import getters from "../store/gettersPotree";
 import mutations from "../store/mutationsPotree";
+import getProxyUrl from "../../../src/utils/getProxyUrl";
 
 export default {
     name: "Potree",
@@ -28,7 +29,7 @@ export default {
      */
     mounted () {
         this.applyTranslationKey(this.name);
-        // this.initialize();
+        this.initialize();
     },
     methods: {
         ...mapMutations("Tools/Potree", Object.keys(mutations)),
@@ -44,33 +45,72 @@ export default {
             if (model) {
                 model.set("isActive", false);
             }
+            this.hidePotreeContainer();
+        },
+        hidePotreeContainer () {
+            const className = document.getElementsByClassName("potree_container")[0].className;
+
+            document.getElementsByClassName("potree_container")[0].className = className + " hidden";
+        },
+        showPotreeContainer () {
+            const className = document.getElementsByClassName("potree_container")[0].className;
+
+            document.getElementsByClassName("potree_container")[0].className = className.replace(" hidden", "");
         },
         initialize () {
             console.log("InitializePotree");
-            this.loadExternalJs("http://muenchen3d.de/potree/libs/jquery/jquery-3.1.1.min.js");
-            this.loadExternalJs("http://muenchen3d.de/potree/libs/proj4/proj4.js");
-            this.loadExternalJs("http://muenchen3d.de/potree/libs/potree/potree.js");
+            this.loadExternalCssFiles();
+            this.loadExternalJsFiles();
             this.createPotreeDivs();
+        },
+        loadExternalCssFiles () {
+            this.externalCssFiles.forEach(url => {
+                const proxyUrl = this.useProxy ? getProxyUrl(url) : url;
+
+                this.loadExternalCss(proxyUrl);
+            });
+        },
+        loadExternalCss (url) {
+            const script = document.createElement("link");
+
+            script.setAttribute("rel", "stylesheet");
+            script.setAttribute("type", "text/css");
+            script.setAttribute("href", url);
+            document.head.appendChild(script);
+        },
+        loadExternalJsFiles () {
+            this.externalJsFiles.forEach(url => {
+                const proxyUrl = this.useProxy ? getProxyUrl(url) : url;
+
+                this.loadExternalJs(proxyUrl);
+            });
+        },
+        loadExternalJs (url) {
+            const script = document.createElement("script");
+
+            script.setAttribute("src", url);
+            document.head.appendChild(script);
         },
         createPotreeDivs () {
             const map_wrapper = document.getElementById("map-wrapper"),
                 div_potree_container = document.createElement("div"),
-                div_potree_render_area = document.createElement("div"),
-                div_potree_sidebar_container = document.createElement("div");
+                div_potree_render_area = document.createElement("div");
+                // div_potree_sidebar_container = document.createElement("div");
 
             div_potree_container.setAttribute("class", "potree_container");
             div_potree_render_area.setAttribute("id", "potree_render_area");
-            div_potree_sidebar_container.setAttribute("id", "potree_sidebar_container");
+            // div_potree_sidebar_container.setAttribute("id", "potree_sidebar_container");
 
             div_potree_container.appendChild(div_potree_render_area);
-            div_potree_container.appendChild(div_potree_sidebar_container);
+            // div_potree_container.appendChild(div_potree_sidebar_container);
             map_wrapper.appendChild(div_potree_container);
         },
         startPotree () {
-            console.log("StartPotree");
-            this.initialize();
+            console.log("StartPotree: ");
+            console.log(window.Potree);
             const viewer = new window.Potree.Viewer(document.getElementById("potree_render_area"));
 
+            this.showPotreeContainer();
             viewer.setEDLEnabled(true);
             viewer.setFOV(60);
             viewer.setPointBudget(2_000_000);
@@ -85,48 +125,39 @@ export default {
                 viewer.toggleSidebar();
             });
             window.viewer = viewer;
-        },
-        loadExternalJs (url) {
-            const script = document.createElement("script");
-
-            script.setAttribute("src", url);
-            document.head.appendChild(script);
+            this.load();
         },
         async load () {
-        // specify point clouds that are to be loaded and callbacks to invoke 
-            const pointclouds = [
-                {
-                    url: "http://muenchen3d.de/potree/pointclouds/Koppstrasse_Luft_01/metadata.json",
-                    callback: (pointcloud) => {
-                        pointcloud.name = "Koppstrasse_Luft_01";
-                        console.log("Loading: ", pointcloud.name);
+        // specify point clouds that are to be loaded and callbacks to invoke
+            const pointClouds = this.pointClouds;
+            let promises = [];
 
-                        const material = pointcloud.material;
-
-                        material.size = 1;
-                        material.pointSizeType = window.Potree.PointSizeType.ADAPTIVE;
-                        material.shape = window.Potree.PointShape.SQUARE;
-                        material.activeAttributeName = "rgba";
-                    }
-                }
-            ];
+            pointClouds.forEach(pointCloud => {
+                pointCloud.url = this.useProxy ? getProxyUrl(pointCloud.url) : pointCloud.url;
+            });
 
             // start loading all point clouds asynchronously, get a promise for each one that resolves when it's loaded
-            let promises = pointclouds.map(p => window.Potree.loadPointCloud(p.url));
+            promises = pointClouds.map(p => window.Potree.loadPointCloud(p.url));
 
-            // now iterate over all promises in order
             for (let i = 0; i < promises.length; i++) {
 
                 // wait until this point cloud is loaded before processing the next one
-                let pointcloud = (await promises[i]).pointcloud;
+                const pointcloud = (await promises[i]).pointcloud;
 
-                pointclouds[i].callback(pointcloud);
+                pointcloud.name = pointClouds[i].name;
+                pointcloud.material = this.setPointcloudMaterial(pointcloud.material);
+                console.log("Loading: ", pointcloud.name);
                 window.viewer.scene.addPointCloud(pointcloud);
             }
 
-
             window.viewer.fitToScreen();
-
+        },
+        setPointcloudMaterial (material) {
+            material.size = 1;
+            material.pointSizeType = window.Potree.PointSizeType.ADAPTIVE;
+            material.shape = window.Potree.PointShape.SQUARE;
+            material.activeAttributeName = "rgba";
+            return material;
         }
     }
 };
@@ -146,7 +177,18 @@ export default {
                 v-if="active"
                 id="potree"
             >
-                FOOBAR
+                <!-- <div id="potree_sidebar_container" /> -->
+                <div
+                    class="form-group form-group-xs"
+                >
+                    <button
+                        v-for="pointCloud in pointClouds"
+                        :key="pointCloud.name"
+                        class="btn btn-xs btn-block btn-active"
+                    >
+                        {{ pointCloud.name }}
+                    </button>
+                </div>
             </div>
         </template>
     </Tool>
@@ -161,5 +203,22 @@ export default {
         //     left: 0px;
         //     top:0px;
         // }
+        #potree_sidebar_container {
+            position: unset;
+            width: 300px;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            margin-top: 5px;
+            margin-bottom: 5px;
+            background-color:#e7e7e7;
+            color: #00aa9b;
+        }
+        button:hover {
+            border: 2px solid #00aa9b;
+            font-weight: bold;
+        }
     }
 </style>

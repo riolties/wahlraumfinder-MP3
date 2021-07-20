@@ -19,8 +19,12 @@ const state = {
     renderToWindow: false,
     resizableWindow: true,
     isVisibleInMenu: true,
-    deactivateGFI: true
+    deactivateGFI: true,
     // tool specific attributes
+    useProxy: true,
+    externalCssFiles: [],
+    externalJsFiles: [],
+    pointClouds: []
     // internal attributes
 };
 
