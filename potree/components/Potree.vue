@@ -58,7 +58,7 @@ export default {
             document.getElementsByClassName("potree_container")[0].className = className.replace(" hidden", "");
         },
         initialize () {
-            console.log("InitializePotree");
+            // console.log("InitializePotree");
             this.loadExternalCssFiles();
             this.loadExternalJsFiles();
             this.createPotreeDivs();
@@ -106,8 +106,8 @@ export default {
             map_wrapper.appendChild(div_potree_container);
         },
         startPotree () {
-            console.log("StartPotree: ");
-            console.log(window.Potree);
+            // console.log("StartPotree: ");
+            // console.log(window.Potree);
             const viewer = new window.Potree.Viewer(document.getElementById("potree_render_area"));
 
             this.showPotreeContainer();
@@ -146,7 +146,7 @@ export default {
 
                 pointcloud.name = pointClouds[i].name;
                 pointcloud.material = this.setPointcloudMaterial(pointcloud.material);
-                console.log("Loading: ", pointcloud.name);
+                // console.log("Loading: ", pointcloud.name);
                 window.viewer.scene.addPointCloud(pointcloud);
             }
 

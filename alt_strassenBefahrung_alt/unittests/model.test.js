@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import Model from "@addons/strassenBefahrung/model.js";
+import Model from "@addons/alt_strassenBefahrung_alt/model.js";
 
 let model;
 

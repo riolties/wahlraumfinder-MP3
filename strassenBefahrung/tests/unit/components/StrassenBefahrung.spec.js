@@ -48,7 +48,7 @@ describe("addons/StrassenBefahrung/components/StrassenBefahrung.vue", () => {
     it("renders the StrassenBefahrung", () => {
         const wrapper = shallowMount(StrassenBefahrungComponent, {store, localVue});
 
-        expect(wrapper.find("#vue-addon").exists()).to.be.true;
+        expect(wrapper.find("#strassenbefahrung").exists()).to.be.true;
     });
 
     it("do not render the StrassenBefahrung if not active", () => {
@@ -57,7 +57,7 @@ describe("addons/StrassenBefahrung/components/StrassenBefahrung.vue", () => {
         store.commit("Tools/StrassenBefahrung/setActive", false);
         wrapper = shallowMount(StrassenBefahrungComponent, {store, localVue});
 
-        expect(wrapper.find("#vue-addon").exists()).to.be.false;
+        expect(wrapper.find("#strassenbefahrung").exists()).to.be.false;
     });
 
 });

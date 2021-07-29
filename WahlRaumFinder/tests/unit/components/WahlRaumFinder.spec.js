@@ -48,7 +48,7 @@ describe("addons/WahlRaumFinder/components/WahlRaumFinder.vue", () => {
     it("renders the WahlRaumFinder", () => {
         const wrapper = shallowMount(WahlRaumFinderComponent, {store, localVue});
 
-        expect(wrapper.find("#vue-addon").exists()).to.be.true;
+        expect(wrapper.find("#wahllokalfinder").exists()).to.be.true;
     });
 
     it("do not render the WahlRaumFinders if not active", () => {
@@ -57,7 +57,7 @@ describe("addons/WahlRaumFinder/components/WahlRaumFinder.vue", () => {
         store.commit("Tools/WahlRaumFinder/setActive", false);
         wrapper = shallowMount(WahlRaumFinderComponent, {store, localVue});
 
-        expect(wrapper.find("#vue-addon").exists()).to.be.false;
+        expect(wrapper.find("#wahllokalfinder").exists()).to.be.false;
     });
 
 });

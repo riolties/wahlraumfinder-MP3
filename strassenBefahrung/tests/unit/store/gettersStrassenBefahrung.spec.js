@@ -1,6 +1,6 @@
 import {expect} from "chai";
-import getters from "../../../store/gettersVueAddon";
-import stateVueAddon from "../../../store/stateVueAddon";
+import getters from "../../../store/gettersStrassenBefahrung";
+import stateStrassenBefahrung from "../../../store/stateStrassenBefahrung";
 
 
 const {
@@ -13,32 +13,32 @@ const {
     isVisibleInMenu,
     deactivateGFI} = getters;
 
-describe("addons/VueAddon/store/gettersVueAddon", function () {
+describe("addons/StrassenBefahrung/store/gettersStrassenBefahrung", function () {
     it("returns the active from state", function () {
-        expect(active(stateVueAddon)).to.be.false;
+        expect(active(stateStrassenBefahrung)).to.be.false;
     });
     it("returns the id from state", function () {
-        expect(id(stateVueAddon)).to.equals("VueAddon");
+        expect(id(stateStrassenBefahrung)).to.equals("StrassenBefahrung");
     });
 
     describe("testing default values", function () {
         it("returns the name default value from state", function () {
-            expect(name(stateVueAddon)).to.be.equals("Simple Vue Addon");
+            expect(name(stateStrassenBefahrung)).to.be.equals("StraßenBefahrung");
         });
         it("returns the glyphicon default value from state", function () {
-            expect(glyphicon(stateVueAddon)).to.equals("glyphicon-screenshot");
+            expect(glyphicon(stateStrassenBefahrung)).to.equals("glyphicon-screenshot");
         });
         it("returns the renderToWindow default value from state", function () {
-            expect(renderToWindow(stateVueAddon)).to.be.true;
+            expect(renderToWindow(stateStrassenBefahrung)).to.be.false;
         });
         it("returns the resizableWindow default value from state", function () {
-            expect(resizableWindow(stateVueAddon)).to.be.true;
+            expect(resizableWindow(stateStrassenBefahrung)).to.be.true;
         });
         it("returns the isVisibleInMenu default value from state", function () {
-            expect(isVisibleInMenu(stateVueAddon)).to.be.true;
+            expect(isVisibleInMenu(stateStrassenBefahrung)).to.be.true;
         });
         it("returns the deactivateGFI default value from state", function () {
-            expect(deactivateGFI(stateVueAddon)).to.be.true;
+            expect(deactivateGFI(stateStrassenBefahrung)).to.be.true;
         });
 
     });

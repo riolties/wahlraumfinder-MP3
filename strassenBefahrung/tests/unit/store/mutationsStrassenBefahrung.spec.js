@@ -1,22 +1,22 @@
 import {expect} from "chai";
-import mutations from "../../../store/mutationsVueAddon";
+import mutations from "../../../store/mutationsStrassenBefahrung";
 
 
 const {applyTranslationKey} = mutations;
 
-describe("addons/VueAddon/store/mutationsVueAddon", function () {
+describe("addons/StrassenBefahrung/store/mutationsStrassenBefahrung", function () {
     describe("applyTranslationKey", function () {
         it("removes 'translate#' from name if present", function () {
             const state = {
-                    name: "translate#additional:modules.tools.vueAddon.title"
+                    name: "translate#additional:modules.tools.StrassenBefahrung.title"
                 },
-                payload = "translate#additional:modules.tools.vueAddon.title";
+                payload = "translate#additional:modules.tools.StrassenBefahrung.title";
 
             applyTranslationKey(state, payload);
-            expect(state.name).to.equals("additional:modules.tools.vueAddon.title");
+            expect(state.name).to.equals("additional:modules.tools.StrassenBefahrung.title");
         });
         it("does nothing, if name not starts with 'translate#'", function () {
-            const name = "dies ist ein VueAddon",
+            const name = "dies ist ein StrassenBefahrung",
                 state = {
                     name: name
                 },
