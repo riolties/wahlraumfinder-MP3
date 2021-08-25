@@ -20,7 +20,6 @@ export default {
         })
     },
     created () {
-        this.showWelcomeAlert();
         this.listenToSearchResults();
         this.$on("close", this.close);
     },
@@ -49,12 +48,6 @@ export default {
                 this.reset();
             }
             this.$store.dispatch("MapMarker/removePointMarker");
-        },
-        showWelcomeAlert () {
-            this.$store.dispatch("Alerting/addSingleAlert", {
-                content: "<b>Willkommen beim Wahlraumfinder!</b><br>" +
-                "Bitte geben Sie in der Suchfunktion eine Adresse an um Ihren zuständigen Wahlraum zu finden.<br><br>"
-            });
         },
         listenToSearchResults () {
             Backbone.Events.listenTo(Radio.channel("Searchbar"), {
