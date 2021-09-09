@@ -20,9 +20,6 @@
   "strassenBefahrung": {
     "type": "tool"
   },
-  "potree": {
-    "type": "tool"
-  },
   "GetFeatureInfoPlusIFrame": {
     "path": "GetFeatureInfoPlusIFrame",
     "type": "gfiTheme"
