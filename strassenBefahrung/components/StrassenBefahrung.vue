@@ -32,6 +32,10 @@ export default {
         // needs to wait until html is loaded because infra3d api needs div to append itself.
         // so watches for change in active, then sets the flag startInitInfra3D
         if (this.startInitInfra3d) {
+            this.createEnnLayer();
+            this.createMarkerLayer(this.coords);
+            this.hideMarker();
+            this.styleFeature();
             this.initInfra3d();
             this.setStartInitInfra3d(false);
         }
@@ -42,7 +46,7 @@ export default {
      */
     mounted () {
         this.applyTranslationKey(this.name);
-        this.initialize();
+        this.loadInfra3dApi();
     },
     methods: {
         ...mapMutations("Tools/StrassenBefahrung", Object.keys(mutations)),
@@ -60,13 +64,6 @@ export default {
             }
             this.hideMarker();
         },
-        initialize () {
-            this.createEnnLayer();
-            this.createMarkerLayer(this.coords);
-            this.hideMarker();
-            this.styleFeature(this.styleId);
-            this.loadInfra3dApi();
-        },
         loadInfra3dApi: function () {
             const script = document.createElement("script");
 
@@ -79,9 +76,12 @@ export default {
          * @returns {void}
          */
         createEnnLayer () {
-            const ennLayer = Radio.request("Map", "createLayerIfNotExists", "strassenBefahrung_enn");
+            let ennLayer;
 
-            this.setEnnLayer(ennLayer);
+            if (this.loadEdgeNodeNetwork) {
+                ennLayer = Radio.request("Map", "createLayerIfNotExists", "strassenBefahrung_enn");
+                this.setEnnLayer(ennLayer);
+            }
         },
 
         /**
@@ -103,13 +103,13 @@ export default {
 
             this.setMarkerLayer(layer);
         },
-        styleFeature (styleId) {
+        styleFeature () {
             const layer = this.markerLayer,
                 feature = layer ? layer.getSource().getFeatures()[0] : undefined,
                 oldStyle = feature ? feature.getStyle() : undefined,
                 oldImage = oldStyle ? oldStyle.getImage() : null,
                 rotation = oldImage ? oldImage.getRotation() : null,
-                styleModel = Radio.request("StyleList", "returnModelById", styleId);
+                styleModel = Radio.request("StyleList", "returnModelById", this.markerStyleId);
             let newStyle,
                 newImage;
 
@@ -140,6 +140,9 @@ export default {
                     loginurl: "https://auth.infra3d.ch/api/v1/login"
                 };
 
+            if (this.user !== "" && this.password !== "") {
+                options.credentials = [this.user, this.password];
+            }
             if (infra3d) {
                 infra3d.init(divId, url, options, this.infra3dInitialized, this);
                 this.setMarker(coord);
@@ -153,7 +156,9 @@ export default {
          * @returns {void}
          */
         infra3dInitialized () {
-            this.getEnn();
+            if (this.loadEdgeNodeNetwork) {
+                this.getEnn();
+            }
             this.setOnPositionChanged();
         },
 
@@ -181,10 +186,15 @@ export default {
             const layer = this.ennLayer,
                 source = layer.getSource(),
                 formatJSON = new GeoJSON(),
-                features = formatJSON.readFeatures(json);
+                features = formatJSON.readFeatures(json),
+                styleModel = Radio.request("StyleList", "returnModelById", this.markerStyleId);
 
+            if (styleModel) {
+                layer.setStyle(styleModel.createStyle(features[0], false));
+            }
             this.clearEnnLayer();
             source.addFeatures(features);
+
         },
         /**
          * Clears the edge-node-network layer.
@@ -202,7 +212,7 @@ export default {
             const layer = this.markerLayer,
                 feature = layer.getSource().getFeatures()[0],
                 style = feature.getStyle(),
-                image = style.getImage();
+                image = style ? style.getImage() : null;
 
             let rotationInRad;
 

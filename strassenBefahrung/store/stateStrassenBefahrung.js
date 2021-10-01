@@ -22,8 +22,13 @@ const state = {
     deactivateGFI: true,
     // tool specific attributes
     styleId: [],
+    markerStyleId: "",
+    ennStyleId: "",
     coords: [691604, 5334760],
     epsgNumber: "25832",
+    user: "",
+    password: "",
+    loadEdgeNodeNetwork: true,
     // internal attributes
     ennLayer: {},
     markerLayer: {},
