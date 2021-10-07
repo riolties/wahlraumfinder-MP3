@@ -132,6 +132,7 @@ export default {
                             <span
                                 :valueToPost="value.valueToPost"
                                 @click="pushValuesBack"
+                                @keyup.enter="pushValuesBack"
                             >
                                 {{ value.name }}
                             </span>
@@ -154,6 +155,7 @@ export default {
                             <span
                                 :valueToPost="value.valueToPost"
                                 @click="pushValuesBack"
+                                @keyup.enter="pushValuesBack"
                             >
                                 {{ value.name_mobile }}
                             </span>

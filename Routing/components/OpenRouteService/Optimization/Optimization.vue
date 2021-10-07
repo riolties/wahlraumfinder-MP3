@@ -186,16 +186,19 @@ export default {
                     :class="[activeTab === 1 ? 'active' : '']"
                     value="1"
                     @click="activateTab"
+                    @keyup.enter="activateTab"
                 >Vehicles</a>
                 <a
                     :class="[activeTab === 2 ? 'active' : '']"
                     value="2"
                     @click="activateTab"
+                    @keyup.enter="activateTab"
                 >Jobs</a>
                 <a
                     :class="[activeTab === 3 ? 'active' : '']"
                     value="3"
                     @click="activateTab"
+                    @keyup.enter="activateTab"
                 >Summary</a>
             </div>
 

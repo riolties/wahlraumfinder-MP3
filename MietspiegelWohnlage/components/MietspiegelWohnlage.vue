@@ -135,10 +135,12 @@ export default {
                                 :valueToPost="value.valueToPost"
                                 :style="{'background-color': value.color}"
                                 @click="pushValuesBack"
+                                @keyup.enter="pushValuesBack"
                             />
                             <span
                                 :valueToPost="value.valueToPost"
                                 @click="pushValuesBack"
+                                @keyup.enter="pushValuesBack"
                             >
                                 {{ value.name }}
                             </span>
@@ -163,10 +165,12 @@ export default {
                                 :valueToPost="value.valueToPost"
                                 :style="{'background-color': value.color}"
                                 @click="pushValuesBack"
+                                @keyup.enter="pushValuesBack"
                             />
                             <span
                                 :valueToPost="value.valueToPost"
                                 @click="pushValuesBack"
+                                @keyup.enter="pushValuesBack"
                             >
                                 {{ value.name_mobile }}
                             </span>

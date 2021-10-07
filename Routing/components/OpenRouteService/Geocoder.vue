@@ -151,6 +151,7 @@ export default {
             :placeholder="placeholder"
             @keyup="addressChanged"
         >
+        <label :for="id">{{ checked }}</label>
         <!-- <datalist :id="id + '_autocomplete'">
             <option
                 v-for="autocompleteFeature in autocompleteFeatures"

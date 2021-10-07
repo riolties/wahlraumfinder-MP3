@@ -119,6 +119,7 @@ export default {
                     :class="[iFrameObj.isActive === true ? '' : 'inactive']"
                 >
                     <iframe
+                        :title="iFrameObj.key"
                         :src="iFrameObj.value"
                         width="100%"
                         height="100%"
