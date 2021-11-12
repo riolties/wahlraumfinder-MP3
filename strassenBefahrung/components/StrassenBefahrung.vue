@@ -203,7 +203,6 @@ export default {
             }
             this.clearEnnLayer();
             source.addFeatures(features);
-            console.log(features);
             this.hideLoader();
         },
         /**
