@@ -6,6 +6,7 @@ import mutations from "../store/mutationsStrassenBefahrung";
 import Feature from "ol/Feature.js";
 import Point from "ol/geom/Point.js";
 import {GeoJSON} from "ol/format.js";
+import LoaderOverlay from "../../../src/utils/loaderOverlay";
 
 export default {
     name: "StrassenBefahrung",
@@ -13,7 +14,8 @@ export default {
         Tool
     },
     computed: {
-        ...mapGetters("Tools/StrassenBefahrung", Object.keys(getters))
+        ...mapGetters("Tools/StrassenBefahrung", Object.keys(getters)),
+        ...mapGetters("Map", ["map"])
         // ...mapGetters({
         //     isMobile: "mobile"
         // })
@@ -144,8 +146,10 @@ export default {
                 options.credentials = [this.user, this.password];
             }
             if (infra3d) {
+                this.showLoader();
                 infra3d.init(divId, url, options, this.infra3dInitialized, this);
                 this.setMarker(coord);
+                this.hideLoader();
             }
             else {
                 console.error("Infra3D is not loaded!");
@@ -167,6 +171,11 @@ export default {
          * @returns {void}
          */
         getEnn () {
+            // const mapView = this.map.getView(),
+            //     mapSize = this.map.getSize(),
+            //     currentExtent = mapView.calculateExtent(mapSize);
+            // console.log(currentExtent);
+            this.showLoader();
             window.infra3d.getEnn(this.epsgNumber, function (enn) {
                 this.createEdgeNodeNetworkLayer(enn);
             }, this);
@@ -187,14 +196,15 @@ export default {
                 source = layer.getSource(),
                 formatJSON = new GeoJSON(),
                 features = formatJSON.readFeatures(json),
-                styleModel = Radio.request("StyleList", "returnModelById", this.markerStyleId);
+                styleModel = Radio.request("StyleList", "returnModelById", this.ennStyleId);
 
             if (styleModel) {
                 layer.setStyle(styleModel.createStyle(features[0], false));
             }
             this.clearEnnLayer();
             source.addFeatures(features);
-
+            console.log(features);
+            this.hideLoader();
         },
         /**
          * Clears the edge-node-network layer.
@@ -228,6 +238,12 @@ export default {
             if (this.markerLayer) {
                 this.markerLayer.setVisible(false);
             }
+        },
+        showLoader () {
+            LoaderOverlay.show();
+        },
+        hideLoader () {
+            LoaderOverlay.hide();
         }
     }
 };
