@@ -315,7 +315,7 @@ export default {
     </Tool>
 </template>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
     #wahllokalfinder {
         .block {
             padding: 10px;

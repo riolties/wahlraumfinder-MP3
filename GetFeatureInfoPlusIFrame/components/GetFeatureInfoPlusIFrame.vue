@@ -131,15 +131,12 @@ export default {
 </template>
 
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 @import "~variables";
 
 .table > tbody > tr > td {
     padding: 5px 8px;
     font-size: 12px;
-    &.bold{
-        font-family: @font_family_accent;
-    }
 }
 .tabcontent.inactive {
     display: none;

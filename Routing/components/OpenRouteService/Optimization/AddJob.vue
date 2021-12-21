@@ -121,7 +121,7 @@ export default {
     </div>
 </template>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
     #openrouteservice-optimization-add-job {
         .btn-gsm {
             margin-top: 5px;
