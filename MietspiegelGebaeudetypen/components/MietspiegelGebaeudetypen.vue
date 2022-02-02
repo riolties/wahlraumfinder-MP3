@@ -167,7 +167,7 @@ export default {
     </Tool>
 </template>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
     #mietspiegel_gebaeudetypen {
         button {
             margin-top: 5px;

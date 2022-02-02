@@ -81,6 +81,6 @@ export default {
     </Tool>
 </template>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
     #routing {}
 </style>

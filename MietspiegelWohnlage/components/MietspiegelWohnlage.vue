@@ -182,7 +182,7 @@ export default {
     </Tool>
 </template>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
     #mietspiegel_wohnlage {
         .color {
             width: 20px;

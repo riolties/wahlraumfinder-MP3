@@ -1,6 +1,6 @@
 import AnimationTemplate from "text-loader!./template.html";
 import AnimationModel from "./model.js";
-import "./style.scss";
+import "./style.less";
 
 const AnimationView = Backbone.View.extend(/** @lends AnimationView.prototype */{
     events: {

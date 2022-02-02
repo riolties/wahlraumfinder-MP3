@@ -285,7 +285,7 @@ export default {
     </Tool>
 </template>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
     #strassenbefahrung {
         width: 100%;
         height: 100%;
