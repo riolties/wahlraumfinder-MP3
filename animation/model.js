@@ -137,7 +137,7 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
             "languageChanged": this.changeLang
         });
         this.setLayer(layer);
-        this.setAnimationLayer(Radio.request("Map", "createLayerIfNotExists", "animation_layer"));
+        // this.setAnimationLayer(Radio.request("Map", "createLayerIfNotExists", "animation_layer"));
     },
 
     /**
@@ -446,7 +446,6 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
 
     /**
      * Adds the line string layer to the map.
-     * @fires Core#RadioRequestMapCreateLayerIfNotExists
      * @returns {void}
      */
     addLineStringLayerToMap: function () {
@@ -515,7 +514,6 @@ const AnimationModel = Tool.extend(/** @lends AnimationModel.prototype */{
     /**
      * Stops the animation.
      * @param {ol/feature[]} features Features.
-     * @fires Core#RadioRequestMapCreateLayerIfNotExists
      * @fires Core#RadioTriggerMapUnregisterListener
      * @returns {void}
      */

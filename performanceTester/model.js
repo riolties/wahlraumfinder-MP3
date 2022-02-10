@@ -23,7 +23,9 @@ const PerformanceTesterModel = Tool.extend(/** @lends PerformanceTesterModel.pro
      * @contructs
      */
     initialize: function () {
-        const layer = Radio.request("Map", "createLayerIfNotExists", "performanceTest");
+        let layer;
+
+        // layer = Radio.request("Map", "createLayerIfNotExists", "performanceTest");
 
         this.superInitialize();
         this.setLayer(layer);

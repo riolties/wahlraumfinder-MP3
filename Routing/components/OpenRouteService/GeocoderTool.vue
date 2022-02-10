@@ -5,7 +5,7 @@ import getProxyUrl from "../../../../src/utils/getProxyUrl";
 import {getMapProjection, transform} from "masterportalAPI/src/crs";
 
 export default {
-    name: "Geocoder",
+    name: "GeocoderTool",
     props: {
         id: {
             type: String,

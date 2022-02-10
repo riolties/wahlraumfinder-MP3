@@ -1,10 +1,10 @@
 <script>
 import {mapGetters} from "vuex";
-import Directions from "./Directions/Directions.vue";
-import Optimization from "./Optimization/Optimization.vue";
+import Directions from "./Directions/DirectionsTool.vue";
+import Optimization from "./Optimization/OptimizationTool.vue";
 
 export default {
-    name: "OpenRouteService",
+    name: "OpenRouteServiceTool",
     components: {
         Directions,
         Optimization

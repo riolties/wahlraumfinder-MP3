@@ -1,6 +1,6 @@
 <script>
 import {mapGetters, mapActions, mapMutations} from "vuex";
-import Geocoder from "../Geocoder.vue";
+import Geocoder from "../GeocoderTool.vue";
 
 export default {
     name: "AddVehicle",

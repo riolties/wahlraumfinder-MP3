@@ -3,11 +3,11 @@ import {mapGetters, mapActions} from "vuex";
 import axios from "axios";
 import getProxyUrl from "../../../../../src/utils/getProxyUrl";
 import {getMapProjection, transform} from "masterportalAPI/src/crs";
-import Geocoder from "../Geocoder.vue";
+import Geocoder from "../GeocoderTool.vue";
 import {GeoJSON} from "ol/format.js";
 
 export default {
-    name: "Directions",
+    name: "DirectionsTool",
     components: {
         Geocoder
     },

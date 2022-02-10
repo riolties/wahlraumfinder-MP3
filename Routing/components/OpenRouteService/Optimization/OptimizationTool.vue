@@ -9,7 +9,7 @@ import {getMapProjection, transform} from "masterportalAPI/src/crs";
 import {GeoJSON} from "ol/format.js";
 
 export default {
-    name: "Optimization",
+    name: "OptimizationTool",
     components: {
         AddVehicle,
         AddJob

@@ -1,11 +1,11 @@
 <script>
-import Tool from "../../../src/modules/tools/Tool.vue";
+import Tool from "../../../src/modules/tools/ToolTemplate.vue";
 import {mapGetters, mapActions, mapMutations} from "vuex";
 import getters from "../store/gettersRouting";
-import OpenRouteService from "./OpenRouteService/OpenRouteService.vue";
+import OpenRouteService from "./OpenRouteService/OpenRouteServiceTool.vue";
 
 export default {
-    name: "Routing",
+    name: "RoutingTool",
     components: {
         Tool,
         OpenRouteService

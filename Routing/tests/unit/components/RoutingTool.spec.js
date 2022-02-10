@@ -1,6 +1,6 @@
 import Vuex from "vuex";
 import {config, shallowMount, createLocalVue} from "@vue/test-utils";
-import RoutingComponent from "../../../components/Routing.vue";
+import RoutingComponent from "../../../components/RoutingTool.vue";
 import Routing from "../../../store/index";
 import {expect} from "chai";
 
