@@ -1,6 +1,6 @@
 import PerformanceTesterTemplate from "text-loader!./template.html";
 import PerformanceTesterModel from "./model";
-import "./style.less";
+import "./style.scss";
 
 const PerformanceTesterView = Backbone.View.extend(/** @lends PerformanceTesterView.prototype */{
     events: {

@@ -96,7 +96,7 @@ export default {
     </div>
 </template>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
     #openrouteservice-directions {
         .btn-gsm {
             margin-top: 5px;
