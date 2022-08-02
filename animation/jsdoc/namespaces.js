@@ -1,4 +1,0 @@
-/**
-* @namespace Animation
-* @memberof Addons
-*/

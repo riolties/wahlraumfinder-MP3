@@ -15,7 +15,7 @@ const state = {
     id: "StrassenBefahrung",
     // defaults for config.json parameters
     name: "StraßenBefahrung",
-    glyphicon: "glyphicon-screenshot",
+    icon: "bi-play",
     renderToWindow: false,
     resizableWindow: true,
     isVisibleInMenu: true,

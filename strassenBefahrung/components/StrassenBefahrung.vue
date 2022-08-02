@@ -78,11 +78,13 @@ export default {
          * @returns {void}
          */
         createEnnLayer () {
+            const that = this;
             let ennLayer;
 
             if (this.loadEdgeNodeNetwork) {
-                ennLayer = Radio.request("Map", "createLayerIfNotExists", "strassenBefahrung_enn");
-                this.setEnnLayer(ennLayer);
+                Radio.request("Map", "createLayerIfNotExists", "strassenBefahrung_enn").then(ennLayer => {
+                    that.setEnnLayer(ennLayer);
+                });
             }
         },
 
@@ -94,20 +96,26 @@ export default {
          * @returns {void}
          */
         createMarkerLayer (coords) {
-            const layer = Radio.request("Map", "createLayerIfNotExists", "strassenBefahrung"),
-                feature = new Feature({
+            const feature = new Feature({
                     geometry: new Point(coords)
-                });
-
-            if (layer) {
+                }),
+                that = this;
+            
+            Radio.request("Map", "createLayerIfNotExists", "strassenBefahrung").then(layer => {
                 layer.getSource().addFeature(feature);
-            }
+                that.setMarkerLayer(layer);
+            });
 
-            this.setMarkerLayer(layer);
+            // if (layer) {
+            //     console.log(layer);
+            //     layer.getSource().addFeature(feature);
+            // }
+
+            // this.setMarkerLayer(layer);
         },
         styleFeature () {
             const layer = this.markerLayer,
-                feature = layer ? layer.getSource().getFeatures()[0] : undefined,
+                feature = layer.getSource ? layer.getSource().getFeatures()[0] : undefined,
                 oldStyle = feature ? feature.getStyle() : undefined,
                 oldImage = oldStyle ? oldStyle.getImage() : null,
                 rotation = oldImage ? oldImage.getRotation() : null,
@@ -115,7 +123,7 @@ export default {
             let newStyle,
                 newImage;
 
-            if (styleModel) {
+            if (styleModel && feature) {
                 feature.setStyle(styleModel.createStyle(feature, false));
 
                 if (rotation) {
@@ -234,7 +242,7 @@ export default {
             this.setCoords(coord);
         },
         hideMarker () {
-            if (this.markerLayer) {
+            if (this.markerLayer.setVisible) {
                 this.markerLayer.setVisible(false);
             }
         },
@@ -251,7 +259,7 @@ export default {
 <template lang="html">
     <Tool
         :title="$t(name)"
-        :icon="glyphicon"
+        :icon="icon"
         :active="active"
         :render-to-window="renderToWindow"
         :resizable-window="resizableWindow"

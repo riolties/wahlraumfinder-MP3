@@ -1,6 +1,4 @@
 {
-  "performanceTester": "view.js",
-  "animation": "view.js",
   "VueAddon": {
     "type": "tool"
   },
@@ -11,9 +9,6 @@
     "type": "tool"
   },
   "MietspiegelGebaeudetypen": {
-    "type": "tool"
-  },
-  "Routing": {
     "type": "tool"
   },
   "strassenBefahrung": {

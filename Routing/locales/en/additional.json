@@ -1,9 +1,0 @@
-{
-  "modules": {
-    "tools": {
-      "mietspiegel": {
-          "title": "Routing"
-      }
-    }
-  }
-}
