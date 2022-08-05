@@ -7,7 +7,7 @@ const {
     active,
     id,
     name,
-    glyphicon,
+    icon,
     renderToWindow,
     resizableWindow,
     isVisibleInMenu,
@@ -25,8 +25,8 @@ describe("addons/StrassenBefahrung/store/gettersStrassenBefahrung", function () 
         it("returns the name default value from state", function () {
             expect(name(stateStrassenBefahrung)).to.be.equals("StraßenBefahrung");
         });
-        it("returns the glyphicon default value from state", function () {
-            expect(glyphicon(stateStrassenBefahrung)).to.equals("glyphicon-screenshot");
+        it("returns the icon default value from state", function () {
+            expect(icon(stateStrassenBefahrung)).to.equals("bi-play");
         });
         it("returns the renderToWindow default value from state", function () {
             expect(renderToWindow(stateStrassenBefahrung)).to.be.false;

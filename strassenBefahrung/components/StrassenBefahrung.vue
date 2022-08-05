@@ -79,7 +79,6 @@ export default {
          */
         createEnnLayer () {
             const that = this;
-            let ennLayer;
 
             if (this.loadEdgeNodeNetwork) {
                 Radio.request("Map", "createLayerIfNotExists", "strassenBefahrung_enn").then(ennLayer => {
@@ -100,7 +99,7 @@ export default {
                     geometry: new Point(coords)
                 }),
                 that = this;
-            
+
             Radio.request("Map", "createLayerIfNotExists", "strassenBefahrung").then(layer => {
                 layer.getSource().addFeature(feature);
                 that.setMarkerLayer(layer);
