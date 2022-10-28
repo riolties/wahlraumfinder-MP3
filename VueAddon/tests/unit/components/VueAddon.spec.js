@@ -9,7 +9,7 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 config.mocks.$t = key => key;
 
-describe("addons/VueAddon/components/VueAddon.vue", () => {
+describe("addons/vueAddon/components/VueAddon.vue", () => {
     const mockConfigJson = {
         Portalconfig: {
             menu: {
@@ -18,7 +18,7 @@ describe("addons/VueAddon/components/VueAddon.vue", () => {
                         VueAddon:
                             {
                                 "name": "translate#additional:modules.tools.vueAddon.title",
-                                "glyphicon": "glyphicon-th-list"
+                                "icon": "bi-bullseye"
                             }
                     }
                 }

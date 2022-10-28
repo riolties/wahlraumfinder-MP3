@@ -7,13 +7,13 @@ const {
     active,
     id,
     name,
-    glyphicon,
+    icon,
     renderToWindow,
     resizableWindow,
     isVisibleInMenu,
     deactivateGFI} = getters;
 
-describe("addons/VueAddon/store/gettersVueAddon", function () {
+describe("addons/vueAddon/store/gettersVueAddon", function () {
     it("returns the active from state", function () {
         expect(active(stateVueAddon)).to.be.false;
     });
@@ -25,8 +25,8 @@ describe("addons/VueAddon/store/gettersVueAddon", function () {
         it("returns the name default value from state", function () {
             expect(name(stateVueAddon)).to.be.equals("Simple Vue Addon");
         });
-        it("returns the glyphicon default value from state", function () {
-            expect(glyphicon(stateVueAddon)).to.equals("glyphicon-screenshot");
+        it("returns the icon default value from state", function () {
+            expect(icon(stateVueAddon)).to.equals("bi-bullseye");
         });
         it("returns the renderToWindow default value from state", function () {
             expect(renderToWindow(stateVueAddon)).to.be.true;

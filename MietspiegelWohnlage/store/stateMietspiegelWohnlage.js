@@ -7,7 +7,7 @@ const state = {
     id: "mietspiegel_wohnlage",
     // defaults for config.json parameters
     name: "Mietspiegel Wohnlage",
-    glyphicon: "glyphicon-screenshot",
+    icon: "bi-building",
     renderToWindow: true,
     resizableWindow: true,
     isVisibleInMenu: true,

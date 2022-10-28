@@ -16,11 +16,11 @@ const mutations = {
      * @param {string} payload name of this component
      * @returns {void}
      */
-    applyTranslationKey: (state, payload) => {
-        if (payload && payload.indexOf("translate#") > -1) {
-            state.name = payload.substr("translate#".length);
-        }
-    },
+    // applyTranslationKey: (state, payload) => {
+    //     if (payload && payload.indexOf("translate#") > -1) {
+    //         state.name = payload.substr("translate#".length);
+    //     }
+    // },
     setAddress: (state, address) => {
         state.address = address;
     }

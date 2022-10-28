@@ -4,7 +4,7 @@ import mutations from "../../../store/mutationsVueAddon";
 
 const {applyTranslationKey} = mutations;
 
-describe("addons/VueAddon/store/mutationsVueAddon", function () {
+describe("addons/vueAddon/store/mutationsVueAddon", function () {
     describe("applyTranslationKey", function () {
         it("removes 'translate#' from name if present", function () {
             const state = {

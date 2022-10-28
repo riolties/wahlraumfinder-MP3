@@ -1,5 +1,5 @@
 <script>
-import Tool from "../../../src/modules/tools/ToolTemplate.vue";
+import ToolTemplate from "../../../src/modules/tools/ToolTemplate.vue";
 import {mapGetters, mapMutations} from "vuex";
 import getters from "../store/gettersVueAddon";
 import mutations from "../store/mutationsVueAddon";
@@ -7,7 +7,7 @@ import mutations from "../store/mutationsVueAddon";
 export default {
     name: "VueAddon",
     components: {
-        Tool
+        ToolTemplate
     },
     computed: {
         ...mapGetters("Tools/VueAddon", Object.keys(getters))
@@ -46,13 +46,14 @@ export default {
 </script>
 
 <template lang="html">
-    <Tool
+    <ToolTemplate
         :title="$t(name)"
-        :icon="glyphicon"
+        :icon="icon"
         :active="active"
         :render-to-window="renderToWindow"
         :resizable-window="resizableWindow"
         :deactivate-gfi="deactivateGFI"
+        :focus-to-close-icon="true"
     >
         <template #toolBody>
             <div
@@ -62,5 +63,5 @@ export default {
                 {{ $t("additional:modules.tools.vueAddon.content") }}
             </div>
         </template>
-    </Tool>
+    </ToolTemplate>
 </template>

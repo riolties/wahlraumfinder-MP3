@@ -24,7 +24,7 @@ export default {
      * @returns {void}
      */
     mounted () {
-        this.applyTranslationKey(this.name);
+        // this.applyTranslationKey(this.name);
     },
     methods: {
         ...mapMutations("Tools/MietspiegelGebaeudetypen", Object.keys(mutations)),
@@ -38,7 +38,7 @@ export default {
             // TODO replace trigger when Menu is migrated
             // set the backbone model to active false for changing css class in menu (menu/desktop/tool/view.toggleIsActiveClass)
             // else the menu-entry for this tool is always highlighted
-            const model = Radio.request("ModelList", "getModelByAttributes", {id: this.$store.state.Tools.MietspiegelGebaeudetypen.id});
+            const model = Radio.request("ModelList", "getModelByAttributes", {id: "mietspiegelGebaeudetypen"});
 
             if (model) {
                 model.set("isActive", false);

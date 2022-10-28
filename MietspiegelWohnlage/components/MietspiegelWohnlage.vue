@@ -1,19 +1,24 @@
 <script>
-import Tool from "../../../src/modules/tools/ToolTemplate.vue";
-import {mapGetters, mapMutations} from "vuex";
+import ToolTemplate from "../../../src/modules/tools/ToolTemplate.vue";
+import {mapGetters, mapMutations, mapActions} from "vuex";
 import getters from "../store/gettersMietspiegelWohnlage";
 import mutations from "../store/mutationsMietspiegelWohnlage";
 
 export default {
     name: "MietspiegelWohnlage",
     components: {
-        Tool
+        ToolTemplate
     },
     computed: {
         ...mapGetters("Tools/MietspiegelWohnlage", Object.keys(getters)),
         ...mapGetters({
             isMobile: "mobile"
         })
+    },
+    watch: {
+        active (newValue) {
+            console.log(newValue);
+        },
     },
     created () {
         this.listenToSearchResults();
@@ -24,27 +29,10 @@ export default {
      * @returns {void}
      */
     mounted () {
-        this.applyTranslationKey(this.name);
+        // this.applyTranslationKey(this.name);
     },
     methods: {
         ...mapMutations("Tools/MietspiegelWohnlage", Object.keys(mutations)),
-
-        /**
-         * Closes this tool window by setting active to false
-         * @returns {void}
-         */
-        close () {
-            this.setActive(false);
-
-            // TODO replace trigger when Menu is migrated
-            // set the backbone model to active false for changing css class in menu (menu/desktop/tool/view.toggleIsActiveClass)
-            // else the menu-entry for this tool is always highlighted
-            const model = Radio.request("ModelList", "getModelByAttributes", {id: this.$store.state.Tools.MietspiegelWohnlage.id});
-
-            if (model) {
-                model.set("isActive", false);
-            }
-        },
         pushValuesBack (evt) {
             const valueToPost = evt.target.attributes.valueToPost.value,
                 address = this.address,
@@ -63,6 +51,7 @@ export default {
         listenToSearchResults () {
             Backbone.Events.listenTo(Radio.channel("Searchbar"), {
                 "hit": (hit) => {
+                    console.log("FOOBAR");
                     const addressName = hit.name.split(",")[0];
 
                     this.updateUrlParams("query", addressName);
@@ -93,26 +82,42 @@ export default {
             }
 
             window.history.replaceState({}, "", baseUrl + params);
+        },
+        /**
+         * Closes this tool window by setting active to false
+         * @returns {void}
+         */
+        close () {
+            this.setActive(false);
+
+            // TODO replace trigger when Menu is migrated
+            // set the backbone model to active false for changing css class in menu (menu/desktop/tool/view.toggleIsActiveClass)
+            // else the menu-entry for this tool is always highlighted
+            const model = Radio.request("ModelList", "getModelByAttributes", {id: "mietspiegelWohnlage"});
+
+            if (model) {
+                model.set("isActive", false);
+            }
         }
     }
 };
 </script>
 
 <template lang="html">
-    <Tool
-        :title="$t(name)"
-        :icon="glyphicon"
+    <ToolTemplate
+        :title="name"
+        :icon="icon"
         :active="active"
         :render-to-window="renderToWindow"
         :resizable-window="resizableWindow"
         :deactivate-gfi="deactivateGFI"
+        class="mietspiegel-wohnlage"
     >
-        <template #toolBody>
+        <template
+        v-if="active" #toolBody>
             <div
-                v-if="active"
                 id="mietspiegel_wohnlage"
             >
-                <!-- {{ $t("additional:modules.tools.mietspiegel.content") }} -->
                 <p>
                     Hinweis:<br>
                     Eine Anleitung finden Sie im Menü unter "Hilfe".
@@ -179,11 +184,11 @@ export default {
                 </div>
             </div>
         </template>
-    </Tool>
+    </ToolTemplate>
 </template>
 
 <style lang="scss" scoped>
-    #mietspiegel_wohnlage {
+    .mietspiegel_wohnlage {
         .color {
             width: 20px;
             height: 20px;

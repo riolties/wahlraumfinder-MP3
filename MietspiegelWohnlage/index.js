@@ -1,5 +1,5 @@
 import MietspiegelWohnlageComponent from "./components/MietspiegelWohnlage.vue";
-import MietspiegelWohnlageStore from "./store/index";
+import MietspiegelWohnlageStore from "./store/indexMietspiegelWohnlage";
 import deLocale from "./locales/de/additional.json";
 import enLocale from "./locales/en/additional.json";
 

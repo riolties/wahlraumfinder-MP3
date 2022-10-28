@@ -1,5 +1,5 @@
 import MietspiegelGebaeudetypenComponent from "./components/MietspiegelGebaeudetypen.vue";
-import MietspiegelGebaeudetypenStore from "./store/index";
+import MietspiegelGebaeudetypenStore from "./store/indexMietspiegelGebaeudetypen";
 import deLocale from "./locales/de/additional.json";
 import enLocale from "./locales/en/additional.json";
 
