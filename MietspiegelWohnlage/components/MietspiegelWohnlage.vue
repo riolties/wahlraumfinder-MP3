@@ -3,11 +3,26 @@ import ToolTemplate from "../../../src/modules/tools/ToolTemplate.vue";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import getters from "../store/gettersMietspiegelWohnlage";
 import mutations from "../store/mutationsMietspiegelWohnlage";
+import Multiselect from "vue-multiselect";
 
 export default {
   name: "MietspiegelWohnlage",
   components: {
     ToolTemplate,
+    Multiselect,
+  },
+  data() {
+    return {
+      selected: null,
+      options: [
+        "Durchschn. Lage",
+        "Gute Lage",
+        "Beste Lage",
+        "Zentr. durchschn. Lage",
+        "Zentr. gute Lage",
+        "Zentr. beste Lage",
+      ],
+    };
   },
   computed: {
     ...mapGetters("Tools/MietspiegelWohnlage", Object.keys(getters)),
@@ -96,7 +111,7 @@ export default {
       if (model) {
         model.set("isActive", false);
       }
-    },
+    }
   },
 };
 </script>
@@ -127,7 +142,7 @@ export default {
                     <div
                         v-for="value in values"
                         :key="value.name"
-                        class="form-group form-group-xs"
+                        class="row"
                     >
                         <button
                             :valueToPost="value.valueToPost"
@@ -154,10 +169,41 @@ export default {
                 <div
                     v-if="isMobile === true"
                 >
-                    <div
+                <!-- https://vue-multiselect.js.org/ -->
+                  <Multiselect
+                      v-model="selected"
+                      :options="values"
+                      :multiple="false"
+                      placeholder="Bitte Wohnlage wählen!" 
+                  >
+                  <!-- template für die ausgesuchte option -->
+                  <template
+                    slot="singleLabel"
+                    slot-scope="props">
+                    <span class="option__desc">
+                      <span class="option__title">
+                        <span class="dot" :style="{backgroundColor : props.option.color}"/>
+                        {{ props.option.name_mobile }}
+                      </span>
+                    </span>
+                  </template>
+
+                  <!-- template für jede option -->
+                  <template
+                  slot="option"
+                  slot-scope="props">
+                    <div class="option__desc">
+                      <span class="option__title">
+                        <span class="dot" :style="{backgroundColor : props.option.color}"/>
+                        {{ props.option.name_mobile }}
+                      </span>
+                    </div>
+                  </template>
+                  </Multiselect>
+                    <!-- <div
                         v-for="value in values"
                         :key="value.name"
-                        class="form-group form-group-xs col-xs-6 form-group-mobile"
+                        class="row"
                     >
                         <button
                             :valueToPost="value.valueToPost"
@@ -179,7 +225,7 @@ export default {
                                 {{ value.name_mobile }}
                             </span>
                         </button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </template>
@@ -199,7 +245,6 @@ export default {
     margin-bottom: 5px;
     background-color: #e7e7e7;
     color: #00aa9b;
-    width:100%;
   }
   button:hover {
     border: 2px solid #00aa9b;
@@ -209,6 +254,12 @@ export default {
     padding-left: 5px;
     padding-right: 5px;
     margin-bottom: 5px;
+  }
+  .dot {
+    height: 20px;
+    width: 20px;
+    border: 1px solid black;
+    display: inline-block;
   }
 }
 </style>
