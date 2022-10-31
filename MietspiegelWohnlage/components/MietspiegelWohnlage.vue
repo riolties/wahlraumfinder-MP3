@@ -1,118 +1,117 @@
 <script>
 import ToolTemplate from "../../../src/modules/tools/ToolTemplate.vue";
-import { mapGetters, mapMutations, mapActions } from "vuex";
+import {mapGetters, mapMutations} from "vuex";
 import getters from "../store/gettersMietspiegelWohnlage";
 import mutations from "../store/mutationsMietspiegelWohnlage";
 import Multiselect from "vue-multiselect";
 
 export default {
-  name: "MietspiegelWohnlage",
-  components: {
-    ToolTemplate,
-    Multiselect,
-  },
-  data() {
-    return {
-      selected: null,
-      options: [
-        "Durchschn. Lage",
-        "Gute Lage",
-        "Beste Lage",
-        "Zentr. durchschn. Lage",
-        "Zentr. gute Lage",
-        "Zentr. beste Lage",
-      ],
-    };
-  },
-  computed: {
-    ...mapGetters("Tools/MietspiegelWohnlage", Object.keys(getters)),
-    ...mapGetters({
-      isMobile: "mobile",
-    }),
-  },
-  created() {
-    this.listenToSearchResults();
-    this.$on("close", this.close);
-  },
-  methods: {
-    ...mapMutations("Tools/MietspiegelWohnlage", Object.keys(mutations)),
-    pushValuesBack(evt) {
-      console.log("ValueToPost: ", evt.target.attributes.valueToPost.value);
-      const valueToPost = evt.target.attributes.valueToPost.value,
-        address = this.address,
-        opener = window.opener ? window.opener : null;
-
-      if (opener) {
-        this.postMessageUrls.forEach((url) => {
-          opener.postMessage(
-            {
-              lage: valueToPost,
-              address: address,
-            },
-            url
-          );
-        });
-        window.close();
-      }
+    name: "MietspiegelWohnlage",
+    components: {
+        ToolTemplate,
+        Multiselect
     },
-    listenToSearchResults() {
-      Backbone.Events.listenTo(Radio.channel("Searchbar"), {
-        hit: (hit) => {
-          const addressName = hit.name.split(",")[0];
+    data () {
+        return {
+            selected: null,
+            options: [
+                "Durchschn. Lage",
+                "Gute Lage",
+                "Beste Lage",
+                "Zentr. durchschn. Lage",
+                "Zentr. gute Lage",
+                "Zentr. beste Lage"
+            ]
+        };
+    },
+    computed: {
+        ...mapGetters("Tools/MietspiegelWohnlage", Object.keys(getters)),
+        ...mapGetters({
+            isMobile: "mobile"
+        })
+    },
+    created () {
+        this.listenToSearchResults();
+        this.$on("close", this.close);
+    },
+    methods: {
+        ...mapMutations("Tools/MietspiegelWohnlage", Object.keys(mutations)),
+        pushValuesBack (evt) {
+            const valueToPost = evt.target.attributes.valueToPost.value,
+                address = this.address,
+                opener = window.opener ? window.opener : null;
 
-          this.updateUrlParams("query", addressName);
-          this.setAddress(addressName);
+            if (opener) {
+                this.postMessageUrls.forEach((url) => {
+                    opener.postMessage(
+                        {
+                            lage: valueToPost,
+                            address: address
+                        },
+                        url
+                    );
+                });
+                window.close();
+            }
         },
-      });
-    },
-    updateUrlParams(key, value) {
-      const baseUrl = [
-          location.protocol,
-          "//",
-          location.host,
-          location.pathname,
-        ].join(""),
-        urlQueryString = document.location.search,
-        newParam = key + "=" + value;
+        listenToSearchResults () {
+            Backbone.Events.listenTo(Radio.channel("Searchbar"), {
+                hit: (hit) => {
+                    const addressName = hit.name.split(",")[0];
 
-      let keyRegex,
-        params = "?" + newParam;
+                    this.updateUrlParams("query", addressName);
+                    this.setAddress(addressName);
+                }
+            });
+        },
+        updateUrlParams (key, value) {
+            const baseUrl = [
+                    location.protocol,
+                    "//",
+                    location.host,
+                    location.pathname
+                ].join(""),
+                urlQueryString = document.location.search,
+                newParam = key + "=" + value;
 
-      // If the "search" string exists, then build params from it
-      if (urlQueryString) {
-        keyRegex = new RegExp("([?,&])" + key + "[^&]*");
+            let keyRegex,
+                params = "?" + newParam;
 
-        // If param exists already, update it
-        if (urlQueryString.match(keyRegex) !== null) {
-          params = urlQueryString.replace(keyRegex, "$1" + newParam);
+            // If the "search" string exists, then build params from it
+            if (urlQueryString) {
+                keyRegex = new RegExp("([?,&])" + key + "[^&]*");
+
+                // If param exists already, update it
+                if (urlQueryString.match(keyRegex) !== null) {
+                    params = urlQueryString.replace(keyRegex, "$1" + newParam);
+                }
+                // Otherwise, add it to end of query string
+                else {
+                    params = urlQueryString + "&" + newParam;
+                }
+            }
+
+            window.history.replaceState({}, "", baseUrl + params);
+        },
+        /**
+         * Closes this tool window by setting active to false
+         * @returns {void}
+         */
+        close () {
+            this.setActive(false);
+
+            // TODO replace trigger when Menu is migrated
+            // set the backbone model to active false for changing css class in menu (menu/desktop/tool/view.toggleIsActiveClass)
+            // else the menu-entry for this tool is always highlighted
+            const model = Radio.request("ModelList", "getModelByAttributes", {
+                id: "mietspiegelWohnlage"
+            });
+
+            if (model) {
+                model.set("isActive", false);
+            }
         }
-        // Otherwise, add it to end of query string
-        else {
-          params = urlQueryString + "&" + newParam;
-        }
-      }
-
-      window.history.replaceState({}, "", baseUrl + params);
-    },
-    /**
-     * Closes this tool window by setting active to false
-     * @returns {void}
-     */
-    close() {
-      this.setActive(false);
-
-      // TODO replace trigger when Menu is migrated
-      // set the backbone model to active false for changing css class in menu (menu/desktop/tool/view.toggleIsActiveClass)
-      // else the menu-entry for this tool is always highlighted
-      const model = Radio.request("ModelList", "getModelByAttributes", {
-        id: "mietspiegelWohnlage",
-      });
-
-      if (model) {
-        model.set("isActive", false);
-      }
     }
-  },
 };
 </script>
 
@@ -169,37 +168,45 @@ export default {
                 <div
                     v-if="isMobile === true"
                 >
-                <!-- https://vue-multiselect.js.org/ -->
-                  <Multiselect
-                      v-model="selected"
-                      :options="values"
-                      :multiple="false"
-                      placeholder="Bitte Wohnlage wählen!" 
-                  >
-                  <!-- template für die ausgesuchte option -->
-                  <template
-                    slot="singleLabel"
-                    slot-scope="props">
-                    <span class="option__desc">
-                      <span class="option__title">
-                        <span class="dot" :style="{backgroundColor : props.option.color}"/>
-                        {{ props.option.name_mobile }}
-                      </span>
-                    </span>
-                  </template>
+                    <!-- https://vue-multiselect.js.org/ -->
+                    <Multiselect
+                        v-model="selected"
+                        :options="values"
+                        :multiple="false"
+                        placeholder="Bitte Wohnlage wählen!"
+                    >
+                        <!-- template für die ausgesuchte option -->
+                        <template
+                            slot="singleLabel"
+                            slot-scope="props"
+                        >
+                            <span class="option__desc">
+                                <span class="option__title">
+                                    <span
+                                        class="dot"
+                                        :style="{backgroundColor: props.option.color}"
+                                    />
+                                    {{ props.option.name_mobile }}
+                                </span>
+                            </span>
+                        </template>
 
-                  <!-- template für jede option -->
-                  <template
-                  slot="option"
-                  slot-scope="props">
-                    <div class="option__desc">
-                      <span class="option__title">
-                        <span class="dot" :style="{backgroundColor : props.option.color}"/>
-                        {{ props.option.name_mobile }}
-                      </span>
-                    </div>
-                  </template>
-                  </Multiselect>
+                        <!-- template für jede option -->
+                        <template
+                            slot="option"
+                            slot-scope="props"
+                        >
+                            <div class="option__desc">
+                                <span class="option__title">
+                                    <span
+                                        class="dot"
+                                        :style="{ backgroundColor: props.option.color }"
+                                    />
+                                    {{ props.option.name_mobile }}
+                                </span>
+                            </div>
+                        </template>
+                    </Multiselect>
                     <!-- <div
                         v-for="value in values"
                         :key="value.name"
