@@ -13,15 +13,7 @@ export default {
     },
     data () {
         return {
-            selected: null,
-            options: [
-                "Durchschn. Lage",
-                "Gute Lage",
-                "Beste Lage",
-                "Zentr. durchschn. Lage",
-                "Zentr. gute Lage",
-                "Zentr. beste Lage"
-            ]
+            mobileSelected: null
         };
     },
     computed: {
@@ -37,7 +29,8 @@ export default {
     methods: {
         ...mapMutations("Tools/MietspiegelWohnlage", Object.keys(mutations)),
         pushValuesBack (evt) {
-            const valueToPost = evt.target.attributes.valueToPost.value,
+            // in desktop mode obj is an event, in mobile is ist an object
+            const valueToPost = evt instanceof Event ? evt.target.attributes.valueToPost.value : evt.valueToPost,
                 address = this.address,
                 opener = window.opener ? window.opener : null;
 
@@ -45,7 +38,7 @@ export default {
                 this.postMessageUrls.forEach((url) => {
                     opener.postMessage(
                         {
-                            lage: valueToPost,
+                            lage: String(valueToPost),
                             address: address
                         },
                         url
@@ -111,6 +104,14 @@ export default {
                 model.set("isActive", false);
             }
         }
+    },
+    watch: {
+        mobileSelected(newValue) {
+            // on mobile and deselect the new value is null
+            if (newValue) {
+                this.pushValuesBack(newValue);
+            }
+        }
     }
 };
 </script>
@@ -170,7 +171,7 @@ export default {
                 >
                     <!-- https://vue-multiselect.js.org/ -->
                     <Multiselect
-                        v-model="selected"
+                        v-model="mobileSelected"
                         :options="values"
                         :multiple="false"
                         placeholder="Bitte Wohnlage wählen!"
@@ -207,32 +208,6 @@ export default {
                             </div>
                         </template>
                     </Multiselect>
-                    <!-- <div
-                        v-for="value in values"
-                        :key="value.name"
-                        class="row"
-                    >
-                        <button
-                            :valueToPost="value.valueToPost"
-                            class="btn btn-xs btn-block"
-                            @click="pushValuesBack"
-                        >
-                            <div
-                                class="color"
-                                :valueToPost="value.valueToPost"
-                                :style="{'background-color': value.color}"
-                                @click="pushValuesBack"
-                                @keyup.enter="pushValuesBack"
-                            />
-                            <span
-                                :valueToPost="value.valueToPost"
-                                @click="pushValuesBack"
-                                @keyup.enter="pushValuesBack"
-                            >
-                                {{ value.name_mobile }}
-                            </span>
-                        </button>
-                    </div> -->
                 </div>
             </div>
         </template>
@@ -256,11 +231,6 @@ export default {
   button:hover {
     border: 2px solid #00aa9b;
     font-weight: bold;
-  }
-  .form-group-mobile {
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-bottom: 5px;
   }
   .dot {
     height: 20px;

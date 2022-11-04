@@ -1,13 +1,20 @@
 <script>
-import Tool from "../../../src/modules/tools/ToolTemplate.vue";
+import ToolTemplate from "../../../src/modules/tools/ToolTemplate.vue";
 import {mapGetters, mapMutations} from "vuex";
 import getters from "../store/gettersMietspiegelGebaeudetypen";
 import mutations from "../store/mutationsMietspiegelGebaeudetypen";
+import Multiselect from "vue-multiselect";
 
 export default {
     name: "MietspiegelGebaeudetypen",
     components: {
-        Tool
+        ToolTemplate,
+        Multiselect
+    },
+    data () {
+        return {
+            mobileSelected: null
+        };
     },
     computed: {
         ...mapGetters("Tools/MietspiegelGebaeudetypen", Object.keys(getters)),
@@ -22,7 +29,8 @@ export default {
     methods: {
         ...mapMutations("Tools/MietspiegelGebaeudetypen", Object.keys(mutations)),
         pushValuesBack (evt) {
-            const valueToPost = evt.target.attributes.valueToPost.value,
+            // in desktop mode obj is an event, in mobile is ist an object
+            const valueToPost = evt instanceof Event ? evt.target.attributes.valueToPost.value : evt.valueToPost,
                 address = this.address,
                 opener = window.opener ? window.opener : null;
 
@@ -30,7 +38,7 @@ export default {
                 this.postMessageUrls.forEach((url) => {
                     opener.postMessage(
                         {
-                            gebaeudetyp: valueToPost,
+                            gebaeudetyp: String(valueToPost),
                             address: address
                         },
                         url
@@ -100,7 +108,7 @@ export default {
 </script>
 
 <template lang="html">
-    <Tool
+    <ToolTemplate
         :title="name"
         :icon="glyphicon"
         :active="active"
@@ -145,29 +153,41 @@ export default {
                 <div
                     v-if="isMobile === true"
                 >
-                    <div
-                        v-for="value in values"
-                        :key="value.name"
-                        class="form-group form-group-xs col-xs-6 form-group-mobile"
+                <!-- https://vue-multiselect.js.org/ -->
+                    <Multiselect
+                        v-model="mobileSelected"
+                        :options="values"
+                        :multiple="false"
+                        placeholder="Bitte Gebäudetyp wählen!"
                     >
-                        <button
-                            :valueToPost="value.valueToPost"
-                            class="btn btn-sm btn-block"
-                            @click="pushValuesBack"
+                        <!-- template für die ausgesuchte option -->
+                        <template
+                            slot="singleLabel"
+                            slot-scope="props"
                         >
-                            <span
-                                :valueToPost="value.valueToPost"
-                                @click="pushValuesBack"
-                                @keyup.enter="pushValuesBack"
-                            >
-                                {{ value.name_mobile }}
+                            <span class="option__desc">
+                                <span class="option__title">
+                                    {{ props.option.name_mobile }}
+                                </span>
                             </span>
-                        </button>
-                    </div>
+                        </template>
+
+                        <!-- template für jede option -->
+                        <template
+                            slot="option"
+                            slot-scope="props"
+                        >
+                            <div class="option__desc">
+                                <span class="option__title">
+                                    {{ props.option.name_mobile }}
+                                </span>
+                            </div>
+                        </template>
+                    </Multiselect>
                 </div>
             </div>
         </template>
-    </Tool>
+    </ToolTemplate>
 </template>
 
 <style lang="scss" scoped>
@@ -182,11 +202,6 @@ export default {
   button:hover {
     border: 2px solid #00aa9b;
     font-weight: bold;
-  }
-  .form-group-mobile {
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-bottom: 5px;
   }
 }
 </style>
