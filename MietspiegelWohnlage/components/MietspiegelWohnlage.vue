@@ -106,7 +106,7 @@ export default {
         }
     },
     watch: {
-        mobileSelected(newValue) {
+        mobileSelected (newValue) {
             // on mobile and deselect the new value is null
             if (newValue) {
                 this.pushValuesBack(newValue);
