@@ -2,12 +2,6 @@
   "wahlRaumFinder": {
     "type": "tool"
   },
-  "mietspiegelWohnlage": {
-    "type": "tool"
-  },
-  "mietspiegelGebaeudetypen": {
-    "type": "tool"
-  },
   "strassenBefahrung": {
     "type": "tool"
   },
