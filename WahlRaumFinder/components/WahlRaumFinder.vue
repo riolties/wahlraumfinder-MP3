@@ -64,7 +64,8 @@ export default {
             const addressString = hit.name,
                 addressCoord = hit.coordinate,
                 gfiUrl = addressCoord ? this.getGfiUrl(addressCoord, this.addressLayerId) : undefined,
-                pollingStationId = gfiUrl ? this.derivePollingStationIdFromAddress(gfiUrl) : undefined,
+                addressFeature = gfiUrl ? this.getAddressFeature(gfiUrl) : undefined;
+                pollingStationId = addressFeature ? addressFeature.get(this.addressLayerPollingStationAttribute) : undefined,
                 pollingStationFeature = pollingStationId ? this.derivePollingStationFromWfs(pollingStationId) : undefined;
             let featureCoord = [],
                 extent = [],
@@ -73,13 +74,13 @@ export default {
 
             if (pollingStationFeature) {
                 featureCoord = pollingStationFeature.getGeometry().getCoordinates();
-                console.log(pollingStationFeature.getGeometry().getExtent());
                 extent = this.createExtent(addressCoord, featureCoord, 100);
                 distanceString = this.calculateDistanceString(addressCoord, featureCoord);
                 this.addLayerOnMap(addressCoord, featureCoord, distanceString);
                 this.setExtentToMap(extent);
                 featureValues = this.prepareFeature(pollingStationFeature);
                 this.setAddressString(addressString);
+                this.setAddressPollingStationId(pollingStationId);
                 this.setFeatureValues(featureValues);
                 this.setDistanceString(distanceString);
                 this.setActive(true);
@@ -194,40 +195,32 @@ export default {
 
             return gfiUrl;
         },
-        derivePollingStationIdFromAddress (url) {
+        getAddressFeature (url) {
             const proxyUrl = getProxyUrl(url),
                 xhr = new XMLHttpRequest(),
                 that = this;
-            let pollingStationId;
+            let feature;
 
             xhr.open("GET", proxyUrl, false);
             xhr.onload = function (event) {
-                pollingStationId = that.parseAddressResponse(event);
+                const status = event.currentTarget.status,
+                    response = event.currentTarget.response,
+                    wfsReader = new WFS(),
+                    that = this;
+
+                if (status === 200) {
+                    feature = wfsReader.readFeature(response);
+                }
+                else {
+                    that.showError();
+                }
+                return feature;
             };
             xhr.onerror = function () {
                 that.showError();
             };
             xhr.send();
-            return pollingStationId;
-        },
-        parseAddressResponse (event) {
-            const currentTarget = event.currentTarget,
-                status = currentTarget.status,
-                response = currentTarget.response,
-                wfsReader = new WFS(),
-                addressLayerPollingStationAttribute = this.addressLayerPollingStationAttribute,
-                that = this;
-            let feature,
-                pollingStationId;
-
-            if (status === 200) {
-                feature = wfsReader.readFeature(response);
-                pollingStationId = feature.get(addressLayerPollingStationAttribute);
-            }
-            else {
-                that.showError();
-            }
-            return pollingStationId;
+            return feature;
         },
         derivePollingStationFromWfs (pollingStationId) {
             const layer = Radio.request("ModelList", "getModelByAttributes", {id: this.pollingStationLayerId}),
@@ -283,9 +276,22 @@ export default {
             >
                 <!-- {{ $t("additional:modules.tools.WahlRaumFinder.content") }} -->
                 <div class="block">
-                    <span class="title bold">Adresse: </span>
-                    <span class="title">{{ addressString }}</span>
+                    <table class="table text">
+                        <tr>
+                            <td class="bold">
+                                Adresse:
+                            </td>
+                            <td>{{ addressString }}</td>
+                        </tr>
+                        <tr>
+                            <td class="bold">
+                                Wahlbezirk:
+                            </td>
+                            <td>{{ addressPollingStationId }}</td>
+                        </tr>
+                    </table>
                 </div>
+
                 <div class="block">
                     <span class="title bold">Informationen zum Wahlraum:</span>
                     <table class="table text">

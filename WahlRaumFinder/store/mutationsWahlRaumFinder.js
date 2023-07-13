@@ -24,6 +24,9 @@ const mutations = {
     setAddressString: (state, addressString) => {
         state.addressString = addressString;
     },
+    setAddressPollingStationId: (state, addressPollingStationId) => {
+        state.addressPollingStationId = addressPollingStationId;
+    },
     setFeatureValues: (state, featureValues) => {
         state.featureValues = featureValues;
     },

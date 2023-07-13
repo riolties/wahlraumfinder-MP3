@@ -33,6 +33,7 @@ const state = {
     styleId_distance: "",
     // internal attributes
     addressString: "",
+    addressPollingStationId: "",
     featureValues: {},
     distanceString: ""
 };
