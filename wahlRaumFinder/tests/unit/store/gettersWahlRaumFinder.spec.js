@@ -7,7 +7,6 @@ const {
     active,
     id,
     name,
-    glyphicon,
     renderToWindow,
     resizableWindow,
     isVisibleInMenu,
@@ -24,9 +23,6 @@ describe("addons/WahlRaumFinder/store/gettersWahlRaumFinder", function () {
     describe("testing default values", function () {
         it("returns the name default value from state", function () {
             expect(name(stateWahlRaumFinder)).to.be.equals("WahlRaumFinder");
-        });
-        it("returns the glyphicon default value from state", function () {
-            expect(glyphicon(stateWahlRaumFinder)).to.equals("glyphicon-screenshot");
         });
         it("returns the renderToWindow default value from state", function () {
             expect(renderToWindow(stateWahlRaumFinder)).to.be.false;

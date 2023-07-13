@@ -20,7 +20,7 @@ export default {
         ...mapGetters({
             isMobile: "mobile"
         }),
-        ...mapActions("Maps", ["zoomToExtent"]),
+        ...mapActions("Maps", ["zoomToExtent"])
     },
     created () {
         this.listenToSearchResults();
@@ -64,7 +64,7 @@ export default {
             const addressString = hit.name,
                 addressCoord = hit.coordinate,
                 gfiUrl = addressCoord ? this.getGfiUrl(addressCoord, this.addressLayerId) : undefined,
-                addressFeature = gfiUrl ? this.getAddressFeature(gfiUrl) : undefined;
+                addressFeature = gfiUrl ? this.getAddressFeature(gfiUrl) : undefined,
                 pollingStationId = addressFeature ? addressFeature.get(this.addressLayerPollingStationAttribute) : undefined,
                 pollingStationFeature = pollingStationId ? this.derivePollingStationFromWfs(pollingStationId) : undefined;
             let featureCoord = [],
@@ -147,7 +147,7 @@ export default {
                     id: id,
                     text: text
                 }),
-                style = styleList.returnStyleObject(styleId)
+                style = styleList.returnStyleObject(styleId);
 
             if (style) {
                 feature.setStyle(createStyle.createStyle(style, feature, false, Config.wfsImgPath));
@@ -161,7 +161,7 @@ export default {
                     id: id,
                     text: text
                 }),
-                style = styleList.returnStyleObject(styleId)
+                style = styleList.returnStyleObject(styleId);
 
             if (style) {
                 feature.setStyle(createStyle.createStyle(style, feature, false, Config.wfsImgPath));
@@ -205,8 +205,7 @@ export default {
             xhr.onload = function (event) {
                 const status = event.currentTarget.status,
                     response = event.currentTarget.response,
-                    wfsReader = new WFS(),
-                    that = this;
+                    wfsReader = new WFS();
 
                 if (status === 200) {
                     feature = wfsReader.readFeature(response);
