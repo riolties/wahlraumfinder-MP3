@@ -1,12 +1,14 @@
 <script>
 import Tool from "../../../src/modules/tools/ToolTemplate.vue";
-import {mapGetters, mapMutations} from "vuex";
+import {mapGetters, mapMutations, mapActions} from "vuex";
 import getters from "../store/gettersWahlRaumFinder";
 import mutations from "../store/mutationsWahlRaumFinder";
 import getProxyUrl from "../../../src/utils/getProxyUrl";
 import {WFS} from "ol/format.js";
 import Feature from "ol/Feature";
 import {Point, LineString} from "ol/geom";
+import styleList from "@masterportal/masterportalapi/src/vectorStyle/styleList";
+import createStyle from "@masterportal/masterportalapi/src/vectorStyle/createStyle";
 
 export default {
     name: "WahlRaumFinder",
@@ -17,7 +19,8 @@ export default {
         ...mapGetters("Tools/WahlRaumFinder", Object.keys(getters)),
         ...mapGetters({
             isMobile: "mobile"
-        })
+        }),
+        ...mapActions("Maps", ["zoomToExtent"]),
     },
     created () {
         this.listenToSearchResults();
@@ -102,7 +105,7 @@ export default {
                 yMax = Math.max(addressCoord[1], featureCoord[1]) + offsetForExtent;
                 extent = [xMin, yMin, xMax, yMax];
             }
-
+            console.log(extent);
             return extent;
         },
         isValidCoord (coord) {
@@ -115,7 +118,8 @@ export default {
             return isArray && isLength && isNumber;
         },
         setExtentToMap (extent) {
-            Radio.trigger("Map", "zoomToExtent", extent);
+            // Radio.trigger("Map", "zoomToExtent", extent);
+            this.zoomToExtent({extent: extent});
         },
         calculateDistanceString (addressCoord, featureCoord) {
             const deltaX = addressCoord[0] - featureCoord[0],
@@ -125,8 +129,8 @@ export default {
             distance = "ca." + Math.round(distance) + "m (Luftlinie)";
             return distance;
         },
-        addLayerOnMap (addressCoord, featureCoord, distanceString) {
-            const layer = Radio.request("Map", "createLayerIfNotExists", "pollingStationMarker"),
+        async addLayerOnMap (addressCoord, featureCoord, distanceString) {
+            const layer = await Radio.request("Map", "createLayerIfNotExists", "pollingStationMarker"),
                 source = layer.getSource(),
                 addressFeature = this.createPointFeatureAndSetStyle(addressCoord, "addressFeature", this.styleId_circle_address, "Adresse"),
                 pollingStationFeature = this.createPointFeatureAndSetStyle(featureCoord, "pollingStationFeature", this.styleId_circle_wahlraum, "Wahlraum"),
@@ -143,10 +147,10 @@ export default {
                     id: id,
                     text: text
                 }),
-                style = Radio.request("StyleList", "returnModelById", styleId);
+                style = styleList.returnStyleObject(styleId)
 
             if (style) {
-                feature.setStyle(style.createStyle(feature, false));
+                feature.setStyle(createStyle.createStyle(style, feature, false, Config.wfsImgPath));
             }
             return feature;
         },
@@ -157,10 +161,10 @@ export default {
                     id: id,
                     text: text
                 }),
-                style = Radio.request("StyleList", "returnModelById", styleId);
+                style = styleList.returnStyleObject(styleId)
 
             if (style) {
-                feature.setStyle(style.createStyle(feature, false));
+                feature.setStyle(createStyle.createStyle(style, feature, false, Config.wfsImgPath));
             }
             return feature;
         },
@@ -267,7 +271,7 @@ export default {
 <template lang="html">
     <Tool
         :title="$t(name)"
-        :icon="glyphicon"
+        :icon="icon"
         :active="active"
         :render-to-window="renderToWindow"
         :resizable-window="resizableWindow"

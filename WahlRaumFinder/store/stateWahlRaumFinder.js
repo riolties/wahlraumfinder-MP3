@@ -4,7 +4,7 @@
  * @property {boolean} active if true, WahlRaumFinder will rendered
  * @property {string} id id of the WahlRaumFinder component
  * @property {string} name displayed as title (config-param)
- * @property {string} glyphicon icon next to title (config-param)
+ * @property {string} icon icon next to title (config-param)
  * @property {boolean} renderToWindow if true, tool is rendered in a window, else in sidebar (config-param)
  * @property {boolean} resizableWindow if true, window is resizable (config-param)
  * @property {boolean} isVisibleInMenu if true, tool is selectable in menu (config-param)
@@ -15,7 +15,7 @@ const state = {
     id: "WahlRaumFinder",
     // defaults for config.json parameters
     name: "WahlRaumFinder",
-    glyphicon: "glyphicon-screenshot",
+    icon: "bi-fullscreen-exit",
     renderToWindow: false,
     resizableWindow: true,
     isVisibleInMenu: true,
