@@ -1,0 +1,9 @@
+{
+    "modules": {
+        "tools": {
+            "WahlraumFinder": {
+                "title": "Find my polling station"
+            }
+        }
+    }
+}
