@@ -73,6 +73,7 @@ export default {
 
             if (pollingStationFeature) {
                 featureCoord = pollingStationFeature.getGeometry().getCoordinates();
+                console.log(pollingStationFeature.getGeometry().getExtent());
                 extent = this.createExtent(addressCoord, featureCoord, 100);
                 distanceString = this.calculateDistanceString(addressCoord, featureCoord);
                 this.addLayerOnMap(addressCoord, featureCoord, distanceString);
@@ -105,7 +106,6 @@ export default {
                 yMax = Math.max(addressCoord[1], featureCoord[1]) + offsetForExtent;
                 extent = [xMin, yMin, xMax, yMax];
             }
-            console.log(extent);
             return extent;
         },
         isValidCoord (coord) {
@@ -118,8 +118,7 @@ export default {
             return isArray && isLength && isNumber;
         },
         setExtentToMap (extent) {
-            // Radio.trigger("Map", "zoomToExtent", extent);
-            this.zoomToExtent({extent: extent});
+            Radio.trigger("Map", "zoomToExtent", {extent});
         },
         calculateDistanceString (addressCoord, featureCoord) {
             const deltaX = addressCoord[0] - featureCoord[0],
