@@ -1,15 +1,5 @@
 {
   "wahlRaumFinder": {
     "type": "tool"
-  },
-  "strassenBefahrung": {
-    "type": "tool"
-  },
-  "GetFeatureInfoPlusIFrame": {
-    "path": "GetFeatureInfoPlusIFrame",
-    "type": "gfiTheme"
-  },
-  "vueAddon": {
-    "type": "tool"
   }
 }
