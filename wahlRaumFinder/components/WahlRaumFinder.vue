@@ -54,23 +54,36 @@ export default {
         },
         listenToSearchResults () {
             Backbone.Events.listenTo(Radio.channel("Searchbar"), {
-                "hit": (hit) => {
+                "hit": async (hit) => {
                     Radio.trigger("Util", "showLoader");
-                    this.mainProcess(hit);
+                    try {
+                        await this.mainProcess(hit);
+                    }
+                    catch (error) {
+                        console.error("Error processing search result:", error);
+                        Radio.trigger("Util", "hideLoader");
+                        this.showError();
+                    }
                 }
             });
         },
-        mainProcess (hit) {
-            const addressString = hit.name,
-                addressCoord = hit.coordinate,
-                gfiUrl = addressCoord ? this.getGfiUrl(addressCoord, this.addressLayerId) : undefined,
-                addressFeature = gfiUrl ? this.getAddressFeature(gfiUrl) : undefined,
-                pollingStationId = addressFeature ? addressFeature.get(this.addressLayerPollingStationAttribute) : undefined,
-                pollingStationFeature = pollingStationId ? this.derivePollingStationFromWfs(pollingStationId) : undefined;
-            let featureCoord = [],
-                extent = [],
-                featureValues,
-                distanceString;
+        /**
+         * Main processing function for search results.
+         * Async to support non-blocking address feature fetching.
+         * @param {Object} hit - Search result with name and coordinate
+         * @returns {Promise<void>}
+         */
+        async mainProcess (hit) {
+            const addressString = hit.name;
+            const addressCoord = hit.coordinate;
+            const gfiUrl = addressCoord ? this.getGfiUrl(addressCoord, this.addressLayerId) : undefined;
+            const addressFeature = gfiUrl ? await this.getAddressFeature(gfiUrl) : undefined;
+            const pollingStationId = addressFeature ? addressFeature.get(this.addressLayerPollingStationAttribute) : undefined;
+            const pollingStationFeature = pollingStationId ? this.derivePollingStationFromWfs(pollingStationId) : undefined;
+            let featureCoord = [];
+            let extent = [];
+            let featureValues;
+            let distanceString;
 
             if (pollingStationFeature) {
                 featureCoord = pollingStationFeature.getGeometry().getCoordinates();
@@ -87,6 +100,7 @@ export default {
                 Radio.trigger("Util", "hideLoader");
             }
             else {
+                Radio.trigger("Util", "hideLoader");
                 this.close();
             }
         },
@@ -195,31 +209,34 @@ export default {
 
             return gfiUrl;
         },
-        getAddressFeature (url) {
-            const proxyUrl = getProxyUrl(url),
-                xhr = new XMLHttpRequest(),
-                that = this;
-            let feature;
+        /**
+         * Fetches address feature from WFS service asynchronously.
+         * Uses fetch API instead of synchronous XMLHttpRequest to prevent UI blocking.
+         * This resolves the "bitte langsam tippen" (please type slowly) performance issue.
+         * @param {String} url - The WFS GetFeatureInfo URL
+         * @returns {Promise<Feature|null>} The address feature or null on error
+         */
+        async getAddressFeature (url) {
+            const proxyUrl = getProxyUrl(url);
 
-            xhr.open("GET", proxyUrl, false);
-            xhr.onload = function (event) {
-                const status = event.currentTarget.status,
-                    response = event.currentTarget.response,
-                    wfsReader = new WFS();
+            try {
+                const response = await fetch(proxyUrl);
 
-                if (status === 200) {
-                    feature = wfsReader.readFeature(response);
+                if (response.ok) {
+                    const text = await response.text();
+                    const wfsReader = new WFS();
+                    return wfsReader.readFeature(text);
                 }
                 else {
-                    that.showError();
+                    this.showError();
+                    return null;
                 }
-                return feature;
-            };
-            xhr.onerror = function () {
-                that.showError();
-            };
-            xhr.send();
-            return feature;
+            }
+            catch (error) {
+                console.error("Error fetching address feature:", error);
+                this.showError();
+                return null;
+            }
         },
         derivePollingStationFromWfs (pollingStationId) {
             const layer = Radio.request("ModelList", "getModelByAttributes", {id: this.pollingStationLayerId}),
