@@ -50,7 +50,7 @@ Remove the old addon and install the new one:
 rm -rf addons/wahlRaumFinder
 
 # Copy new version
-cp -r /path/to/wahlraumfinder-mp3/wahlRaumFinder ./addons/
+cp -r /path/to/wahlraumfinder-MP3/wahlRaumFinder ./addons/
 ```
 
 ### Step 3: Verify Configuration

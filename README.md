@@ -41,7 +41,7 @@ This is a MasterPortal 3.x compatible version of the WahlRaumFinder addon origin
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/riolties/wahlraumfinder-mp3.git
+   git clone https://github.com/riolties/wahlraumfinder-MP3.git
    ```
 
 2. **Copy the addon to your MasterPortal installation**
@@ -175,8 +175,8 @@ This addon is based on the [WahlRaumFinder](https://bitbucket.org/Digitaler_Zwil
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/riolties/wahlraumfinder-mp3/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/riolties/wahlraumfinder-mp3/discussions)
+- **Issues**: [GitHub Issues](https://github.com/riolties/wahlraumfinder-MP3/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/riolties/wahlraumfinder-MP3/discussions)
 - **MasterPortal Documentation**: https://bitbucket.org/geowerkstatt-hamburg/masterportal/
 
 ## Changelog

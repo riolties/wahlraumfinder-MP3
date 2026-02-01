@@ -122,7 +122,7 @@ If you want the tool to auto-activate without URL parameters, you can apply an o
 2. **Apply the patch**:
    ```bash
    cd /path/to/masterportal
-   git apply /path/to/wahlraumfinder-mp3/patches/auto-activation-urlparams.patch
+   git apply /path/to/wahlraumfinder-MP3/patches/auto-activation-urlparams.patch
    ```
 
 3. **Verify it applied**:

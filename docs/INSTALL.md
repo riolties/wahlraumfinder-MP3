@@ -20,7 +20,7 @@ Copy the `wahlRaumFinder` directory to your MasterPortal addons folder:
 cd /path/to/masterportal
 
 # Copy the addon
-cp -r /path/to/wahlraumfinder-mp3/wahlRaumFinder ./addons/
+cp -r /path/to/wahlraumfinder-MP3/wahlRaumFinder ./addons/
 ```
 
 Your directory structure should look like:
@@ -309,6 +309,6 @@ http://localhost:9001/?isinitopen=wahlRaumFinder
 
 ## Getting Help
 
-- Check [GitHub Issues](https://github.com/riolties/wahlraumfinder-mp3/issues)
+- Check [GitHub Issues](https://github.com/riolties/wahlraumfinder-MP3/issues)
 - Review MasterPortal documentation
 - Ask in MasterPortal community forums
