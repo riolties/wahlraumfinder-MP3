@@ -1,4 +1,4 @@
-import {generateSimpleGetters} from ".../../../src/app-store/utils/generators";
+import {generateSimpleGetters} from "@shared/js/utils/generators";
 import WahlRaumFinderState from "./stateWahlRaumFinder";
 
 const getters = {

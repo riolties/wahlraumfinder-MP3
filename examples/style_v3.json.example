@@ -1,0 +1,74 @@
+[
+  {
+    "_comment": "Add these style definitions to your portal's resources/style_v3.json"
+  },
+  {
+    "styleId": "wahlraeume_circle_address",
+    "rules": [
+      {
+        "style": {
+          "type": "circle",
+          "circleFillColor": [255, 0, 0, 0.3],
+          "circleStrokeColor": [255, 0, 0, 1],
+          "circleStrokeWidth": 2,
+          "circleRadius": 8
+        }
+      }
+    ]
+  },
+  {
+    "styleId": "wahlraeume_circle_wahlraum",
+    "rules": [
+      {
+        "style": {
+          "type": "circle",
+          "circleFillColor": [0, 170, 155, 0.3],
+          "circleStrokeColor": [0, 170, 155, 1],
+          "circleStrokeWidth": 2,
+          "circleRadius": 10
+        }
+      }
+    ]
+  },
+  {
+    "styleId": "wahlraeume_distance",
+    "rules": [
+      {
+        "style": {
+          "type": "line",
+          "lineStrokeColor": [0, 170, 155, 1],
+          "lineStrokeWidth": 2,
+          "lineStrokeDash": [5, 5],
+          "labelField": "text",
+          "textFillColor": [0, 0, 0, 1],
+          "textStrokeColor": [255, 255, 255, 1],
+          "textStrokeWidth": 3,
+          "textFont": "bold 14px Arial",
+          "textOffsetY": -10
+        }
+      }
+    ]
+  },
+  {
+    "styleId": "wahlraeume_default",
+    "rules": [
+      {
+        "style": {
+          "type": "circle",
+          "circleFillColor": [0, 115, 207, 0.5],
+          "circleStrokeColor": [0, 115, 207, 1],
+          "circleStrokeWidth": 2,
+          "circleRadius": 6
+        }
+      }
+    ]
+  },
+  {
+    "_notes": {
+      "wahlraeume_circle_address": "Red circle marker for searched address",
+      "wahlraeume_circle_wahlraum": "Teal circle marker for polling station",
+      "wahlraeume_distance": "Dashed line connecting address to polling station with distance label",
+      "wahlraeume_default": "Default blue style for all polling stations on map"
+    }
+  }
+]

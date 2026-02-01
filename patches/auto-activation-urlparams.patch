@@ -1,0 +1,117 @@
+diff --git a/src/core/urlParams/js/urlParams.js b/src/core/urlParams/js/urlParams.js
+index 63bc9b1394..c3c1dedc62 100644
+--- a/src/core/urlParams/js/urlParams.js
++++ b/src/core/urlParams/js/urlParams.js
+@@ -3,6 +3,8 @@ import layerUrlParams from "@core/layers/js/layerUrlParams";
+ import mapUrlParams from "@core/maps/js/mapUrlParams";
+ import menuUrlParams from "@modules/menu/js/menuUrlParams";
+ import searchBarUrlParams from "@modules/searchBar/js/searchBarUrlParams";
++import store from "@appstore";
++import changeCase from "@shared/js/utils/changeCase";
+ 
+ /**
+  * Processes the url params.
+@@ -14,5 +16,103 @@ export function startProcessUrlParams () {
+         mapUrlParams.processMapUrlParams();
+         menuUrlParams.processMenuUrlParams();
+         searchBarUrlParams.processSearchBarUrlParams();
++
++        // Auto-activate tools configured with active: true
++        // This runs after URL params so URL params take precedence
++        autoActivateConfiguredTools();
+     });
+ }
++
++/**
++ * Auto-activates tools that are configured with active: true in config.json
++ * This provides similar functionality to MP 2.x addons array
++ * @returns {void}
++ */
++function autoActivateConfiguredTools () {
++    const mainMenuSections = store.getters["Menu/mainMenu"]?.sections || [],
++        secondaryMenuSections = store.getters["Menu/secondaryMenu"]?.sections || [];
++
++    // Search through both menus for tools with active: true
++    const activeTool = findActiveToolInSections([...mainMenuSections, ...secondaryMenuSections]);
++
++    if (activeTool) {
++        const {component, menuSide} = activeTool,
++            type = changeCase.upperFirst(component.type);
++
++        console.log(`Auto-activating ${component.type} in ${menuSide}`);
++
++        // Use the same activation mechanism as URL params
++        store.dispatch("Menu/activateCurrentComponent", {
++            currentComponent: component,
++            type: type,
++            side: menuSide
++        });
++    }
++}
++
++/**
++ * Searches through menu sections for a tool configured with active: true
++ * @param {Array} allSections - Combined sections from main and secondary menus
++ * @returns {Object|null} Object with {component, menuSide} or null if none found
++ */
++function findActiveToolInSections (allSections) {
++    for (const section of allSections) {
++        for (const element of section) {
++            // Check if this element has active: true
++            if (element.active === true && element.type) {
++                // Determine which menu this belongs to
++                const mainMenuSections = store.getters["Menu/mainMenu"]?.sections || [],
++                    isInMainMenu = mainMenuSections.some(sec => sec.includes(element)),
++                    menuSide = isInMainMenu ? "mainMenu" : "secondaryMenu";
++
++                return {
++                    component: element,
++                    menuSide: menuSide
++                };
++            }
++
++            // Recursively check folders
++            if (element.type === "folder" && element.elements) {
++                const found = findActiveToolInFolder(element.elements);
++
++                if (found) {
++                    return found;
++                }
++            }
++        }
++    }
++    return null;
++}
++
++/**
++ * Recursively searches through folder elements for active tools
++ * @param {Array} elements - Folder elements to search
++ * @returns {Object|null} Object with {component, menuSide} or null if none found
++ */
++function findActiveToolInFolder (elements) {
++    for (const element of elements) {
++        if (element.active === true && element.type) {
++            const mainMenuSections = store.getters["Menu/mainMenu"]?.sections || [],
++                isInMainMenu = mainMenuSections.some(sec =>
++                    sec.some(item =>
++                        item.elements && item.elements.includes(element)
++                    )
++                ),
++                menuSide = isInMainMenu ? "mainMenu" : "secondaryMenu";
++
++            return {
++                component: element,
++                menuSide: menuSide
++            };
++        }
++
++        if (element.type === "folder" && element.elements) {
++            const found = findActiveToolInFolder(element.elements);
++
++            if (found) {
++                return found;
++            }
++        }
++    }
++    return null;
++}

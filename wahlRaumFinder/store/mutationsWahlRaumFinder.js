@@ -1,4 +1,4 @@
-import {generateSimpleMutations} from "../../../src/app-store/utils/generators";
+import {generateSimpleMutations} from "@shared/js/utils/generators";
 import stateWahlRaumFinder from "./stateWahlRaumFinder";
 
 const mutations = {
@@ -32,6 +32,12 @@ const mutations = {
     },
     setDistanceString: (state, distanceString) => {
         state.distanceString = distanceString;
+    },
+    setSearchTrigger: (state, searchResult) => {
+        // Trigger for search result processing
+        // Store the search result so component can react
+        state.searchTrigger = searchResult;
+        state.searchTriggerTimestamp = Date.now();
     }
 };
 

@@ -1,0 +1,75 @@
+{
+  "// NOTE": "This is a snippet to add to your portal's config.json",
+  "// LOCATION 1": "Add to portalConfig.secondaryMenu.sections array",
+
+  "secondaryMenu": {
+    "sections": [
+      [
+        {
+          "type": "wahlRaumFinder",
+          "name": "WahlRaumFinder",
+          "active": true,
+          "addressLayerId": "adressen",
+          "addressLayerPollingStationAttribute": "kommunalwahl",
+          "pollingStationLayerId": "wahlraeume",
+          "pollingStationAttribute": "wbz",
+          "pollingStationAttributeSeparator": " | ",
+          "mailTo": "geoportal@muenchen.de",
+          "featureAttributes": {
+            "wahllokal_name": "Name",
+            "stranam": "Straße",
+            "plz": "PLZ",
+            "ort": "Ort",
+            "wbz": "Wahlbezirk",
+            "stbz": "Stadtbezirk"
+          },
+          "styleId": ["wahlraeume_circle_address", "wahlraeume_circle_wahlraum", "wahlraeume_distance"]
+        }
+      ]
+    ]
+  },
+
+  "// LOCATION 2": "Add layers to layerConfig.subjectlayer.elements array",
+
+  "layerConfig": {
+    "subjectlayer": {
+      "elements": [
+        {
+          "id": "adressen",
+          "name": "Addresses",
+          "visibility": true,
+          "showInLayerTree": false
+        },
+        {
+          "id": "wahlraeume",
+          "name": "Wahlräume",
+          "visibility": true,
+          "showInLayerTree": true,
+          "styleId": "wahlraeume_default"
+        },
+        {
+          "id": "wahlkreise",
+          "name": "Wahlkreise",
+          "visibility": true,
+          "showInLayerTree": true,
+          "typ": "GeoJSON",
+          "url": "https://geoportal.muenchen.de/wahlraumfinder/ressources/data/wahlkreise.json"
+        }
+      ]
+    }
+  },
+
+  "// CONFIGURATION OPTIONS": {
+    "type": "wahlRaumFinder - Required, must match addon name",
+    "name": "Display name in menu",
+    "active": "true/false - Auto-activate on load (requires core patch or URL param)",
+    "addressLayerId": "Layer ID containing address data",
+    "addressLayerPollingStationAttribute": "Attribute in address layer linking to polling station",
+    "pollingStationLayerId": "Layer ID containing polling station data",
+    "pollingStationAttribute": "Attribute in polling station layer for matching",
+    "pollingStationAttributeSeparator": "Separator if multiple values (e.g. ' | ')",
+    "mailTo": "Contact email for issues",
+    "featureAttributes": "Map of feature attributes to display names",
+    "styleId": "Array of 3 style IDs: [address_marker, polling_station_marker, distance_line]"
+  }
+}

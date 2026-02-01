@@ -1,0 +1,42 @@
+# Node modules
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary files
+*.tmp
+.temp/
+
+# Environment
+.env
+.env.local
+
+# Test coverage
+coverage/
+
+# MasterPortal specific (if accidentally included)
+portal/
+src/
+addons/
+!wahlRaumFinder/
+
+# Documentation build
+docs/_build/

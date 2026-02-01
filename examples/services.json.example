@@ -1,0 +1,54 @@
+[
+  {
+    "// NOTE": "Add these service definitions to your portal's services.json"
+  },
+  {
+    "id": "adressen",
+    "name": "Addresses",
+    "typ": "GeoJSON",
+    "url": "YOUR_ADDRESS_DATA_URL",
+    "gfiAttributes": "showAll",
+    "gfiTheme": "default",
+    "layerAttribution": "Your Attribution",
+    "legendURL": "",
+    "datasets": []
+  },
+  {
+    "id": "wahlraeume",
+    "name": "Wahlräume",
+    "typ": "GeoJSON",
+    "url": "https://geoportal.muenchen.de/wahlraumfinder/ressources/data/wahlraeume.json",
+    "gfiAttributes": {
+      "wahllokal_name": "Name",
+      "stranam": "Straße",
+      "plz": "PLZ",
+      "ort": "Ort",
+      "wbz": "Wahlbezirk",
+      "stbz": "Stadtbezirk"
+    },
+    "gfiTheme": "default",
+    "layerAttribution": "KVR München",
+    "legendURL": "",
+    "datasets": []
+  },
+  {
+    "id": "wahlkreise",
+    "name": "Wahlkreise",
+    "typ": "GeoJSON",
+    "url": "https://geoportal.muenchen.de/wahlraumfinder/ressources/data/wahlkreise.json",
+    "gfiAttributes": {
+      "bezeichnung": "Wahlkreis"
+    },
+    "gfiTheme": "default",
+    "layerAttribution": "KVR München",
+    "legendURL": "",
+    "datasets": []
+  },
+  {
+    "// NOTES": {
+      "adressen": "Replace url with your address data endpoint. Must include attribute specified in addressLayerPollingStationAttribute",
+      "wahlraeume": "Replace url with your polling station data. Adjust gfiAttributes to match your data structure",
+      "wahlkreise": "Optional layer for electoral districts. Adjust gfiAttributes as needed"
+    }
+  }
+]

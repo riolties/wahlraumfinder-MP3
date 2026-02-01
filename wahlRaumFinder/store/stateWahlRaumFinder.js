@@ -35,7 +35,9 @@ const state = {
     addressString: "",
     addressPollingStationId: "",
     featureValues: {},
-    distanceString: ""
+    distanceString: "",
+    searchTrigger: null,
+    searchTriggerTimestamp: 0
 };
 
 export default state;

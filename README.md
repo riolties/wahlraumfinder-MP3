@@ -1,45 +1,190 @@
-**Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**
+# WahlRaumFinder for MasterPortal 3.x
 
-When you're done, you can delete the content in this README and update the file with details for others getting started with your repository.
+![MasterPortal](https://img.shields.io/badge/MasterPortal-3.15%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-*We recommend that you open this README in another tab as you perform the tasks below. You can [watch our video](https://youtu.be/0ocf7u76WSo) for a full demo of all the steps in this tutorial. Open the video in a new tab to avoid leaving Bitbucket.*
+A MasterPortal 3.x addon for finding and displaying polling stations (Wahlräume) on an interactive map, with automatic distance calculation and address search integration.
 
----
+## About
 
-## Edit a file
+This addon helps citizens find their assigned polling station by searching for their address. The tool displays:
+- The searched address marked on the map
+- The assigned polling station (Wahlraum)
+- A connecting line showing the direct distance
+- Detailed information about the polling station
 
-You’ll start by editing this README file to learn how to edit a file in Bitbucket.
+This is a MasterPortal 3.x compatible version of the WahlRaumFinder addon originally developed for the Munich Geoportal. See [NOTICE.md](NOTICE.md) for attribution.
 
-1. Click **Source** on the left side.
-2. Click the README.md link from the list of files.
-3. Click the **Edit** button.
-4. Delete the following text: *Delete this line to make a change to the README from Bitbucket.*
-5. After making your change, click **Commit** and then **Commit** again in the dialog. The commit page will open and you’ll see the change you just made.
-6. Go back to the **Source** page.
+## Features
 
----
+- **Address Search Integration**: Works with MasterPortal's SearchBar for seamless address lookup
+- **Automatic Polling Station Assignment**: Finds the assigned polling station based on address data
+- **Distance Calculation**: Shows aerial distance between address and polling station
+- **Interactive Map Visualization**:
+  - Red marker for searched address
+  - Teal marker for polling station
+  - Dashed line with distance label
+- **Hover Tooltips**: Hover over polling station markers to see basic information
+- **Mobile Responsive**: Optimized layout for mobile devices
+- **Multilingual Support**: German and English translations included
 
-## Create a file
+## Requirements
 
-Next, you’ll add a new file to this repository.
+- **MasterPortal**: Version 3.15.0 or higher
+- **Node.js**: Version 14+ (for development)
+- **Data Layers**:
+  - Address layer (GeoJSON) with polling station assignments
+  - Polling station layer (GeoJSON) with station details
+  - Optional: Electoral district layer (GeoJSON)
 
-1. Click the **New file** button at the top of the **Source** page.
-2. Give the file a filename of **contributors.txt**.
-3. Enter your name in the empty file space.
-4. Click **Commit** and then **Commit** again in the dialog.
-5. Go back to the **Source** page.
+## Quick Start
 
-Before you move on, go ahead and explore the repository. You've already seen the **Source** page, but check out the **Commits**, **Branches**, and **Settings** pages.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/riolties/wahlraumfinder-mp3.git
+   ```
 
----
+2. **Copy the addon to your MasterPortal installation**
+   ```bash
+   cp -r wahlRaumFinder /path/to/masterportal/addons/
+   ```
 
-## Clone a repository
+3. **Configure your portal**
+   - See [docs/INSTALL.md](docs/INSTALL.md) for detailed installation instructions
+   - See [examples/](examples/) for configuration snippets
 
-Use these steps to clone from SourceTree, our client for using the repository command-line free. Cloning allows you to work on your files locally. If you don't yet have SourceTree, [download and install first](https://www.sourcetreeapp.com/). If you prefer to clone from the command line, see [Clone a repository](https://confluence.atlassian.com/x/4whODQ).
+4. **Start your MasterPortal development server**
+   ```bash
+   cd /path/to/masterportal
+   npm start
+   ```
 
-1. You’ll see the clone button under the **Source** heading. Click that button.
-2. Now click **Check out in SourceTree**. You may need to create a SourceTree account or log in.
-3. When you see the **Clone New** dialog in SourceTree, update the destination path and name if you’d like to and then click **Clone**.
-4. Open the directory you just created to see your repository’s files.
+## Documentation
 
-Now that you're more familiar with your Bitbucket repository, go ahead and add a new file locally. You can [push your change back to Bitbucket with SourceTree](https://confluence.atlassian.com/x/iqyBMg), or you can [add, commit,](https://confluence.atlassian.com/x/8QhODQ) and [push from the command line](https://confluence.atlassian.com/x/NQ0zDQ).
+- [Installation Guide](docs/INSTALL.md) - Step-by-step setup instructions
+- [Configuration Reference](docs/CONFIG.md) - All configuration options explained
+- [MasterPortal Setup](docs/MASTERPORTAL_SETUP.md) - Required MasterPortal configuration changes
+- [Migration Guide](docs/MIGRATION.md) - Migrating from MasterPortal 2.x version
+
+## Configuration Example
+
+```json
+{
+  "secondaryMenu": {
+    "sections": [
+      [
+        {
+          "type": "wahlRaumFinder",
+          "name": "WahlRaumFinder",
+          "addressLayerId": "adressen",
+          "pollingStationLayerId": "wahlraeume",
+          "pollingStationAttribute": "wbz"
+        }
+      ]
+    ]
+  }
+}
+```
+
+See [examples/config.json.example](examples/config.json.example) for complete configuration.
+
+## Activation Options
+
+The addon can be activated in three ways:
+
+1. **URL Parameter** (Recommended)
+   ```
+   https://your-portal.com/?isinitopen=wahlRaumFinder
+   ```
+
+2. **Manual Activation**
+   - User clicks the tool in the menu
+
+3. **Auto-Activation** (Optional)
+   - Requires core patch (see [patches/](patches/))
+   - Set `"active": true` in config.json
+
+## Data Structure
+
+Your data layers must follow this structure:
+
+**Address Layer:**
+```json
+{
+  "type": "Feature",
+  "properties": {
+    "address": "Example Street 123",
+    "kommunalwahl": "001-01"
+  },
+  "geometry": { ... }
+}
+```
+
+**Polling Station Layer:**
+```json
+{
+  "type": "Feature",
+  "properties": {
+    "wbz": "001-01",
+    "wahllokal_name": "School Gym",
+    "stranam": "School Street 1",
+    "plz": "80331",
+    "ort": "Munich"
+  },
+  "geometry": { ... }
+}
+```
+
+## Development
+
+```bash
+# Install dependencies (in your MasterPortal root)
+npm install
+
+# Start development server
+npm start
+
+# Build for production
+npm run build
+```
+
+## Browser Support
+
+- Chrome/Edge (Chromium) - Latest 2 versions
+- Firefox - Latest 2 versions
+- Safari - Latest 2 versions
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Attribution
+
+This addon is based on the [WahlRaumFinder](https://bitbucket.org/Digitaler_Zwilling_Muenchen/addons/src/wahlraumfinder/) addon originally developed for the Munich Geoportal. See [NOTICE.md](NOTICE.md) for full attribution.
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/riolties/wahlraumfinder-mp3/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/riolties/wahlraumfinder-mp3/discussions)
+- **MasterPortal Documentation**: https://bitbucket.org/geowerkstatt-hamburg/masterportal/
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history and changes.
+
+## Acknowledgments
+
+- Original WahlRaumFinder developers at Munich Geoportal
+- MasterPortal team at Geowerkstatt Hamburg
+- OpenLayers and Vue.js communities
