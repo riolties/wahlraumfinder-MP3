@@ -207,10 +207,16 @@ Add these to your `services.json`:
   {
     "id": "adressen",
     "name": "Addresses",
-    "typ": "GeoJSON",
-    "url": "https://example.com/addresses.json",
+    "typ": "WMS",
+    "url": "https://your-geoserver.example.com/geoserver/wms",
+    "layers": "your_workspace:address_layer",
+    "format": "image/png",
+    "version": "1.1.1",
+    "transparent": true,
     "gfiAttributes": "showAll",
     "gfiTheme": "default",
+    "gfiFormat": "text/xml",
+    "featureCount": 1,
     "layerAttribution": "Your Data Source",
     "datasets": []
   },
@@ -333,29 +339,27 @@ Add these to your `style_v3.json`:
 
 ## Data Structure Requirements
 
-### Address Layer GeoJSON
-```json
-{
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "address": "Example Street 123",
-        "kommunalwahl": "001-01"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [11.5754, 48.1371]
-      }
-    }
-  ]
-}
-```
+### Address Layer (WMS)
 
-**Required properties**:
-- Attribute matching `addressLayerPollingStationAttribute` (e.g., `"kommunalwahl"`)
-- This value must match a polling station's ID
+The address layer must be a **WMS service** that supports **GetFeatureInfo**. The addon does not render addresses as a browsable layer — instead it queries the WMS via GFI at a given coordinate to retrieve the polling station assignment attribute (e.g. `kommunalwahl`).
+
+**Required WMS capabilities**:
+- GetMap (for rendering)
+- GetFeatureInfo with `text/xml` response format
+
+**Required feature attribute**:
+- The attribute named in `addressLayerPollingStationAttribute` (e.g. `"kommunalwahl"`) must be present in the GFI response and its value must match the polling station's ID attribute
+
+**Example GFI response (text/xml)**:
+```xml
+<wfs:FeatureCollection>
+  <wfs:member>
+    <gsm:wahlraumfinder_adressen>
+      <gsm:kommunalwahl>001-01</gsm:kommunalwahl>
+    </gsm:wahlraumfinder_adressen>
+  </wfs:member>
+</wfs:FeatureCollection>
+```
 
 ### Polling Station Layer GeoJSON
 ```json

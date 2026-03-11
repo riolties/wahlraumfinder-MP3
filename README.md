@@ -33,7 +33,7 @@ This is a MasterPortal 3.x compatible version of the WahlRaumFinder addon origin
 - **MasterPortal**: Version 3.15.0 or higher
 - **Node.js**: Version 14+ (for development)
 - **Data Layers**:
-  - Address layer (GeoJSON) with polling station assignments
+  - Address layer (WMS with GetFeatureInfo) with polling station assignments
   - Polling station layer (GeoJSON) with station details
   - Optional: Electoral district layer (GeoJSON)
 
@@ -108,15 +108,18 @@ The addon can be activated in three ways:
 
 Your data layers must follow this structure:
 
-**Address Layer:**
+**Address Layer (WMS):**
+
+The address layer must be a WMS service that supports GetFeatureInfo. The addon queries it via GFI to retrieve the polling station assignment attribute (e.g. `kommunalwahl`) for a given coordinate.
+
 ```json
 {
-  "type": "Feature",
-  "properties": {
-    "address": "Example Street 123",
-    "kommunalwahl": "001-01"
-  },
-  "geometry": { ... }
+  "id": "adressen",
+  "typ": "WMS",
+  "url": "https://your-geoserver.example.com/geoserver/wms",
+  "layers": "your_workspace:address_layer",
+  "gfiFormat": "text/xml",
+  "gfiAttributes": "showAll"
 }
 ```
 

@@ -5,10 +5,16 @@
   {
     "id": "adressen",
     "name": "Addresses",
-    "typ": "GeoJSON",
-    "url": "YOUR_ADDRESS_DATA_URL",
+    "typ": "WMS",
+    "url": "https://your-geoserver.example.com/geoserver/wms",
+    "layers": "your_workspace:address_layer",
+    "format": "image/png",
+    "version": "1.1.1",
+    "transparent": true,
     "gfiAttributes": "showAll",
     "gfiTheme": "default",
+    "gfiFormat": "text/xml",
+    "featureCount": 1,
     "layerAttribution": "Your Attribution",
     "legendURL": "",
     "datasets": []
@@ -46,7 +52,7 @@
   },
   {
     "// NOTES": {
-      "adressen": "Replace url with your address data endpoint. Must include attribute specified in addressLayerPollingStationAttribute",
+      "adressen": "WMS service with GetFeatureInfo (text/xml) support. Must expose the attribute specified in addressLayerPollingStationAttribute via GFI response.",
       "wahlraeume": "Replace url with your polling station data. Adjust gfiAttributes to match your data structure",
       "wahlkreise": "Optional layer for electoral districts. Adjust gfiAttributes as needed"
     }

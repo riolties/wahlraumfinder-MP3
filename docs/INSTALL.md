@@ -7,7 +7,8 @@ This guide will walk you through installing the WahlRaumFinder addon in your Mas
 - MasterPortal 3.15.0 or higher installed and working
 - Node.js 14+ and npm
 - Access to your portal's configuration files
-- GeoJSON data for addresses and polling stations
+- WMS service with GetFeatureInfo support for address data
+- GeoJSON data for polling stations and (optionally) electoral districts
 
 ## Installation Steps
 
@@ -128,10 +129,16 @@ Add your data services to `portal/[your-portal]/resources/services.json`:
   {
     "id": "adressen",
     "name": "Addresses",
-    "typ": "GeoJSON",
-    "url": "YOUR_ADDRESS_DATA_URL",
+    "typ": "WMS",
+    "url": "https://your-geoserver.example.com/geoserver/wms",
+    "layers": "your_workspace:address_layer",
+    "format": "image/png",
+    "version": "1.1.1",
+    "transparent": true,
     "gfiAttributes": "showAll",
-    "gfiTheme": "default"
+    "gfiTheme": "default",
+    "gfiFormat": "text/xml",
+    "featureCount": 1
   },
   {
     "id": "wahlraeume",
