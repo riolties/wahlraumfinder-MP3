@@ -304,6 +304,21 @@ export default {
             await this.processPollingStation(addressString, addressCoord, pollingStationFeature, pollingStationId);
         },
         /**
+         * Get a representative [x, y] coordinate from any geometry type.
+         * For Point geometries, returns the coordinate directly.
+         * For Polygon, MultiPolygon, LineString, etc., returns the center of the extent.
+         * This handles the case where polling station features are MultiPolygon geometries.
+         * @param {import("ol/geom/Geometry").default} geom - OpenLayers geometry
+         * @returns {Array<number>} [x, y] coordinate
+         */
+        getGeometryCentroid (geom) {
+            if (geom.getType() === "Point") {
+                return geom.getCoordinates();
+            }
+            const extent = geom.getExtent();
+            return [(extent[0] + extent[2]) / 2, (extent[1] + extent[3]) / 2];
+        },
+        /**
          * Process and display the polling station information
          * @param {string} addressString - Address name
          * @param {Array<number>} addressCoord - Address coordinates
@@ -312,7 +327,7 @@ export default {
          * @returns {Promise<void>}
          */
         async processPollingStation (addressString, addressCoord, pollingStationFeature, pollingStationId) {
-            const featureCoord = pollingStationFeature.getGeometry().getCoordinates();
+            const featureCoord = this.getGeometryCentroid(pollingStationFeature.getGeometry());
             const extent = this.createExtent(addressCoord, featureCoord, 100);
             const distanceString = this.calculateDistanceString(addressCoord, featureCoord);
             const featureValues = this.prepareFeature(pollingStationFeature);
@@ -453,7 +468,7 @@ export default {
 
             features.forEach(feature => {
                 const geom = feature.getGeometry();
-                const featureCoord = geom.getCoordinates();
+                const featureCoord = this.getGeometryCentroid(geom);
 
                 // Calculate distance
                 const dx = coordinate[0] - featureCoord[0];
