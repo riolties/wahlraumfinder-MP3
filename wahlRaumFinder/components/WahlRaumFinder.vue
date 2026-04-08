@@ -23,7 +23,8 @@ export default {
         return {
             hoverOverlay: null,
             pointerMoveListener: null,
-            unsubscribeAction: null
+            unsubscribeAction: null,
+            selectedAddress: ""
         };
     },
     computed: {
@@ -45,7 +46,15 @@ export default {
                    this.$store.state.Maps?.markerPoint?.label ||
                    this.$store.state.Modules?.MapMarker?.label ||
                    this.$store.state.MapMarker?.label;
-        }
+        },
+        address: {
+          get () {
+            return this.selectedAddress;
+            },
+          set (value) {
+            this.selectedAddress = value;
+          }
+      }
     },
     /**
      * Put initialize here if mounting occurs after config parsing
@@ -127,9 +136,7 @@ export default {
                             console.log("WahlRaumFinder: SearchBar placed marker at:", coordinate);
 
                             // Get the search input value as the address name
-                            const addressName = this.$store.state.Modules?.SearchBar?.currentSearchInputValue ||
-                                               this.$store.state.SearchBar?.searchInput ||
-                                               "Gesuchte Adresse";
+                            const addressName = this.address;
 
                             const hit = {
                                 name: addressName,
@@ -560,6 +567,19 @@ export default {
 
             return gfiUrl;
         },
+
+      /**
+       * Extracts the value of the `gsm_wfs:address` element from a given XML string.
+       *
+       * @param {string} xmlString - The XML string containing the address information.
+       * @returns {string} The extracted address text, or an empty string if the element is not found.
+       */
+       extractAddress (xmlString) {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+          const addressNode = xmlDoc.getElementsByTagName("gsm_wfs:address")[0];
+          return addressNode ? addressNode.textContent : "";
+        },
         /**
          * Fetches address feature from WFS service asynchronously.
          * Uses fetch API instead of synchronous XMLHttpRequest to prevent UI blocking.
@@ -576,6 +596,8 @@ export default {
                     const text = await response.text();
                     const wfsReader = new WFS();
                     const features = wfsReader.readFeatures(text);
+
+                    this.address = this.extractAddress(text);
 
                     if (features && features.length > 0) {
                         return features[0];
@@ -812,7 +834,7 @@ export default {
                             <td class="bold">
                                 Adresse:
                             </td>
-                            <td>{{ addressString }}</td>
+                            <td>{{ address }}</td>
                         </tr>
                         <tr>
                             <td class="bold">
