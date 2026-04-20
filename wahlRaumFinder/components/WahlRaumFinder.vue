@@ -276,12 +276,17 @@ export default {
             }
 
             console.log("WahlRaumFinder: Querying address layer:", gfiUrl);
-            const addressFeature = await this.getAddressFeature(gfiUrl);
+            const addressResult = await this.getAddressFeature(gfiUrl);
 
-            if (!addressFeature) {
+            if (!addressResult) {
                 console.error("WahlRaumFinder: No address feature found in WMS response");
                 this.showError();
                 return;
+            }
+
+            const {feature: addressFeature, address: extractedAddress} = addressResult;
+            if (extractedAddress) {
+                addressString = extractedAddress;
             }
 
             const pollingStationId = addressFeature.get(this.addressLayerPollingStationAttribute);
@@ -561,11 +566,23 @@ export default {
             return gfiUrl;
         },
         /**
+         * Extracts the address string from a WFS XML response.
+         * The gsm_wfs:address element is specific to the Munich WMS/WFS service.
+         * @param {string} xmlString - Raw XML response text
+         * @returns {string} Address text, or empty string if not found
+         */
+        extractAddress (xmlString) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+            const addressNode = xmlDoc.getElementsByTagName("gsm_wfs:address")[0];
+            return addressNode ? addressNode.textContent : "";
+        },
+        /**
          * Fetches address feature from WFS service asynchronously.
          * Uses fetch API instead of synchronous XMLHttpRequest to prevent UI blocking.
          * This resolves the "bitte langsam tippen" (please type slowly) performance issue.
          * @param {String} url - The WFS GetFeatureInfo URL
-         * @returns {Promise<Feature|null>} The address feature or null on error
+         * @returns {Promise<{feature: Feature, address: string}|null>}
          */
         async getAddressFeature (url) {
             const proxyUrl = getProxyUrl(url);
@@ -576,9 +593,10 @@ export default {
                     const text = await response.text();
                     const wfsReader = new WFS();
                     const features = wfsReader.readFeatures(text);
+                    const address = this.extractAddress(text);
 
                     if (features && features.length > 0) {
-                        return features[0];
+                        return {feature: features[0], address};
                     } else {
                         console.error("WahlRaumFinder: No features found in WFS response");
                         return null;

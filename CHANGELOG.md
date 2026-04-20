@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Fixed
+- **Address name display after search**: The UI was showing "Gesuchte Adresse" instead of the actual address after selecting a search result. Added `extractAddress()` to parse the `gsm_wfs:address` field from the WFS XML response; `getAddressFeature` now returns both the feature and the extracted address, and `mainProcess` uses it to override the fallback label. Addresses the problem reported in [#2](https://github.com/riolties/wahlraumfinder-MP3/pull/2).
 - **MultiPolygon support after address zoom**: Calling `.getCoordinates()` on `MultiPolygon` geometries (as used in polling station layers) returned a deeply nested array instead of an `[x, y]` point, causing a `TypeError: f.includes is not a function` in MasterPortal's `activateActions` and a `setAltitudeOnGeometry` warning. Added `getGeometryCentroid()` helper that extracts the extent center for non-Point geometries and updated `processPollingStation` and `findNearestPollingStation` to use it. Fixes [#1](https://github.com/riolties/wahlraumfinder-MP3/issues/1).
 
 ## [1.0.0-mp3] - 2026-02-01
